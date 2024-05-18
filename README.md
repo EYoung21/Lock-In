@@ -1,2 +1,2 @@
-# LockIn
+# Lock In
 A productivity app.
