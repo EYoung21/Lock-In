@@ -55,6 +55,8 @@ const App = () => {
   }, [isLockedIn]);
 
   const handlePressIn = () => {
+    if (isActionInProgress) return;
+    setIsActionInProgress(true);
     Animated.spring(scaleAnim, {
       toValue: 1.5,
       useNativeDriver: true,
@@ -62,8 +64,6 @@ const App = () => {
   };
 
   const handlePressOut = () => {
-    if (isActionInProgress) return;
-    setIsActionInProgress(true);
     Animated.spring(scaleAnim, {
       toValue: 1.75,
       useNativeDriver: true,
@@ -71,13 +71,13 @@ const App = () => {
 
     if (isLockedIn) { 
       // Change the image source to safe2 for 0.5 seconds, then to safe1
+      setIsLockedIn(false);
       setImageSource(require('./assets/safe1.png'));
       setButtonText('Lock In');
       setElapsedTime(Date.now() - lockInTime); // Calculate and store elapsed time
       setLockInTime(0); // Reset lock in time
       setTimeout(() => {
         setImageSource(require('./assets/safe2.png'));
-        setIsLockedIn(false);
       }, 500);
 
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
@@ -90,9 +90,9 @@ const App = () => {
 
     } else {
       // Change the image source to safe3 and text to "Lock Out"
+      setIsLockedIn(true);
       setImageSource(require('./assets/safe3.png'));
       setButtonText('Lock Out');
-      setIsLockedIn(true);
       setLockInTime(Date.now()); // Store lock in time
     }
     setTimeout(() => {
@@ -102,7 +102,7 @@ const App = () => {
   
   return (
     <View style={styles.container}>
-      <Text style={[styles.heading, styles.totalCurrency]}>Minutes: {totalCurrency}</Text>
+      <Text style={[styles.heading, styles.totalCurrency]}>Mula in Minutes: {totalCurrency}</Text>
       <Timer interval={timerInterval}/>
       <Image source={imageSource} style={styles.image} />
       <TouchableWithoutFeedback
