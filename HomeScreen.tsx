@@ -19,7 +19,7 @@ function Timer({ interval }) {
   
   return (
     <Text style={styles.timer}>
-      {hours}:{minutes}:{seconds},{centiseconds}
+      {hours}:{minutes}:{seconds}.{centiseconds}
     </Text>
   );
 }
