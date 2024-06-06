@@ -36,4 +36,4 @@ Lock In is licensed under the MIT License. See the [LICENSE](./LICENSE) file for
 
 ## Contact
 
-If you have any questions or feedback, you can reach out to the project maintainer at [your-email@example.com](mailto:your-email@example.com).
+If you have any questions or feedback, you can reach out to the project maintainer at [eliyoung4now@gmail.com](mailto:eliyoung4now@gmail.com).
