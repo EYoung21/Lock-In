@@ -5,19 +5,30 @@ import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import CustomizationScreen from './CustomizationScreen';
 import StatisticsScreen from './StatisticsScreen';
+import { StatusBar } from 'react-native';
 
 const Drawer = createDrawerNavigator();
 
+export const CollapseContext = React.createContext({
+  collapsed: false,
+  setCollapsed: (collapsed:boolean) => { collapsed },
+});
+
 const FullApp = () => {
+  const [collapsed, setCollapsed] = React.useState<boolean>(false);
   return (
+    <CollapseContext.Provider value={{ collapsed, setCollapsed }}>
+      <StatusBar hidden={collapsed} />
     <NavigationContainer>
       <Drawer.Navigator initialRouteName="Home">
-        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Home" component={HomeScreen} options={{headerShown: !collapsed}}/>
         <Drawer.Screen name="Settings" component={SettingsScreen} />
         <Drawer.Screen name="Customization" component={CustomizationScreen} />
         <Drawer.Screen name="Statistics" component={StatisticsScreen} />
       </Drawer.Navigator>
     </NavigationContainer>
+
+    </CollapseContext.Provider>
   );
 };
 

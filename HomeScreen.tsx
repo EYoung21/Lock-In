@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import moment from 'moment';
 import styles from './HomePageStyles'
+import {CollapseContext} from './FullApp'
+import SystemNavigationBar from 'react-native-system-navigation-bar';
 
-function Timer({ interval }) {
+function Timer({ interval } : {interval:number}) {
   const duration = moment.duration(interval);
   const centiseconds = Math.floor(duration.milliseconds() / 10).toString().padStart(2, '0');
   const seconds = duration.seconds().toString().padStart(2, '0');
@@ -29,6 +31,9 @@ const HomeScreen = () => {
   const [imageSource, setImageSource] = useState(require('./assets/safe2.png'));
   const [buttonText, setButtonText] = useState('Lock In');
   const [isLockedIn, setIsLockedIn] = useState(false);
+
+  const { collapsed, setCollapsed } = useContext(CollapseContext);
+  
   const [timerInterval, setTimerInterval] = useState(0);
   const [lockInTime, setLockInTime] = useState(0); // Variable to store lock in time
   const [elapsedTime, setElapsedTime] = useState(0); // Variable to store elapsed time
@@ -42,7 +47,7 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    let timer;
+    let timer:any;
     if (isLockedIn) {
       timer = setInterval(() => {
         setTimerInterval(prevInterval => prevInterval + 10); // Increment the timer interval every 10 milliseconds
@@ -72,6 +77,8 @@ const HomeScreen = () => {
     if (isLockedIn) { 
       // Change the image source to safe2 for 0.5 seconds, then to safe1
       setIsLockedIn(false);
+      setCollapsed(false);
+      SystemNavigationBar.navigationShow();
       setImageSource(require('./assets/safe1.png'));
       setButtonText('Lock In');
       setElapsedTime(Date.now() - lockInTime); // Calculate and store elapsed time
@@ -91,6 +98,8 @@ const HomeScreen = () => {
     } else {
       // Change the image source to safe3 and text to "Lock Out"
       setIsLockedIn(true);
+      setCollapsed(true);
+      SystemNavigationBar.navigationHide();
       setImageSource(require('./assets/safe3.png'));
       setButtonText('Lock Out');
       setLockInTime(Date.now()); // Store lock in time
@@ -100,7 +109,7 @@ const HomeScreen = () => {
     }, 1000); // Adjust the timeout as needed to match the duration of the animation or action
   };
   
-  const getImageStyle = (source) => {
+  const getImageStyle = (source:any) => {
     if (source === require('./assets/safe1.png') || source === require('./assets/safe2.png')) {
       return styles.image2;
     }
