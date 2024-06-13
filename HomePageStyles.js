@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
       position: 'absolute',
       top: 20,  // Adjust as needed for vertical positioning
       right: 20,  // Adjust as needed for horizontal positioning
-      color: '#FFD700',
+      color: '#85bb65',
       fontSize: 16,
       fontWeight: 'bold',
     },
