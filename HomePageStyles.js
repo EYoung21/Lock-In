@@ -4,7 +4,7 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#0d0d0d',
+      backgroundColor: '#FFFFFF',
       paddingHorizontal: 20,
     },
     heading: {
@@ -26,34 +26,26 @@ const styles = StyleSheet.create({
       marginLeft: 30,
     },
     button: {
-      backgroundColor: '#00008B',
+      backgroundColor: '#0d0d0d',
       padding: 10,
-      borderRadius: 5,
+      borderRadius: 45,  // Adjust this value to make the button circular
       borderWidth: 2,  // Adjust the width of the border as needed
-      borderColor: '#006EE6',  // Specify the color of the border
+      borderColor: '#2F4F4F',  // Specify the color of the border
       zIndex: 1,
       marginTop: 5,
+      width: 90,  // Set the width of the button
+      height: 90,  // Set the height of the button
+      justifyContent: 'center',  // Center the text within the button
+      alignItems: 'center',  // Center the text within the button
+      marginTop: 50,
     },
     buttonText: {
       color: '#fff',
       fontSize: 16,
       fontWeight: 'bold',
     },
-    circle: {
-      position: 'absolute',
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      borderWidth: 5,
-      borderColor: '#FFD700',
-      zIndex: 0,
-      top: '50%',       // Center vertically
-      left: '50%',      // Center horizontally
-      marginTop: -80,   // Adjust for half the height of the circle
-      marginLeft: -50,  // Adjust for half the width of the circle
-    },
     timer: {
-      color: '#FFFFFF',
+      color: '#0d0d0d',
       fontSize: 60,
       fontWeight: '200',
     },
