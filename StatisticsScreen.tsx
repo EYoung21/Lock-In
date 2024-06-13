@@ -7,7 +7,7 @@ const StatisticsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Total time locked in: {totalElapsedTime} minutes</Text>
+      <Text style={styles.text}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes</Text>
     </View>
   );
 };
