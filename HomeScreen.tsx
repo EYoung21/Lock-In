@@ -5,18 +5,22 @@ import {
   Image,
   TouchableWithoutFeedback,
   Animated,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
 } from 'react-native';
 import moment from 'moment';
 import styles from './HomePageStyles';
 import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function Timer({ interval } : {interval:number}) {
+// Define the getTimerColor function outside of the component
+const getTimerColor = (backgroundPalette: string) => {
+  if (backgroundPalette === '#000000') {
+    return '#FFFFFF';
+  }
+  return '#0d0d0d'; // Default color if the background is not black
+};
+
+function Timer({ interval, color }: { interval: number, color: string }) {
   const duration = moment.duration(interval);
   const centiseconds = Math.floor(duration.milliseconds() / 10).toString().padStart(2, '0');
   const seconds = duration.seconds().toString().padStart(2, '0');
@@ -24,7 +28,7 @@ function Timer({ interval } : {interval:number}) {
   const hours = Math.floor(duration.asHours()).toString().padStart(2, '0');
 
   return (
-    <Text style={styles.timer}>
+    <Text style={[styles.timer, { color }]}>
       {hours}:{minutes}:{seconds}.{centiseconds}
     </Text>
   );
@@ -37,22 +41,14 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder } = useContext(TotalElapsedContext);
   const [timerInterval, setTimerInterval] = useState(0);
   const [lockInTime, setLockInTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
 
-  //   useEffect(() => {
-  //   setTotalCurrency(50000);
-  // }, []);
-
-  // useEffect(() => {
-  //   setTotalElapsedTime(0);
-  // }, []);
-
   useEffect(() => {
-    let timer:any;
+    let timer: any;
     if (isLockedIn) {
       timer = setInterval(() => {
         setTimerInterval((prevInterval) => prevInterval + 10);
@@ -107,7 +103,7 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const getImageStyle = (source:any) => {
+  const getImageStyle = (source: any) => {
     if (source === require('./assets/safe1.png') || source === require('./assets/safe2.png')) {
       return styles.image2;
     }
@@ -117,10 +113,17 @@ const HomeScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency.toFixed(2)}</Text>
-      <Timer interval={timerInterval} />
+      <Timer interval={timerInterval} color={getTimerColor(backgroundColor)} />
       <Image source={imageSource} style={getImageStyle(imageSource)} />
       <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
-        <Animated.View style={[styles.button, { transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View style={[
+          styles.button, 
+          { 
+            transform: [{ scale: scaleAnim }], 
+            backgroundColor: buttonColor, 
+            borderColor: buttonBorder
+          }
+        ]}>
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Animated.View>
       </TouchableWithoutFeedback>
