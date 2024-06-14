@@ -137,7 +137,7 @@ const HomeScreen = () => {
       return styles.image4;
     }
     else if (source === require('./assets/safe23.png')) {
-      return styles.image;
+      return styles.image14;
     }
     else if (source === require('./assets/safe33.png')) {
       return styles.image6;
@@ -155,13 +155,13 @@ const HomeScreen = () => {
       return styles.image10;
     }
     else if (source === require('./assets/safe53.png')) {
-      return styles.image10;
-    }
-    else if (source === require('./assets/safe51.png')) {
       return styles.image11;
     }
-    else if (source === require('./assets/safe52.png')) {
+    else if (source === require('./assets/safe51.png')) {
       return styles.image12;
+    }
+    else if (source === require('./assets/safe52.png')) {
+      return styles.image13;
     }
   };
 
