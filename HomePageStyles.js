@@ -19,6 +19,13 @@ const styles = StyleSheet.create({
       resizeMode: 'contain',
       marginBottom: 20,
     },
+    image1: {
+      width: 200,
+      height: 200,
+      resizeMode: 'contain',
+      marginBottom: 20,
+      marginTop: 10,
+    },
     image2: {
       width: 220,
       height: 220,
@@ -80,7 +87,7 @@ const styles = StyleSheet.create({
       height: 250,
       resizeMode: 'contain',
       marginBottom: 20,
-      marginRight: 24.5,
+      marginRight: 14,
     },
     image11: {
       width: 250,
@@ -97,11 +104,11 @@ const styles = StyleSheet.create({
       marginRight: 30,
     },
     image13: {
-      width: 250,
-      height: 250,
+      width: 243,
+      height: 243,
       resizeMode: 'contain',
       marginBottom: 23,
-      marginLeft: 12.5,
+      marginLeft: 3,
     },
     image14: {
       width: 200,
