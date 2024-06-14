@@ -5,6 +5,7 @@ import {
   Image,
   TouchableWithoutFeedback,
   Animated,
+  SafeAreaView,
 } from 'react-native';
 import moment from 'moment';
 import styles from './HomePageStyles';
@@ -166,7 +167,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency.toFixed(2)}</Text>
       <Timer interval={timerInterval} color={getTimerColor(backgroundColor)} />
       <Image source={imageSource} style={getImageStyle(imageSource)} />
@@ -182,7 +183,7 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Animated.View>
       </TouchableWithoutFeedback>
-    </View>
+    </SafeAreaView>
   );
 };
 
