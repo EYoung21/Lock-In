@@ -115,9 +115,9 @@ const StatisticsScreen = () => {
           <Button title="Sign in with Google" onPress={signIn} />
         )}
       </View>
+      <Text style={styles.headerText}>Weekly Statistics</Text>
       <ScrollView horizontal>
         <View>
-          <Text style={styles.headerText}>Weekly Statistics</Text>
           <View style={styles.table}>
             <View style={styles.tableRow}>
               <Text style={styles.headerCell}>Week</Text>
