@@ -30,15 +30,12 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, dailyEntries, setDailyEntries, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
   const [stopwatchStart, setStopwatchStart] = useState(false);
   const [stopwatchReset, setStopwatchReset] = useState(false);
   const [lockInTime, setLockInTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
-
-  // setTotalCurrency(500000);
-  // setTotalElapsedTime(500000);
 
   useEffect(() => {
     setImageSource(getSafeImage(safe, 'image2'));
@@ -49,8 +46,22 @@ const HomeScreen = () => {
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
       setTotalElapsedTime((prevTime: number) => prevTime + elapsedTimeInMinutes);
       setTotalCurrency((prevCurrency: number) => prevCurrency + elapsedTimeInMinutes);
+      updateDailyEntries(elapsedTimeInMinutes);
     }
   }, [elapsedTime]);
+
+  const updateDailyEntries = (minutes: number) => {
+    const today = moment().format('YYYY-MM-DD');
+    setDailyEntries((prevEntries: any) => {
+      const newEntries = { ...prevEntries };
+      if (newEntries[today]) {
+        newEntries[today] += minutes;
+      } else {
+        newEntries[today] = minutes;
+      }
+      return newEntries;
+    });
+  };
 
   const handlePressIn = () => {
     if (isActionInProgress) return;
@@ -94,7 +105,7 @@ const HomeScreen = () => {
       setStopwatchReset(true);
       setTimeout(() => {
         setImageSource(getSafeImage(safe, 'image2'));
-      }, 625);
+      }, 700);
     } else {
       setIsLockedIn(true);
       setCollapsed(true);

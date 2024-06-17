@@ -84,7 +84,7 @@ const customizations = {
 const CustomizationScreen = () => {
   const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
   const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']); //sets default background
-  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['0d0d0d']); //sets default button
+  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#0d0d0d']); //sets default button
   const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
   useEffect(() => {
@@ -130,9 +130,9 @@ const CustomizationScreen = () => {
         const safes = await AsyncStorage.getItem('purchasedSafes');
         if (safes) {
           const parsedSafes = JSON.parse(safes);
-          setPurchasedSafes([...parsedSafes, '#2DSafe']);
+          setPurchasedSafes([...parsedSafes, '2DSafe']);
         } else {
-          await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['#2DSafe']));
+          await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['2DSafe']));
         }
       } catch (error) {
         console.error('Failed to load purchased safes from storage', error);
@@ -143,7 +143,7 @@ const CustomizationScreen = () => {
   }, []);
 
   const handlePurchase = async (item: CustomizationItem) => {
-    if (totalCurrency >= item.cost || purchasedSafes.includes(item.color)) {
+    if (totalCurrency >= item.cost || purchasedColors.includes(item.color)) {
       if (!purchasedColors.includes(item.color)) {
         setTotalCurrency(totalCurrency - item.cost);
         const newPurchasedColors = [...purchasedColors, item.color];
