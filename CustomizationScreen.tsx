@@ -50,26 +50,26 @@ const customizations = {
   ],
 
   buttonColors: [
-    { color: '#808080', border: '#696969', cost: 60, name: 'Gray' },
-    { color: '#A52A2A', border: '#8B4513', cost: 120, name: 'Brown' },
-    { color: '#000000', border: '#333333', cost: 180, name: 'Black' },
-    { color: '#FFFF00', border: '#FFD700', cost: 240, name: 'Yellow' },
-    { color: '#0000FF', border: '#0000CD', cost: 300, name: 'Blue' },
-    { color: '#FF0000', border: '#B22222', cost: 360, name: 'Red' },
-    { color: '#FFA500', border: '#FF8C00', cost: 420, name: 'Orange' },
-    { color: '#800080', border: '#4B0082', cost: 480, name: 'Purple' },
-    { color: '#008000', border: '#006400', cost: 540, name: 'Green' },
-    { color: '#FFBF00', border: '#FFBF00', cost: 600, name: 'Amber' },
-    { color: '#E34234', border: '#CD3700', cost: 660, name: 'Vermilion' },
-    { color: '#7FFF00', border: '#76EE00', cost: 720, name: 'Chartreuse' },
-    { color: '#FF00FF', border: '#EE82EE', cost: 780, name: 'Magenta' },
-    { color: '#8F00FF', border: '#7B68EE', cost: 840, name: 'Violet' },
-    { color: '#008080', border: '#006666', cost: 900, name: 'Teal' },
-    { color: '#FFC0CB', border: '#FF69B4', cost: 960, name: 'Pink' },
-    { color: '#00FFFF', border: '#00CED1', cost: 1020, name: 'Cyan' },
-    { color: '#00FF00', border: '#32CD32', cost: 1080, name: 'Lime' },
-    { color: '#C0C0C0', border: '#A9A9A9', cost: 1140, name: 'Silver' },
-    { color: '#FFD700', border: '#FFA500', cost: 1200, name: 'Gold' },
+    { color: '#808080', border: '#696969', cost: 0, name: 'Gray' },
+    { color: '#A52A2A', border: '#8B4513', cost: 60, name: 'Brown' },
+    { color: '#000000', border: '#333333', cost: 120, name: 'Black' },
+    { color: '#FFFF00', border: '#FFD700', cost: 180, name: 'Yellow' },
+    { color: '#0000FF', border: '#0000CD', cost: 240, name: 'Blue' },
+    { color: '#FF0000', border: '#B22222', cost: 300, name: 'Red' },
+    { color: '#FFA500', border: '#FF8C00', cost: 360, name: 'Orange' },
+    { color: '#800080', border: '#4B0082', cost: 420, name: 'Purple' },
+    { color: '#008000', border: '#006400', cost: 480, name: 'Green' },
+    { color: '#FFBF00', border: '#FFBF00', cost: 540, name: 'Amber' },
+    { color: '#E34234', border: '#CD3700', cost: 600, name: 'Vermilion' },
+    { color: '#7FFF00', border: '#76EE00', cost: 660, name: 'Chartreuse' },
+    { color: '#FF00FF', border: '#EE82EE', cost: 720, name: 'Magenta' },
+    { color: '#8F00FF', border: '#7B68EE', cost: 780, name: 'Violet' },
+    { color: '#008080', border: '#006666', cost: 840, name: 'Teal' },
+    { color: '#FFC0CB', border: '#FF69B4', cost: 900, name: 'Pink' },
+    { color: '#00FFFF', border: '#00CED1', cost: 960, name: 'Cyan' },
+    { color: '#00FF00', border: '#32CD32', cost: 1020, name: 'Lime' },
+    { color: '#C0C0C0', border: '#A9A9A9', cost: 1080, name: 'Silver' },
+    { color: '#FFD700', border: '#FFA500', cost: 1140, name: 'Gold' },
   ],
   safes: [
     { id: '2DSafe', image1: require('./assets/safe1.png'), image2: require('./assets/safe2.png'), image3: require('./assets/safe3.png'), cost: 400 },
@@ -84,7 +84,7 @@ const customizations = {
 const CustomizationScreen = () => {
   const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
   const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']); //sets default background
-  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#0d0d0d']); //sets default button
+  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#808080']); //sets default button
   const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
   useEffect(() => {
@@ -111,9 +111,9 @@ const CustomizationScreen = () => {
         const buttons = await AsyncStorage.getItem('purchasedButtons');
         if (buttons) {
           const parsedButtons = JSON.parse(buttons);
-          setPurchasedButtons([...parsedButtons, '#0d0d0d']);
+          setPurchasedButtons([...parsedButtons, '#808080']);
         } else {
-          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#0d0d0d']));
+          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#808080']));
         }
       } catch (error) {
         console.error('Failed to load purchased buttons from storage', error);
@@ -187,50 +187,60 @@ const CustomizationScreen = () => {
     <View style={styles.container}>
       <Text style={styles.currency}>Total Currency: {totalCurrency.toFixed(2)}</Text>
       
-      <Text style={styles.subtitle}>Background</Text>
-      <FlatList
-        data={customizations.backgrounds}
-        keyExtractor={(item) => item.color}
-        horizontal
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.item, { backgroundColor: item.color }]}
-            onPress={() => handlePurchase(item)}
-          >
-            {!purchasedColors.includes(item.color) && <Text style={styles.cost}>Cost: {item.cost} min</Text>}
-          </TouchableOpacity>
-        )}
-      />
-
       <Text style={styles.subtitle}>Button</Text>
       <FlatList
         data={customizations.buttonColors}
         keyExtractor={(item) => item.color}
         horizontal
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: item.color }, { borderColor: item.border }]}
-            onPress={() => handlePurchaseButton(item)}
-          >
-            {!purchasedButtons.includes(item.color) && <Text style={styles.cost}>Cost: {item.cost} min</Text>}
-          </TouchableOpacity>
+          <View style={styles.itemContainer}>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: item.color }, { borderColor: item.border }]}
+              onPress={() => handlePurchaseButton(item)}
+            />
+            {!purchasedButtons.includes(item.color) && (
+              <Text style={styles.cost}>Cost: {item.cost} min</Text>
+            )}
+          </View>
         )}
       />
-      
+  
+      <Text style={styles.subtitle}>Background</Text>
+      <FlatList
+        data={customizations.backgrounds}
+        keyExtractor={(item) => item.color}
+        horizontal
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <TouchableOpacity
+              style={[styles.item, { backgroundColor: item.color }]}
+              onPress={() => handlePurchase(item)}
+            />
+            {!purchasedColors.includes(item.color) && (
+              <Text style={styles.cost}>Cost: {item.cost} min</Text>
+            )}
+          </View>
+        )}
+      />
+  
       <Text style={styles.subtitle}>Safe</Text>
       <FlatList
         data={customizations.safes}
         keyExtractor={(item) => item.id}
         horizontal
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => handlePurchaseSafe(item)}>
-            <Image source={item.image3} style={styles.safeImage} />
-            {!purchasedSafes.includes(item.id) && <Text style={[styles.cost, { color: '#000000' }]}>Cost: {item.cost} min</Text>}
-          </TouchableOpacity>
+          <View style={styles.itemContainer}>
+            <TouchableOpacity style={styles.item} onPress={() => handlePurchaseSafe(item)}>
+              <Image source={item.image3} style={styles.safeImage} />
+            </TouchableOpacity>
+            {!purchasedSafes.includes(item.id) && (
+              <Text style={[styles.cost, { color: '#000000' }]}>Cost: {item.cost} min</Text>
+            )}
+          </View>
         )}
       />
     </View>
-  );
+  );  
 };
 
 const styles = StyleSheet.create({
@@ -242,7 +252,7 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: 18,
     marginBottom: 16,
-    color: '#85bb65',  // Set text color to black
+    color: '#85bb65',  // Set text color to green
     textAlign: 'center',  // Center the text
   },
   subtitle: {
@@ -251,6 +261,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#000000',  // Set text color to black
     textAlign: 'center',  // Center the text
+  },
+  itemContainer: {
+    alignItems: 'center',  // Center content horizontally
+    marginHorizontal: 10,  // Add some horizontal margin
   },
   item: {
     width: 100,
@@ -261,8 +275,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cost: {
-    color: '#fff',
+    color: '#0d0d0d',
     fontWeight: 'bold',
+    marginTop: 5,  // Add some margin to separate the text from the button/item
   },
   safeImage: {
     width: 80,
@@ -283,5 +298,7 @@ const styles = StyleSheet.create({
     margin: 12,
   },
 });
+
+
 
 export default CustomizationScreen;
