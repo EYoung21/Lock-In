@@ -1,0 +1,54 @@
+{
+    "project_info": {
+      "project_number": "293282385409",
+      "project_id": "lock-in-426700",
+      "storage_bucket": "lock-in-426700.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:293282385409:android:46a3290a0c338ada6d7a00",
+          "android_client_info": {
+            "package_name": "com.lockin"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "293282385409-n9qs2i56ec8al30ffj3gig31ma7g3r3l.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "com.lockin",
+              "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+            }
+          },
+          {
+            "client_id": "293282385409-sn1geg2beka1vnb7u3i28ejkju96aqo0.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyBBNcqK7nzhFGNWXJj6fq2KNjW_undSehg"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "293282385409-sn1geg2beka1vnb7u3i28ejkju96aqo0.apps.googleusercontent.com",
+                "client_type": 3
+              },
+              {
+                "client_id": "293282385409-oc9o89qm0s2iqheesvd073h0ddc60qga.apps.googleusercontent.com",
+                "client_type": 2,
+                "ios_info": {
+                  "bundle_id": "PRODUCT_BUNDLE_IDENTIFIER"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
