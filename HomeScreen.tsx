@@ -46,22 +46,11 @@ const showNotification = (title, message) => {
   });
 };
 
-const getTimerColor = (backgroundPalette: string) => {
+const getTimerColor = (backgroundPalette) => {
   if (backgroundPalette === '#000000') {
     return '#FFFFFF';
   }
   return '#0d0d0d';
-};
-
-type SafeImageKey = 'image1' | 'image2' | 'image3';
-
-const getCurrentRunningApp = async () => {
-  if (Platform.OS === 'ios') {
-    // Implement iOS logic here
-  } else {
-    // Implement Android logic here
-  }
-  return 'com.some.non.whitelisted.app';
 };
 
 const HomeScreen = () => {
@@ -85,29 +74,42 @@ const HomeScreen = () => {
   useEffect(() => {
     if (!isLockedIn) {
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
-      setTotalElapsedTime((prevTime: number) => prevTime + elapsedTimeInMinutes);
-      setTotalCurrency((prevCurrency: number) => prevCurrency + elapsedTimeInMinutes);
+      setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
+      setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
       updateDailyEntries(elapsedTimeInMinutes);
     }
   }, [elapsedTime]);
 
-  useEffect(() => {
-    const checkRunningApp = async () => {
-      if (!isLockedIn) return;
-      const currentApp = await getCurrentRunningApp();
-      if (!whitelistedApps.includes(currentApp)) {
-        showNotification('Lockout', 'You have been locked out for using a non-whitelisted app.');
-        handlePressOut();
-      }
-    };
 
-    const intervalId = setInterval(checkRunningApp, 1000);
-    return () => clearInterval(intervalId);
-  }, [isLockedIn, whitelistedApps]);
+    // Test notification on launch
+    useEffect(() => {
+      showNotification('Test Notification', 'This is a test notification triggered on launch.');
+    }, []);
 
-  const updateDailyEntries = (minutes: number) => {
+
+
+    //BELOW is a functiont that will check the current app periodically and lock out if it is blacklisted
+
+  //keep commented out until getCurrentRunningApp() is working, as otherwise it returns NULL and then it will always be locked out
+
+
+  // useEffect(() => {
+  //   const checkRunningApp = async () => {
+  //     if (!isLockedIn) return;
+  //     const currentApp = await getCurrentRunningApp();
+  //     if (!whitelistedApps.includes(currentApp)) {
+  //       showNotification('Lockout', 'You have been locked out for using a non-whitelisted app.');
+  //       handlePressOut();
+  //     }
+  //   };
+
+  //   const intervalId = setInterval(checkRunningApp, 1000);
+  //   return () => clearInterval(intervalId);
+  // }, [isLockedIn, whitelistedApps]);
+
+  const updateDailyEntries = (minutes) => {
     const today = moment().format('YYYY-MM-DD');
-    setDailyEntries((prevEntries: any) => {
+    setDailyEntries((prevEntries) => {
       const newEntries = { ...prevEntries };
       if (newEntries[today]) {
         newEntries[today] += minutes;
@@ -135,8 +137,8 @@ const HomeScreen = () => {
     { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
     { id: 'GoldenBars', image1: require('./assets/safe61.png'), image2: require('./assets/safe62.png'), image3: require('./assets/safe63.png'), cost: 2400 },
   ];
-  
-  const getSafeImage = (id:String, imageKey:SafeImageKey) => {
+
+  const getSafeImage = (id, imageKey) => {
     const safe = safes.find((safe) => safe.id === id);
     return safe ? safe[imageKey] : null;
   };
@@ -176,7 +178,7 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const getImageStyle = (source:any) => {
+  const getImageStyle = (source) => {
     if (source === require('./assets/safe1.png')) {
       return styles.image2;
     } else if (source === require('./assets/safe2.png')) {
