@@ -14,7 +14,7 @@ export const TotalElapsedProvider = ({ children }) => {
   const [safe, setSafe] = useState('2DSafe');
 
   // New state for whitelisted apps
-  const [whitelistedApps, setWhitelistedApps] = useState([]);
+  const [whitelistedApps, setWhitelistedApps] = useState(['com.lockin']); // Add "Lock In" to the whitelisted apps by default
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,7 +30,7 @@ export const TotalElapsedProvider = ({ children }) => {
 
         // Load whitelisted apps
         const storedWhitelistedApps = await AsyncStorage.getItem('whitelistedApps');
-        
+
         if (elapsedTime !== null) setTotalElapsedTime(parseFloat(elapsedTime));
         if (currency !== null) setTotalCurrency(parseFloat(currency));
         if (entries !== null) setDailyEntries(JSON.parse(entries));
@@ -38,7 +38,15 @@ export const TotalElapsedProvider = ({ children }) => {
         if (storedbuttonColor !== null) setButtonColor(storedbuttonColor);
         if (storedbuttonBorder !== null) setButtonBorder(storedbuttonBorder);
         if (storedSafe !== null) setSafe(storedSafe);
-        if (storedWhitelistedApps !== null) setWhitelistedApps(JSON.parse(storedWhitelistedApps));
+        if (storedWhitelistedApps !== null) {
+          const parsedWhitelistedApps = JSON.parse(storedWhitelistedApps);
+          if (!parsedWhitelistedApps.includes('com.lockin')) {
+            parsedWhitelistedApps.push('com.lockin');
+          }
+          setWhitelistedApps(parsedWhitelistedApps);
+        } else {
+          setWhitelistedApps(['com.lockin']);
+        }
       } catch (error) {
         console.error('Failed to load data from storage', error);
       }

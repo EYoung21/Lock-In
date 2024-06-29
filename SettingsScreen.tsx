@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 // import AppList from 'react-native-installed-apps'; // For iOS
 import { InstalledApps } from 'react-native-launcher-kit'; // For Android
 import { TotalElapsedContext } from './TotalElapsedContext';
+
+const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
 const SettingsScreen = () => {
   const { whitelistedApps, setWhitelistedApps } = useContext(TotalElapsedContext);
@@ -16,8 +18,11 @@ const SettingsScreen = () => {
           console.log('InstalledApps.getApps:', InstalledApps?.getApps);
           if (InstalledApps && typeof InstalledApps.getApps === 'function') {
             const apps = await InstalledApps.getApps();
-            console.log('Fetched apps:', apps);
-            setApps(apps.map(app => ({ name: app.label, id: app.packageName })));
+            const filteredApps = apps
+              .filter(app => app.packageName !== LOCK_IN_APP_ID)
+              .map(app => ({ name: app.label, id: app.packageName }));
+            console.log('Fetched apps:', filteredApps);
+            setApps(filteredApps);
           } else {
             console.error('InstalledApps is not correctly initialized or does not have getApps method.');
           }
@@ -28,8 +33,11 @@ const SettingsScreen = () => {
         //   console.log('AppList.getAll:', AppList?.getAll);
         //   if (AppList && typeof AppList.getAll === 'function') {
         //     AppList.getAll((apps) => {
-        //       console.log('Fetched apps:', apps);
-        //       setApps(apps.map(app => ({ name: app.app, id: app.appPath })));
+        //       const filteredApps = apps
+        //         .filter(app => app.appPath !== LOCK_IN_APP_ID)
+        //         .map(app => ({ name: app.app, id: app.appPath }));
+        //       console.log('Fetched apps:', filteredApps);
+        //       setApps(filteredApps);
         //     });
         //   } else {
         //     console.error('AppList is not correctly initialized or does not have getAll method.');
@@ -43,6 +51,13 @@ const SettingsScreen = () => {
     fetchApps();
   }, []);
 
+  useEffect(() => {
+    // Ensure "Lock In" is always whitelisted
+    if (!whitelistedApps.includes(LOCK_IN_APP_ID)) {
+      setWhitelistedApps(prevState => [...prevState, LOCK_IN_APP_ID]);
+    }
+  }, [whitelistedApps]);
+
   const toggleWhitelist = (appId: string) => {
     setWhitelistedApps(prevState =>
       prevState.includes(appId)
@@ -53,7 +68,7 @@ const SettingsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Settings Screen</Text>
+      <Text style={styles.text}>Whitelist Productive Apps!</Text>
       <FlatList
         data={apps}
         keyExtractor={item => item.id}
@@ -81,11 +96,12 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
+    color: '#000'
   },
   appItem: {
     padding: 10,
     margin: 5,
-    backgroundColor: '#fff',
+    backgroundColor: '#FF0000',
     borderWidth: 1,
     borderColor: '#ddd',
   },
@@ -94,6 +110,7 @@ const styles = StyleSheet.create({
   },
   appText: {
     fontSize: 16,
+    color: '#000', // Set the app name text color to black
   },
 });
 

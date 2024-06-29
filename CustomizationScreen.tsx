@@ -87,6 +87,33 @@ const CustomizationScreen = () => {
   const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#808080']); //sets default button
   const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
+  // Add this useEffect for resetting AsyncStorage for testing
+  useEffect(() => {
+    const resetAsyncStorage = async () => {
+      try {
+        await AsyncStorage.removeItem('purchasedColors');
+        await AsyncStorage.removeItem('purchasedButtons');
+        await AsyncStorage.removeItem('purchasedSafes');
+        await AsyncStorage.removeItem('backgroundColor');
+        await AsyncStorage.removeItem('buttonColor');
+        await AsyncStorage.removeItem('buttonBorder');
+        await AsyncStorage.removeItem('safe');
+        
+        // Optionally reset to default values if needed
+        await AsyncStorage.setItem('purchasedColors', JSON.stringify(['#FFFFFF']));
+        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#808080']));
+        await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['2DSafe']));
+        await AsyncStorage.setItem('backgroundColor', '#FFFFFF');
+        await AsyncStorage.setItem('buttonColor', '#808080');
+        await AsyncStorage.setItem('buttonBorder', '#696969');
+      } catch (error) {
+        console.error('Failed to reset AsyncStorage', error);
+      }
+    };
+
+    // resetAsyncStorage(); // Uncomment this line to reset AsyncStorage
+  }, []); // You can comment this useEffect out after testing
+
   useEffect(() => {
     const loadPurchasedColors = async () => {
       try {
@@ -194,15 +221,16 @@ const CustomizationScreen = () => {
         horizontal
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
+            {!purchasedButtons.includes(item.color) && (
+              <Text style={styles.cost}>Cost: {item.cost} min</Text>
+            )}
             <TouchableOpacity
               style={[styles.button, { backgroundColor: item.color }, { borderColor: item.border }]}
               onPress={() => handlePurchaseButton(item)}
             />
-            {!purchasedButtons.includes(item.color) && (
-              <Text style={styles.cost}>Cost: {item.cost} min</Text>
-            )}
           </View>
         )}
+        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
       />
   
       <Text style={styles.subtitle}>Background</Text>
@@ -212,15 +240,16 @@ const CustomizationScreen = () => {
         horizontal
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
+            {!purchasedColors.includes(item.color) && (
+              <Text style={styles.cost}>Cost: {item.cost} min</Text>
+            )}
             <TouchableOpacity
               style={[styles.item, { backgroundColor: item.color }]}
               onPress={() => handlePurchase(item)}
             />
-            {!purchasedColors.includes(item.color) && (
-              <Text style={styles.cost}>Cost: {item.cost} min</Text>
-            )}
           </View>
         )}
+        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
       />
   
       <Text style={styles.subtitle}>Safe</Text>
@@ -230,14 +259,15 @@ const CustomizationScreen = () => {
         horizontal
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
-            <TouchableOpacity style={styles.item} onPress={() => handlePurchaseSafe(item)}>
-              <Image source={item.image3} style={styles.safeImage} />
-            </TouchableOpacity>
             {!purchasedSafes.includes(item.id) && (
               <Text style={[styles.cost, { color: '#000000' }]}>Cost: {item.cost} min</Text>
             )}
+            <TouchableOpacity style={styles.item} onPress={() => handlePurchaseSafe(item)}>
+              <Image source={item.image3} style={styles.safeImage} />
+            </TouchableOpacity>
           </View>
         )}
+        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
       />
     </View>
   );  
@@ -277,7 +307,7 @@ const styles = StyleSheet.create({
   cost: {
     color: '#0d0d0d',
     fontWeight: 'bold',
-    marginTop: 5,  // Add some margin to separate the text from the button/item
+    marginBottom: 5,  // Adjust this value to separate the text from the button/item
   },
   safeImage: {
     width: 80,
@@ -290,15 +320,16 @@ const styles = StyleSheet.create({
     borderWidth: 3,  // Adjust the width of the border as needed
     borderColor: '#2F4F4F',  // Specify the color of the border
     zIndex: 1,
-    marginTop: 50,
+    marginTop: 5,  // Adjust this value to reduce the space between the cost description and the button
     width: 90,  // Set the width of the button
     height: 90,  // Set the height of the button
     justifyContent: 'center',  // Center the text within the button
     alignItems: 'center',  // Center the text within the button
     margin: 12,
   },
+  flatListContent: {
+    paddingBottom: 10, // Adjust this value to add some bottom padding to the FlatList
+  },
 });
-
-
 
 export default CustomizationScreen;
