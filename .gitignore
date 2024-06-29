@@ -75,3 +75,7 @@ yarn-error.log
 
 # Add .env files
 **/.env
+
+#add google-services api keys
+android/app/google-services.json.enc
+
