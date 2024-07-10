@@ -6,7 +6,7 @@ import moment from 'moment';
 import { GOOGLE_WEB_CLIENT_ID } from '@env';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
 import { scaleTime, scaleLinear } from 'd3-scale';
-import * as d3 from 'd3-shape';
+import * as d3Shape from 'd3-shape';
 import { Picker } from '@react-native-picker/picker';
 
 interface DailyEntries {
@@ -33,19 +33,16 @@ const StatisticsScreen: React.FC = () => {
   const [graphType, setGraphType] = useState<'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'>('daily');
 
   useEffect(() => {
-    // Generate test data for the past three years
     const generateTestData = () => {
       const testEntries: DailyEntries = {};
       const startDate = moment().subtract(0.1, 'years');
       const endDate = moment();
-      
       let currentDate = startDate.clone();
       while (currentDate.isBefore(endDate)) {
-        const randomMinutes = Math.floor(Math.random() * 120); // Random minutes between 0 and 120
+        const randomMinutes = Math.floor(Math.random() * 120);
         testEntries[currentDate.format('YYYY-MM-DD')] = randomMinutes;
         currentDate.add(1, 'day');
       }
-      
       setDailyEntries(testEntries);
     };
 
@@ -100,7 +97,7 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const weeklyStats = calculateWeeklyStats(dailyEntries);
-  // console.log('Weekly Stats:', weeklyStats);  // Debugging log
+  // console.log('Weekly Stats:', JSON.stringify(weeklyStats));
 
   const signIn = async () => {
     try {
@@ -108,7 +105,6 @@ const StatisticsScreen: React.FC = () => {
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo);
 
-      // Store user data in Supabase
       const { idToken } = await GoogleSignin.getTokens();
       const response = await fetch('http://localhost:3000/storeUser', {
         method: 'POST',
@@ -120,7 +116,7 @@ const StatisticsScreen: React.FC = () => {
       const result = await response.json();
       console.log('User stored in backend:', result);
     } catch (error: any) {
-      console.log('Sign-in error details:', error); // Add this line for more detailed error logging
+      console.log('Sign-in error details:', error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled the login flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -166,22 +162,23 @@ const StatisticsScreen: React.FC = () => {
     }
   };
 
-  // Graph data preparation
   const prepareGraphData = (type: 'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'): GraphData[] => {
+    let data: GraphData[] = [];
     switch (type) {
       case 'daily':
-        return Object.keys(dailyEntries).map(date => ({
+        data = Object.keys(dailyEntries).map(date => ({
           date: moment(date).format('YYYY-MM-DD'),
           minutes: dailyEntries[date],
         }));
+        break;
       case 'averageWeekly':
         const weeks = calculateWeeklyStats(dailyEntries);
         if (weeks.length === 0) return [];
-        // console.log('Weekly Stats for Graph:', weeks);  // Debugging log
-        return weeks.map(week => ({
+        data = weeks.map(week => ({
           date: week.week,
-          minutes: week.totalMinutes / 7,
+          minutes: parseFloat(week.avgMinutes),
         }));
+        break;
       case 'averageMonthly':
         const months: { [key: string]: { totalMinutes: number; days: number } } = {};
         Object.keys(dailyEntries).forEach(date => {
@@ -192,13 +189,14 @@ const StatisticsScreen: React.FC = () => {
           months[month].totalMinutes += dailyEntries[date];
           months[month].days += 1;
         });
-        return Object.keys(months).map(month => {
+        data = Object.keys(months).map(month => {
           const daysInMonth = moment(month, 'YYYY-MM').daysInMonth();
           return {
             date: month,
             minutes: months[month].totalMinutes / daysInMonth,
           };
         });
+        break;
       case 'averageYearly':
         const years: { [key: string]: { totalMinutes: number; days: number } } = {};
         Object.keys(dailyEntries).forEach(date => {
@@ -209,36 +207,46 @@ const StatisticsScreen: React.FC = () => {
           years[year].totalMinutes += dailyEntries[date];
           years[year].days += 1;
         });
-        return Object.keys(years).map(year => {
+        data = Object.keys(years).map(year => {
           const daysInYear = moment(year, 'YYYY').isLeapYear() ? 366 : 365;
           return {
             date: year,
             minutes: years[year].totalMinutes / daysInYear,
           };
         });
+        break;
       default:
         return [];
     }
+    // console.log('Prepared Graph Data:', data);
+    return data;
   };
 
   const graphData = prepareGraphData(graphType);
-  // console.log('Graph Data:', graphData);  // Debugging log
+  // console.log('Graph Data:', graphData);
 
   const screenWidth = Dimensions.get('window').width;
-  const screenHeight = 300; // Increased height to fit labels
-  
-  const xScale = scaleTime()
-    .domain([new Date(graphData[0]?.date || new Date()), new Date(graphData[graphData.length - 1]?.date || new Date())])
-    .range([0, screenWidth - 40]);
+  const screenHeight = 300;
 
-  const yScale = scaleLinear()
-    .domain([0, Math.max(...graphData.map(d => d.minutes))])
-    .range([screenHeight - 40, 0]); // Leave space for labels
+  let xScale, yScale, line;
+  if (graphData.length > 0) {
+    xScale = scaleTime()
+      .domain([new Date(graphData[0].date), new Date(graphData[graphData.length - 1].date)])
+      .range([0, screenWidth - 40]);
 
-  const line = d3.line<GraphData>()
-    .x((d) => xScale(new Date(d.date)))
-    .y((d) => yScale(d.minutes))
-    .curve(d3.curveBasis)(graphData) || '';
+    yScale = scaleLinear()
+      .domain([0, Math.max(...graphData.map(d => d.minutes))])
+      .range([screenHeight - 40, 0]);
+
+    try {
+      line = d3Shape.line<GraphData>()
+        .x((d) => xScale(new Date(d.date)))
+        .y((d) => yScale(d.minutes))
+        .curve(d3Shape.curveBasis)(graphData) || '';
+    } catch (error) {
+      console.error('Error generating line path:', error);
+    }
+  }
 
   const xAxisLabel = graphType === 'daily' ? 'Day' :
                      graphType === 'averageWeekly' ? 'Week' :
@@ -311,7 +319,11 @@ const StatisticsScreen: React.FC = () => {
       <ScrollView horizontal>
         <Svg width={screenWidth} height={screenHeight}>
           <Rect width="100%" height="100%" fill="white" />
-          <Path d={line} stroke="skyblue" strokeWidth={2} fill="none" />
+          {graphData.length > 0 && line ? (
+            <Path d={line} stroke="skyblue" strokeWidth={2} fill="none" />
+          ) : (
+            <Text style={styles.noDataText}>No data to display</Text>
+          )}
           <SvgText
             x={screenWidth / 2}
             y={screenHeight - 10}
@@ -333,6 +345,7 @@ const StatisticsScreen: React.FC = () => {
           </SvgText>
         </Svg>
       </ScrollView>
+      {graphData.length === 0 && <Text style={styles.noDataText}>No data available for the selected graph type</Text>}
     </View>
   );
 };
@@ -364,7 +377,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   tableContainer: {
-    height: 300, // Adjust this value to control the scrollable height of the table
+    height: 300,
   },
   table: {
     marginTop: 10,
@@ -405,6 +418,12 @@ const styles = StyleSheet.create({
     width: 200,
     height: 50,
   },
+  noDataText: {
+    fontSize: 16,
+    color: 'red',
+    alignSelf: 'center',
+    marginVertical: 10,
+  }
 });
 
 export default StatisticsScreen;
