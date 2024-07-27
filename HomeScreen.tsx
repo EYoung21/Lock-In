@@ -16,6 +16,10 @@ import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
 import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import { NativeModules } from 'react-native';
+
+const { CurrentAppModule } = NativeModules;
 
 // Set up push notification configuration
 PushNotification.configure({
@@ -47,10 +51,7 @@ const showNotification = (title, message) => {
 };
 
 const getTimerColor = (backgroundPalette) => {
-  if (backgroundPalette === '#000000') {
-    return '#FFFFFF';
-  }
-  return '#0d0d0d';
+  return backgroundPalette === '#000000' ? '#FFFFFF' : '#0d0d0d';
 };
 
 const HomeScreen = () => {
@@ -60,7 +61,25 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, dailyEntries, setDailyEntries, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe, whitelistedApps } = useContext(TotalElapsedContext);
+  const {
+    totalElapsedTime,
+    setTotalElapsedTime,
+    totalCurrency,
+    setTotalCurrency,
+    dailyEntries,
+    setDailyEntries,
+    backgroundColor,
+    setBackgroundColor,
+    buttonColor,
+    setButtonColor,
+    buttonBorder,
+    setButtonBorder,
+    safe,
+    setSafe,
+    whitelistedApps,
+    appMonitoringEnabled
+  } = useContext(TotalElapsedContext);
+
   const [stopwatchStart, setStopwatchStart] = useState(false);
   const [stopwatchReset, setStopwatchReset] = useState(false);
   const [lockInTime, setLockInTime] = useState(0);
@@ -80,32 +99,36 @@ const HomeScreen = () => {
     }
   }, [elapsedTime]);
 
+  const getCurrentRunningApp = () => {
+    return new Promise((resolve, reject) => {
+      CurrentAppModule.getCurrentRunningApp((appName) => {
+        if (appName === "unknown") {
+          reject("Unable to retrieve the current app");
+        } else {
+          resolve(appName);
+        }
+      });
+    });
+  };
 
-    // Test notification on launch
-    useEffect(() => {
-      showNotification('Test Notification', 'This is a test notification triggered on launch.');
-    }, []);
+  useEffect(() => {
+    const checkRunningApp = async () => {
+      if (!isLockedIn || !appMonitoringEnabled) return;
 
+      try {
+        const currentApp = await getCurrentRunningApp();
+        if (!whitelistedApps.includes(currentApp)) {
+          showNotification('Lock In', 'You have been locked out for using a non-whitelisted app.');
+          handlePressOut();
+        }
+      } catch (error) {
+        console.error('Error retrieving current running app:', error);
+      }
+    };
 
-
-    //BELOW is a functiont that will check the current app periodically and lock out if it is blacklisted
-
-  //keep commented out until getCurrentRunningApp() is working, as otherwise it returns NULL and then it will always be locked out
-
-
-  // useEffect(() => {
-  //   const checkRunningApp = async () => {
-  //     if (!isLockedIn) return;
-  //     const currentApp = await getCurrentRunningApp();
-  //     if (!whitelistedApps.includes(currentApp)) {
-  //       showNotification('Lockout', 'You have been locked out for using a non-whitelisted app.');
-  //       handlePressOut();
-  //     }
-  //   };
-
-  //   const intervalId = setInterval(checkRunningApp, 1000);
-  //   return () => clearInterval(intervalId);
-  // }, [isLockedIn, whitelistedApps]);
+    const intervalId = setInterval(checkRunningApp, 1000);
+    return () => clearInterval(intervalId);
+  }, [isLockedIn, appMonitoringEnabled, whitelistedApps]);
 
   const updateDailyEntries = (minutes) => {
     const today = moment().format('YYYY-MM-DD');
