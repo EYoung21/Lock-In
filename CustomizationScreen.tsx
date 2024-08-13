@@ -9,46 +9,81 @@ interface CustomizationItem {
   name: string;
 }
 
+interface CustomizationButton {
+  color: string;
+  border: string;
+  cost: number;
+  name: string;
+}
+
 const customizations = {
   backgrounds: [
-    { color: '#808080', cost: 120, name: 'Gray' },
-    { color: '#A52A2A', cost: 240, name: 'Brown' },
-    { color: '#000000', cost: 360, name: 'Black' },
-    { color: '#FFFF00', cost: 480, name: 'Yellow' },
-    { color: '#0000FF', cost: 600, name: 'Blue' },
-    { color: '#FF0000', cost: 720, name: 'Red' },
-    { color: '#FFA500', cost: 840, name: 'Orange' },
-    { color: '#800080', cost: 960, name: 'Purple' },
-    { color: '#008000', cost: 1080, name: 'Green' },
-    { color: '#FFBF00', cost: 1200, name: 'Amber' },
-    { color: '#E34234', cost: 1320, name: 'Vermilion' },
-    { color: '#7FFF00', cost: 1440, name: 'Chartreuse' },
-    { color: '#FF00FF', cost: 1560, name: 'Magenta' },
-    { color: '#8F00FF', cost: 1680, name: 'Violet' },
-    { color: '#008080', cost: 1800, name: 'Teal' },
-    { color: '#FFC0CB', cost: 1920, name: 'Pink' },
-    { color: '#00FFFF', cost: 2040, name: 'Cyan' },
-    { color: '#00FF00', cost: 2160, name: 'Lime' },
-    { color: '#C0C0C0', cost: 2280, name: 'Silver' },
-    { color: '#FFD700', cost: 2400, name: 'Gold' },
+    { color: '#FFFFFF', cost: 0, name: 'White' },
+    { color: '#808080', cost: 80, name: 'Gray' },
+    { color: '#A52A2A', cost: 160, name: 'Brown' },
+    { color: '#000000', cost: 240, name: 'Black' },
+    { color: '#FFFF00', cost: 320, name: 'Yellow' },
+    { color: '#0000FF', cost: 400, name: 'Blue' },
+    { color: '#FF0000', cost: 480, name: 'Red' },
+    { color: '#FFA500', cost: 560, name: 'Orange' },
+    { color: '#800080', cost: 640, name: 'Purple' },
+    { color: '#008000', cost: 720, name: 'Green' },
+    { color: '#FFBF00', cost: 800, name: 'Amber' },
+    { color: '#E34234', cost: 880, name: 'Vermilion' },
+    { color: '#7FFF00', cost: 960, name: 'Chartreuse' },
+    { color: '#FF00FF', cost: 1040, name: 'Magenta' },
+    { color: '#8F00FF', cost: 1120, name: 'Violet' },
+    { color: '#008080', cost: 1200, name: 'Teal' },
+    { color: '#FFC0CB', cost: 1280, name: 'Pink' },
+    { color: '#00FFFF', cost: 1360, name: 'Cyan' },
+    { color: '#00FF00', cost: 1440, name: 'Lime' },
+    { color: '#C0C0C0', cost: 1520, name: 'Silver' },
+    { color: '#FFD700', cost: 1600, name: 'Gold' },
+  ],
+
+  buttonColors: [
+    { color: '#808080', border: '#696969', cost: 60, name: 'Gray' },
+    { color: '#A52A2A', border: '#8B4513', cost: 120, name: 'Brown' },
+    { color: '#000000', border: '#333333', cost: 180, name: 'Black' },
+    { color: '#FFFF00', border: '#FFD700', cost: 240, name: 'Yellow' },
+    { color: '#0000FF', border: '#0000CD', cost: 300, name: 'Blue' },
+    { color: '#FF0000', border: '#B22222', cost: 360, name: 'Red' },
+    { color: '#FFA500', border: '#FF8C00', cost: 420, name: 'Orange' },
+    { color: '#800080', border: '#4B0082', cost: 480, name: 'Purple' },
+    { color: '#008000', border: '#006400', cost: 540, name: 'Green' },
+    { color: '#FFBF00', border: '#FFBF00', cost: 600, name: 'Amber' },
+    { color: '#E34234', border: '#CD3700', cost: 660, name: 'Vermilion' },
+    { color: '#7FFF00', border: '#76EE00', cost: 720, name: 'Chartreuse' },
+    { color: '#FF00FF', border: '#EE82EE', cost: 780, name: 'Magenta' },
+    { color: '#8F00FF', border: '#7B68EE', cost: 840, name: 'Violet' },
+    { color: '#008080', border: '#006666', cost: 900, name: 'Teal' },
+    { color: '#FFC0CB', border: '#FF69B4', cost: 960, name: 'Pink' },
+    { color: '#00FFFF', border: '#00CED1', cost: 1020, name: 'Cyan' },
+    { color: '#00FF00', border: '#32CD32', cost: 1080, name: 'Lime' },
+    { color: '#C0C0C0', border: '#A9A9A9', cost: 1140, name: 'Silver' },
+    { color: '#FFD700', border: '#FFA500', cost: 1200, name: 'Gold' },
   ],
   // safes: [
-  //   { id: 'safe1', image: require('./assets/safe1.png'), cost: 100 },
-  //   { id: 'safe2', image: require('./assets/safe2.png'), cost: 200 },
-  //   { id: 'safe3', image: require('./assets/safe3.png'), cost: 300 },
+  //   { id: 'safe1', image: require('./assets/safe1.png'), cost: 800 },
+  //   { id: 'safe2', image: require('./assets/safe2.png'), cost: 1600 },
+  //   { id: 'safe3', image: require('./assets/safe3.png'), cost: 2400 },
   // ],
 };
 
 const CustomizationScreen = () => {
-  const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor } = useContext(TotalElapsedContext);
-  const [purchasedColors, setPurchasedColors] = useState<string[]>([]);
+  const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder } = useContext(TotalElapsedContext);
+  const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']);
+  const [purchasedButtons, setPurchasedButtons] = useState<string[]>([]);
 
   useEffect(() => {
     const loadPurchasedColors = async () => {
       try {
         const colors = await AsyncStorage.getItem('purchasedColors');
         if (colors) {
-          setPurchasedColors(JSON.parse(colors));
+          const parsedColors = JSON.parse(colors);
+          setPurchasedColors([...parsedColors, '#FFFFFF']);
+        } else {
+          await AsyncStorage.setItem('purchasedColors', JSON.stringify(['#FFFFFF']));
         }
       } catch (error) {
         console.error('Failed to load purchased colors from storage', error);
@@ -56,6 +91,21 @@ const CustomizationScreen = () => {
     };
 
     loadPurchasedColors();
+  }, []);
+
+  useEffect(() => {
+    const loadPurchasedButtons = async () => {
+      try {
+        const buttons = await AsyncStorage.getItem('purchasedButtons');
+        if (buttons) {
+          setPurchasedButtons(JSON.parse(buttons));
+        }
+      } catch (error) {
+        console.error('Failed to load purchased buttons from storage', error);
+      }
+    };
+
+    loadPurchasedButtons();
   }, []);
 
   const handlePurchase = async (item: CustomizationItem) => {
@@ -71,12 +121,26 @@ const CustomizationScreen = () => {
     }
   };
 
+  const handlePurchaseButton = async (item: CustomizationButton) => {
+    if (totalCurrency >= item.cost || purchasedButtons.includes(item.color)) {
+      if (!purchasedButtons.includes(item.color)) {
+        setTotalCurrency(totalCurrency - item.cost);
+        const newPurchasedButtons = [...purchasedButtons, item.color];
+        setPurchasedButtons(newPurchasedButtons);
+        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(newPurchasedButtons));
+      }
+      setButtonColor(item.color);
+      setButtonBorder(item.border);
+      await AsyncStorage.setItem('buttonColor', item.color);
+      await AsyncStorage.setItem('buttonBorder', item.border);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Customize Your App</Text>
       <Text style={styles.currency}>Total Currency: {totalCurrency.toFixed(2)}</Text>
       
-      <Text style={styles.subtitle}>Backgrounds</Text>
+      <Text style={styles.subtitle}>Background</Text>
       <FlatList
         data={customizations.backgrounds}
         keyExtractor={(item) => item.color}
@@ -87,6 +151,21 @@ const CustomizationScreen = () => {
             onPress={() => handlePurchase(item)}
           >
             {!purchasedColors.includes(item.color) && <Text style={styles.cost}>Cost: {item.cost} min</Text>}
+          </TouchableOpacity>
+        )}
+      />
+
+      <Text style={styles.subtitle}>Button</Text>
+      <FlatList
+        data={customizations.buttonColors}
+        keyExtractor={(item) => item.color}
+        horizontal
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[styles.item, { backgroundColor: item.color }, { borderColor: item.border }]}
+            onPress={() => handlePurchaseButton(item)}
+          >
+            {!purchasedButtons.includes(item.color) && <Text style={styles.cost}>Cost: {item.cost} min</Text>}
           </TouchableOpacity>
         )}
       />
@@ -113,13 +192,13 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',  // Center content horizontally
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#000000',  // Set text color to black
-    textAlign: 'center',  // Center the text
-  },
+  // title: {
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  //   marginBottom: 16,
+  //   color: '#000000',  // Set text color to black
+  //   textAlign: 'center',  // Center the text
+  // },
   currency: {
     fontSize: 18,
     marginBottom: 16,
