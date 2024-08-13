@@ -24,7 +24,7 @@ const getTimerColor = (backgroundPalette: string) => {
 type SafeImageKey = 'image1' | 'image2' | 'image3';
 
 const HomeScreen = () => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1.75)).current;
   const [imageSource, setImageSource] = useState(require('./assets/safe2.png'));
   const [buttonText, setButtonText] = useState('Lock In');
   const [isLockedIn, setIsLockedIn] = useState(false);

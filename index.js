@@ -2,6 +2,7 @@
  * @format
  */
 
+require('dotenv').config();
 import 'react-native-gesture-handler';
 import { AppRegistry } from 'react-native';
 import FullApp from './FullApp';

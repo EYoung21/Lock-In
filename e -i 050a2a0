@@ -1,0 +1,51 @@
+[33m3a3f3f6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33m4a0bd4a[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33m31341d1[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33m6ef4b74[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33md1c43cc[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33md17c50e[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there, added .env
+[33m1727b6d[m fixed button size, fixed default button, changed cust text, began supabase database and google sheets config, still bugged there
+[33m050a2a0[m[33m ([m[1;31morigin/main[m[33m)[m centered stats heading
+[33m7bfa632[m edited statistics layout
+[33m0344eb3[m Added local statistics screen, started process to sync with google drive, stuck on  'LOG  An unexpected error occurred [Error: DEVELOPER_ERROR]'
+[33m3243577[m added basic statistics screen, fixed background not updating
+[33mdd9117d[m button width
+[33m025df9e[m altered safes
+[33mbca84e8[m changed safe customization
+[33mc09f553[m customized buttons on customization screen
+[33m6da3a00[m alter safe styling
+[33m0cb70eb[m added stopwatch to run in background
+[33mef9bee7[m added safe area view, decreased larger safe sizes
+[33m294fd5d[m further safe position tweaking
+[33m0012db1[m fixed safe positions, altered money collection animation to 625
+[33m5b2dbd3[m added safe customization
+[33m36ab845[m added button customization and other tweaks
+[33m612de72[m added background customization
+[33m6cb7b10[m css tweaking
+[33m6974cc9[m changed margin to 30
+[33mcd7cf0e[m altered default colors and button size
+[33m9314996[m synced elapsed time and currency
+[33md987c37[m $ in minutes: x
+[33m06fdfa8[m rounded total time locked in
+[33m83b26e6[m added total time locked in to statistics screen
+[33ma20c825[m made menu and navigation bar dissapear when locked in
+[33mb832f55[m Merge branch 'main' of github.com:EYoung21/Lock-In
+[33m4919fc4[m centered image shown when locked out
+[33m6e80b8e[m Update README.md
+[33m6d0e27a[m alr added . instead of , and removed unnecessary line
+[33m64a9c84[m added timer
+[33m1bbdfd7[m created drawer navigation
+[33ma6d2cf7[m moved styles, installed navigation
+[33m8267ae1[m made locking in and out faster
+[33m2e93680[m fixed react native
+[33mc9fcfcf[m Update README.md
+[33m924a654[m stuff
+[33m1e944f5[m Impelented safe, stopwatch, button, currency
+[33md9afecb[m Update README.md
+[33mfb48d7b[m thing
+[33m18a8778[m check
+[33mdf69193[m Update README.md
+[33m7579e8e[m created foundation of app
+[33m3531951[m Initial commit
+[33mc4c5df3[m Update README.md
+[33m0cfe690[m Initial commit

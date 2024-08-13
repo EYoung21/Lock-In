@@ -8,8 +8,8 @@ export const TotalElapsedProvider = ({ children }) => {
   const [totalCurrency, setTotalCurrency] = useState(0);
   const [dailyEntries, setDailyEntries] = useState({});
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
-  const [buttonColor, setButtonColor] = useState('0d0d0d');
-  const [buttonBorder, setButtonBorder] = useState('2F4F4F');
+  const [buttonColor, setButtonColor] = useState('#808080');
+  const [buttonBorder, setButtonBorder] = useState('#696969');
   const [safe, setSafe] = useState('2DSafe');
 
   useEffect(() => {

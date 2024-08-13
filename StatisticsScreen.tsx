@@ -3,8 +3,7 @@ import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
 import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-import RNFS from 'react-native-fs';
-import { uploadFileToGoogleDrive } from './GoogleDriveService';
+import { supabase } from './supabaseClient';
 
 interface DailyEntries {
   [key: string]: number;
@@ -20,12 +19,12 @@ interface WeeklyStats {
 }
 
 GoogleSignin.configure({
-  webClientId: '293282385409-o6ame9v5jm4vr059rdb3ckp7ahb45jlo.apps.googleusercontent.com',
+  webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
   offlineAccess: true,
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
 
-const StatisticsScreen = () => {
+const StatisticsScreen: React.FC = () => {
   const { totalElapsedTime, dailyEntries } = useContext(TotalElapsedContext);
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
@@ -63,6 +62,18 @@ const StatisticsScreen = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo);
+
+      // Store user data in Supabase
+      const { idToken } = await GoogleSignin.getTokens();
+      const response = await fetch('http://localhost:3000/storeUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      });
+      const result = await response.json();
+      console.log('User stored in backend:', result);
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled the login flow');
@@ -79,28 +90,34 @@ const StatisticsScreen = () => {
   };
 
   const exportData = async () => {
-    let csvContent = 'Week, Total Hours, Total Minutes, Avg Hours, Avg Minutes, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday\n';
-    weeklyStats.forEach(item => {
-      const row = [
-        item.week,
-        item.totalHours,
-        item.totalMinutes.toFixed(2),
-        item.avgHours,
-        item.avgMinutes,
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
-        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
-      ].join(',') + '\n';
-      csvContent += row;
-    });
+    const data = weeklyStats.map(item => [
+      item.week,
+      item.totalHours,
+      item.totalMinutes.toFixed(2),
+      item.avgHours,
+      item.avgMinutes,
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
+      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
+    ]);
 
-    const filePath = `${RNFS.DocumentDirectoryPath}/statistics.csv`;
-    await RNFS.writeFile(filePath, csvContent, 'utf8');
-    await uploadFileToGoogleDrive(filePath, 'text/csv');
+    try {
+      const response = await fetch('http://localhost:3000/createSheet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data }),
+      });
+      const result = await response.text();
+      console.log('Spreadsheet created:', result);
+    } catch (error) {
+      console.error('Error exporting data to Google Sheets:', error);
+    }
   };
 
   return (
