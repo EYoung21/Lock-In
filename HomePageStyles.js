@@ -18,6 +18,13 @@ const styles = StyleSheet.create({
       resizeMode: 'contain',
       marginBottom: 20,
     },
+    image2: {
+      width: 200,
+      height: 200,
+      resizeMode: 'contain',
+      marginBottom: 20,
+      marginLeft: 30,
+    },
     button: {
       backgroundColor: '#00008B',
       padding: 10,

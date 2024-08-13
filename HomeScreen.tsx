@@ -100,11 +100,19 @@ const HomeScreen = () => {
     }, 1000); // Adjust the timeout as needed to match the duration of the animation or action
   };
   
+  const getImageStyle = (source) => {
+    if (source === require('./assets/safe1.png') || source === require('./assets/safe2.png')) {
+      return styles.image2;
+    }
+    return styles.image;
+  };
+
+
   return (
     <View style={styles.container}>
       <Text style={[styles.heading, styles.totalCurrency]}>Mula in Minutes: {totalCurrency}</Text>
       <Timer interval={timerInterval}/>
-      <Image source={imageSource} style={styles.image} />
+      <Image source={imageSource}  style={getImageStyle(imageSource)} />
       <TouchableWithoutFeedback
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
