@@ -32,6 +32,8 @@ const StatisticsScreen: React.FC = () => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [graphType, setGraphType] = useState<'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'>('daily');
 
+
+  //testing function here
   useEffect(() => {
     const generateTestData = () => {
       const testEntries: DailyEntries = {};
@@ -39,7 +41,7 @@ const StatisticsScreen: React.FC = () => {
       const endDate = moment();
       let currentDate = startDate.clone();
       while (currentDate.isBefore(endDate)) {
-        const randomMinutes = Math.floor(Math.random() * 120);
+        const randomMinutes = Math.floor(Math.random() * 60);
         testEntries[currentDate.format('YYYY-MM-DD')] = randomMinutes;
         currentDate.add(1, 'day');
       }
@@ -59,18 +61,18 @@ const StatisticsScreen: React.FC = () => {
 
   const calculateWeeklyStats = (entries: DailyEntries): WeeklyStats[] => {
     const weeks: { [key: string]: { totalMinutes: number; days: number; daily: DailyEntries } } = {};
-
+  
     const entryDates = Object.keys(entries).map(date => moment(date));
     if (entryDates.length === 0) return [];
-
+  
     const firstDate = getStartOfWeek(moment.min(entryDates));
     const lastDate = getStartOfWeek(moment.max(entryDates)).add(1, 'week');
-
+  
     for (let week = firstDate.clone(); week.isBefore(lastDate); week.add(1, 'week')) {
       const weekKey = week.format('YYYY-MM-DD');
       weeks[weekKey] = { totalMinutes: 0, days: 0, daily: {} };
     }
-
+  
     Object.keys(entries).forEach((date) => {
       const week = getStartOfWeek(moment(date)).format('YYYY-MM-DD');
       if (!weeks[week]) {
@@ -80,9 +82,10 @@ const StatisticsScreen: React.FC = () => {
       weeks[week].days += 1;
       weeks[week].daily[date] = entries[date];
     });
-
+  
     const weeklyStats = Object.keys(weeks).map((week) => {
       const { totalMinutes, days, daily } = weeks[week];
+      // console.log(`Processing week ${week}: Total Minutes = ${totalMinutes}, Days = ${days}`); // Debug log
       return {
         week: moment(week).format('MM/DD/YYYY'),
         totalMinutes,
@@ -92,7 +95,7 @@ const StatisticsScreen: React.FC = () => {
         daily,
       };
     });
-
+  
     return weeklyStats;
   };
 
@@ -174,11 +177,11 @@ const StatisticsScreen: React.FC = () => {
       case 'averageWeekly':
         const weeks = calculateWeeklyStats(dailyEntries);
         if (weeks.length === 0) return [];
-        data = weeks.map(week => ({
-          date: week.week,
-          minutes: parseFloat(week.avgMinutes),
-        }));
-        break;
+          data = weeks.map(week => ({
+            date: moment(week.week, 'MM/DD/YYYY').format('YYYY-MM-DD'),
+            minutes: parseFloat(week.avgMinutes),
+          }));
+          break;
       case 'averageMonthly':
         const months: { [key: string]: { totalMinutes: number; days: number } } = {};
         Object.keys(dailyEntries).forEach(date => {
@@ -257,7 +260,7 @@ const StatisticsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes</Text>
+        <Text style={styles.totalText}>Total elapsed locked in time: {totalElapsedTime.toFixed(2)} minutes</Text>
       </View>
       <View>
         {userInfo ? (
