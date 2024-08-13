@@ -4,6 +4,7 @@ import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/goo
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
 import { supabase } from './supabaseClient';
+import { GOOGLE_WEB_CLIENT_ID } from '@env';
 
 interface DailyEntries {
   [key: string]: number;
@@ -18,8 +19,10 @@ interface WeeklyStats {
   daily: DailyEntries;
 }
 
+// console.log(GOOGLE_WEB_CLIENT_ID);
+
 GoogleSignin.configure({
-  webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+  webClientId: GOOGLE_WEB_CLIENT_ID,
   offlineAccess: true,
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
@@ -137,33 +140,33 @@ const StatisticsScreen: React.FC = () => {
         <View>
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={styles.headerCell}>Week</Text>
-              <Text style={styles.headerCell}>Total Hours</Text>
-              <Text style={styles.headerCell}>Total Minutes</Text>
-              <Text style={styles.headerCell}>Avg Hours</Text>
-              <Text style={styles.headerCell}>Avg Minutes</Text>
-              <Text style={styles.headerCell}>Monday</Text>
-              <Text style={styles.headerCell}>Tuesday</Text>
-              <Text style={styles.headerCell}>Wednesday</Text>
-              <Text style={styles.headerCell}>Thursday</Text>
-              <Text style={styles.headerCell}>Friday</Text>
-              <Text style={styles.headerCell}>Saturday</Text>
-              <Text style={styles.headerCell}>Sunday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Week</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Total Hours</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Total Minutes</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Avg Hours</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Avg Minutes</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Monday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Tuesday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Wednesday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Thursday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Friday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Saturday</Text>
+              <Text style={[styles.headerCell, styles.cellText]}>Sunday</Text>
             </View>
             {weeklyStats.map((item) => (
               <View key={item.week} style={styles.tableRow}>
-                <Text style={styles.cell}>{item.week}</Text>
-                <Text style={styles.cell}>{Number(item.totalHours).toFixed(2)}</Text>
-                <Text style={styles.cell}>{item.totalMinutes.toFixed(2)}</Text>
-                <Text style={styles.cell}>{Number(item.avgHours).toFixed(2)}</Text>
-                <Text style={styles.cell}>{Number(item.avgMinutes).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{item.week}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{Number(item.totalHours).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{item.totalMinutes.toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{Number(item.avgHours).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{Number(item.avgMinutes).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
               </View>
             ))}
           </View>
@@ -227,6 +230,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
   },
+  cellText: {
+    color: '#000',
+  }
 });
 
 export default StatisticsScreen;
