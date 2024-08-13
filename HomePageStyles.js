@@ -32,12 +32,11 @@ const styles = StyleSheet.create({
       borderWidth: 2,  // Adjust the width of the border as needed
       borderColor: '#2F4F4F',  // Specify the color of the border
       zIndex: 1,
-      marginTop: 5,
+      marginTop: 30,
       width: 90,  // Set the width of the button
       height: 90,  // Set the height of the button
       justifyContent: 'center',  // Center the text within the button
       alignItems: 'center',  // Center the text within the button
-      marginTop: 50,
     },
     buttonText: {
       color: '#fff',
