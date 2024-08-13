@@ -15,6 +15,36 @@ import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
+import PushNotification from 'react-native-push-notification';
+
+// Set up push notification configuration
+PushNotification.configure({
+  onNotification: function (notification) {
+    console.log('NOTIFICATION:', notification);
+  },
+  popInitialNotification: true,
+  requestPermissions: Platform.OS === 'ios',
+});
+
+const showNotification = (title, message) => {
+  PushNotification.localNotification({
+    channelId: 'your-channel-id',
+    autoCancel: true,
+    largeIcon: 'ic_launcher',
+    smallIcon: 'ic_notification',
+    bigText: message,
+    subText: 'Local Notification Demo',
+    color: 'blue',
+    vibrate: true,
+    vibration: 300,
+    title: title,
+    message: message,
+    playSound: true,
+    soundName: 'default',
+    importance: 'high',
+    priority: 'high',
+  });
+};
 
 const getTimerColor = (backgroundPalette: string) => {
   if (backgroundPalette === '#000000') {
@@ -27,9 +57,9 @@ type SafeImageKey = 'image1' | 'image2' | 'image3';
 
 const getCurrentRunningApp = async () => {
   if (Platform.OS === 'ios') {
-    //return currently running ios app
+    // Implement iOS logic here
   } else {
-    //return currently running android app
+    // Implement Android logic here
   }
   return 'com.some.non.whitelisted.app';
 };
@@ -66,17 +96,13 @@ const HomeScreen = () => {
       if (!isLockedIn) return;
       const currentApp = await getCurrentRunningApp();
       if (!whitelistedApps.includes(currentApp)) {
-        Alert.alert('Lockout', 'You have been locked out for using a non-whitelisted app.');
+        showNotification('Lockout', 'You have been locked out for using a non-whitelisted app.');
         handlePressOut();
       }
     };
 
-    
     const intervalId = setInterval(checkRunningApp, 1000);
     return () => clearInterval(intervalId);
-    
-
-    // For iOS, implement appropriate logic if possible
   }, [isLockedIn, whitelistedApps]);
 
   const updateDailyEntries = (minutes: number) => {
