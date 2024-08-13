@@ -102,13 +102,24 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
 }
 
 dependencies {
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
+    implementation 'com.google.api-client:google-api-client:1.32.1'
+    implementation 'com.google.api-client:google-api-client-android:1.32.1'
+    implementation 'com.google.apis:google-api-services-drive:v3-rev136-1.25.0' // Correct version
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
-    if (hermesEnabled.toBoolean()) {
+    if (project.hasProperty("hermesEnabled") && hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
@@ -116,3 +127,8 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
+repositories {
+    google()
+    mavenCentral()
+}

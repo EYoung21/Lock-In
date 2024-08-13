@@ -1,7 +1,10 @@
-import React, { useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
+import RNFS from 'react-native-fs';
+import { uploadFileToGoogleDrive } from './GoogleDriveService';
 
 interface DailyEntries {
   [key: string]: number;
@@ -16,8 +19,15 @@ interface WeeklyStats {
   daily: DailyEntries;
 }
 
+GoogleSignin.configure({
+  webClientId: '293282385409-o6ame9v5jm4vr059rdb3ckp7ahb45jlo.apps.googleusercontent.com  ',
+  offlineAccess: true,
+  scopes: ['https://www.googleapis.com/auth/drive.file'],
+});
+
 const StatisticsScreen = () => {
   const { totalElapsedTime, dailyEntries } = useContext(TotalElapsedContext);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
 
   const calculateWeeklyStats = (entries: DailyEntries): WeeklyStats[] => {
     const weeks: { [key: string]: { totalMinutes: number; days: number; daily: DailyEntries } } = {};
@@ -48,10 +58,62 @@ const StatisticsScreen = () => {
 
   const weeklyStats = calculateWeeklyStats(dailyEntries);
 
+  const signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      setUserInfo(userInfo);
+    } catch (error:any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User cancelled the login flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Sign in is in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play services not available');
+      } else if (error.code === 'DEVELOPER_ERROR') {
+        console.log('Developer error:', error.message);
+      } else {
+        console.log('An unexpected error occurred', error);
+      }
+    }
+  };
+
+  const exportData = async () => {
+    let csvContent = 'Week, Total Hours, Total Minutes, Avg Hours, Avg Minutes, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday\n';
+    weeklyStats.forEach(item => {
+      const row = [
+        item.week,
+        item.totalHours,
+        item.totalMinutes.toFixed(2),
+        item.avgHours,
+        item.avgMinutes,
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
+        (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
+      ].join(',') + '\n';
+      csvContent += row;
+    });
+
+    const filePath = `${RNFS.DocumentDirectoryPath}/statistics.csv`;
+    await RNFS.writeFile(filePath, csvContent, 'utf8');
+    await uploadFileToGoogleDrive(filePath, 'text/csv');
+  };
+
   return (
-    <ScrollView style={styles.container} horizontal>
+    <ScrollView style={styles.container}>
       <View>
         <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes</Text>
+        {userInfo ? (
+          <View>
+            <Button title="Backup to Google Drive" onPress={exportData} />
+          </View>
+        ) : (
+          <Button title="Sign in with Google" onPress={signIn} />
+        )}
         <Text style={styles.headerText}>Weekly Statistics</Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
