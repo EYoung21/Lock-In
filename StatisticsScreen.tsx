@@ -65,7 +65,7 @@ const StatisticsScreen: React.FC = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo);
-
+  
       // Store user data in Supabase
       const { idToken } = await GoogleSignin.getTokens();
       const response = await fetch('http://localhost:3000/storeUser', {
@@ -91,6 +91,7 @@ const StatisticsScreen: React.FC = () => {
       }
     }
   };
+  
 
   const exportData = async () => {
     const data = weeklyStats.map(item => [
