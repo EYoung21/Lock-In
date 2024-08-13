@@ -20,7 +20,7 @@ interface WeeklyStats {
 }
 
 GoogleSignin.configure({
-  webClientId: '293282385409-o6ame9v5jm4vr059rdb3ckp7ahb45jlo.apps.googleusercontent.com  ',
+  webClientId: '293282385409-o6ame9v5jm4vr059rdb3ckp7ahb45jlo.apps.googleusercontent.com',
   offlineAccess: true,
   scopes: ['https://www.googleapis.com/auth/drive.file'],
 });
@@ -63,7 +63,7 @@ const StatisticsScreen = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo);
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled the login flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -104,78 +104,94 @@ const StatisticsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes</Text>
+      </View>
+      <View>
         {userInfo ? (
-          <View>
-            <Button title="Backup to Google Drive" onPress={exportData} />
-          </View>
+          <Button title="Backup to Google Drive" onPress={exportData} />
         ) : (
           <Button title="Sign in with Google" onPress={signIn} />
         )}
-        <Text style={styles.headerText}>Weekly Statistics</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={styles.headerCell}>Week</Text>
-            <Text style={styles.headerCell}>Total Hours</Text>
-            <Text style={styles.headerCell}>Total Minutes</Text>
-            <Text style={styles.headerCell}>Avg Hours</Text>
-            <Text style={styles.headerCell}>Avg Minutes</Text>
-            <Text style={styles.headerCell}>Monday</Text>
-            <Text style={styles.headerCell}>Tuesday</Text>
-            <Text style={styles.headerCell}>Wednesday</Text>
-            <Text style={styles.headerCell}>Thursday</Text>
-            <Text style={styles.headerCell}>Friday</Text>
-            <Text style={styles.headerCell}>Saturday</Text>
-            <Text style={styles.headerCell}>Sunday</Text>
-          </View>
-          {weeklyStats.map((item) => (
-            <View key={item.week} style={styles.tableRow}>
-              <Text style={styles.cell}>{item.week}</Text>
-              <Text style={styles.cell}>{Number(item.totalHours).toFixed(2)}</Text>
-              <Text style={styles.cell}>{item.totalMinutes.toFixed(2)}</Text>
-              <Text style={styles.cell}>{Number(item.avgHours).toFixed(2)}</Text>
-              <Text style={styles.cell}>{Number(item.avgMinutes).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-              <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-            </View>
-          ))}
-        </View>
       </View>
-    </ScrollView>
+      <ScrollView horizontal>
+        <View>
+          <Text style={styles.headerText}>Weekly Statistics</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text style={styles.headerCell}>Week</Text>
+              <Text style={styles.headerCell}>Total Hours</Text>
+              <Text style={styles.headerCell}>Total Minutes</Text>
+              <Text style={styles.headerCell}>Avg Hours</Text>
+              <Text style={styles.headerCell}>Avg Minutes</Text>
+              <Text style={styles.headerCell}>Monday</Text>
+              <Text style={styles.headerCell}>Tuesday</Text>
+              <Text style={styles.headerCell}>Wednesday</Text>
+              <Text style={styles.headerCell}>Thursday</Text>
+              <Text style={styles.headerCell}>Friday</Text>
+              <Text style={styles.headerCell}>Saturday</Text>
+              <Text style={styles.headerCell}>Sunday</Text>
+            </View>
+            {weeklyStats.map((item) => (
+              <View key={item.week} style={styles.tableRow}>
+                <Text style={styles.cell}>{item.week}</Text>
+                <Text style={styles.cell}>{Number(item.totalHours).toFixed(2)}</Text>
+                <Text style={styles.cell}>{item.totalMinutes.toFixed(2)}</Text>
+                <Text style={styles.cell}>{Number(item.avgHours).toFixed(2)}</Text>
+                <Text style={styles.cell}>{Number(item.avgMinutes).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                <Text style={styles.cell}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#FFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   totalText: {
     fontSize: 18,
     color: '#000000',
     fontWeight: 'bold',
-    marginBottom: 20,
   },
   headerText: {
     fontSize: 18,
     color: '#000000',
     fontWeight: 'bold',
+    alignSelf: 'center',
     marginVertical: 10,
   },
   table: {
-    borderWidth: 1,
-    borderColor: '#000',
+    marginTop: 10,
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   tableRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 5,
+    alignSelf: 'center',
   },
   headerCell: {
     width: 100,
@@ -192,6 +208,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     textAlign: 'center',
+    alignSelf: 'center',
   },
 });
 
