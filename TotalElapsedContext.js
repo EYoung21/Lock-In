@@ -6,6 +6,7 @@ export const TotalElapsedContext = createContext();
 export const TotalElapsedProvider = ({ children }) => {
   const [totalElapsedTime, setTotalElapsedTime] = useState(0);
   const [totalCurrency, setTotalCurrency] = useState(0);
+  const [dailyEntries, setDailyEntries] = useState({});
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [buttonColor, setButtonColor] = useState('0d0d0d');
   const [buttonBorder, setButtonBorder] = useState('2F4F4F');
@@ -16,6 +17,7 @@ export const TotalElapsedProvider = ({ children }) => {
       try {
         const elapsedTime = await AsyncStorage.getItem('totalElapsedTime');
         const currency = await AsyncStorage.getItem('totalCurrency');
+        const entries = await AsyncStorage.getItem('dailyEntries');
         const background = await AsyncStorage.getItem('backgroundColor');
         const storedbuttonColor = await AsyncStorage.getItem('buttonColor');
         const storedbuttonBorder = await AsyncStorage.getItem('buttonBorder');
@@ -26,6 +28,9 @@ export const TotalElapsedProvider = ({ children }) => {
         }
         if (currency !== null) {
           setTotalCurrency(parseFloat(currency));
+        }
+        if (entries !== null) {
+          setDailyEntries(JSON.parse(entries));
         }
         if (background !== null) {
           setBackgroundColor(background);
@@ -52,6 +57,7 @@ export const TotalElapsedProvider = ({ children }) => {
       try {
         await AsyncStorage.setItem('totalElapsedTime', totalElapsedTime.toString());
         await AsyncStorage.setItem('totalCurrency', totalCurrency.toString());
+        await AsyncStorage.setItem('dailyEntries', JSON.stringify(dailyEntries));
         await AsyncStorage.setItem('backgroundColor', backgroundColor);
         await AsyncStorage.setItem('buttonColor', buttonColor);
         await AsyncStorage.setItem('buttonBorder', buttonBorder);
@@ -62,7 +68,7 @@ export const TotalElapsedProvider = ({ children }) => {
     };
 
     saveData();
-  }, [totalElapsedTime, totalCurrency, backgroundColor, buttonColor, buttonBorder, safe]);
+  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe]);
 
   return (
     <TotalElapsedContext.Provider
@@ -71,6 +77,8 @@ export const TotalElapsedProvider = ({ children }) => {
         setTotalElapsedTime,
         totalCurrency,
         setTotalCurrency,
+        dailyEntries,
+        setDailyEntries,
         backgroundColor,
         setBackgroundColor,
         buttonColor,
