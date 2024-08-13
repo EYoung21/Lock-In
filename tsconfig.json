@@ -22,7 +22,8 @@
     "env.d.ts", 
     "react-native-launcher-kit.d.ts", 
     "react-native-installed-apps.d.ts", 
-    "declarations.d.ts"
+    "declarations.d.ts",
+    "react-native-config.d.ts",
   ],
   "exclude": [
     "node_modules",

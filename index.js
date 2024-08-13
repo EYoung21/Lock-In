@@ -1,9 +1,11 @@
-if (typeof process === 'undefined') {
-  global.process = require('process');
+import 'react-native-reanimated';  // Ensure this is included for React Native Reanimated
+
+if (typeof globalThis.process === 'undefined') {
+  globalThis.process = require('process');
 }
 
-if (typeof process.cwd === 'undefined') {
-  process.cwd = () => '/';
+if (typeof globalThis.process.cwd === 'undefined') {
+  globalThis.process.cwd = () => '/';
 }
 
 import 'react-native-gesture-handler';
@@ -13,7 +15,7 @@ import { name as appName } from './app.json';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
-if (typeof process !== 'undefined' && typeof process.cwd === 'function') {
+if (typeof globalThis.process !== 'undefined' && typeof globalThis.process.cwd === 'function') {
   require('dotenv').config();
 }
 
@@ -21,7 +23,7 @@ if (typeof process !== 'undefined' && typeof process.cwd === 'function') {
 PushNotification.configure({
   onNotification: function (notification) {
     console.log('NOTIFICATION:', notification);
-    notification.finish(PushNotificationIOS.FetchResult.NoData); // Add this line to handle iOS notifications
+    notification.finish(PushNotificationIOS.FetchResult.NoData); // Handle iOS notifications
   },
   popInitialNotification: true,
   requestPermissions: Platform.OS === 'ios',
