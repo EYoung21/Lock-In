@@ -6,6 +6,8 @@ import {
   TouchableWithoutFeedback,
   Animated,
   SafeAreaView,
+  Platform,
+  Alert,
 } from 'react-native';
 import { Stopwatch } from 'react-native-stopwatch-timer';
 import styles from './HomePageStyles';
@@ -14,14 +16,19 @@ import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
 
-const getTimerColor = (backgroundPalette: string) => {
+const getTimerColor = (backgroundPalette) => {
   if (backgroundPalette === '#000000') {
     return '#FFFFFF';
   }
   return '#0d0d0d';
 };
 
-type SafeImageKey = 'image1' | 'image2' | 'image3';
+const getCurrentRunningApp = async () => {
+  // Implement logic to get the currently running app
+  // This part is platform-specific and might require native modules or additional packages
+  // Placeholder for demonstration
+  return 'com.some.non.whitelisted.app';
+};
 
 const HomeScreen = () => {
   const scaleAnim = useRef(new Animated.Value(1.75)).current;
@@ -30,7 +37,7 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, dailyEntries, setDailyEntries, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, dailyEntries, setDailyEntries, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe, whitelistedApps } = useContext(TotalElapsedContext);
   const [stopwatchStart, setStopwatchStart] = useState(false);
   const [stopwatchReset, setStopwatchReset] = useState(false);
   const [lockInTime, setLockInTime] = useState(0);
@@ -44,15 +51,30 @@ const HomeScreen = () => {
   useEffect(() => {
     if (!isLockedIn) {
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
-      setTotalElapsedTime((prevTime: number) => prevTime + elapsedTimeInMinutes);
-      setTotalCurrency((prevCurrency: number) => prevCurrency + elapsedTimeInMinutes);
+      setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
+      setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
       updateDailyEntries(elapsedTimeInMinutes);
     }
   }, [elapsedTime]);
 
-  const updateDailyEntries = (minutes: number) => {
+  useEffect(() => {
+    const checkRunningApp = async () => {
+      if (!isLockedIn) return;
+      const currentApp = await getCurrentRunningApp();
+      if (!whitelistedApps.includes(currentApp)) {
+        Alert.alert('Lockout', 'You have been locked out for using a non-whitelisted app.');
+        handlePressOut();
+      }
+    };
+
+    const intervalId = setInterval(checkRunningApp, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isLockedIn, whitelistedApps]);
+
+  const updateDailyEntries = (minutes) => {
     const today = moment().format('YYYY-MM-DD');
-    setDailyEntries((prevEntries: any) => {
+    setDailyEntries((prevEntries) => {
       const newEntries = { ...prevEntries };
       if (newEntries[today]) {
         newEntries[today] += minutes;
@@ -80,8 +102,8 @@ const HomeScreen = () => {
     { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
     { id: 'GoldenBars', image1: require('./assets/safe61.png'), image2: require('./assets/safe62.png'), image3: require('./assets/safe63.png'), cost: 2400 },
   ];
-  
-  const getSafeImage = (id: string, imageKey: SafeImageKey) => {
+
+  const getSafeImage = (id, imageKey) => {
     const safe = safes.find((safe) => safe.id === id);
     return safe ? safe[imageKey] : null;
   };
@@ -121,7 +143,7 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const getImageStyle = (source: any) => {
+  const getImageStyle = (source) => {
     if (source === require('./assets/safe1.png')) {
       return styles.image2;
     } else if (source === require('./assets/safe2.png')) {
