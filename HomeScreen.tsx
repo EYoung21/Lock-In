@@ -5,12 +5,16 @@ import {
   Image,
   TouchableWithoutFeedback,
   Animated,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import moment from 'moment';
 import styles from './HomePageStyles';
 import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Timer({ interval } : {interval:number}) {
   const duration = moment.duration(interval);
@@ -33,27 +37,25 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor } = useContext(TotalElapsedContext);
   const [timerInterval, setTimerInterval] = useState(0);
-  const [lockInTime, setLockInTime] = useState(0); // Variable to store lock in time
-  const [elapsedTime, setElapsedTime] = useState(0); // Variable to store elapsed time
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency } = useContext(TotalElapsedContext);
+  const [lockInTime, setLockInTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
 
-  // useEffect(() => {
-  //   setTotalCurrency(0);
+  //   useEffect(() => {
+  //   setTotalCurrency(50000);
   // }, []);
 
   // useEffect(() => {
   //   setTotalElapsedTime(0);
   // }, []);
 
-
   useEffect(() => {
     let timer:any;
     if (isLockedIn) {
       timer = setInterval(() => {
-        setTimerInterval(prevInterval => prevInterval + 10);
+        setTimerInterval((prevInterval) => prevInterval + 10);
       }, 10);
     } else {
       clearInterval(timer);
@@ -91,9 +93,6 @@ const HomeScreen = () => {
 
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
       setTotalElapsedTime(totalElapsedTime + elapsedTimeInMinutes);
-
-      // const factor = 100;
-      // const updatedTotalCurrency = Math.round((totalCurrency + elapsedTimeInMinutes) * factor) / factor;
       setTotalCurrency(totalCurrency + elapsedTimeInMinutes);
     } else {
       setIsLockedIn(true);
@@ -116,7 +115,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency.toFixed(2)}</Text>
       <Timer interval={timerInterval} />
       <Image source={imageSource} style={getImageStyle(imageSource)} />
