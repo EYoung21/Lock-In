@@ -102,7 +102,7 @@ const HomeScreen = () => {
       setLockInTime(0);
       setTimeout(() => {
         setImageSource(getSafeImage(safe, 'image2'));
-      }, 500);
+      }, 625);
 
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
       setTotalElapsedTime(totalElapsedTime + elapsedTimeInMinutes);
@@ -121,10 +121,48 @@ const HomeScreen = () => {
   };
 
   const getImageStyle = (source: any) => {
-    if (source === require('./assets/safe1.png') || source === require('./assets/safe2.png')) {
+    if (source === require('./assets/safe1.png')) {
       return styles.image2;
     }
-    return styles.image;
+    else if (source === require('./assets/safe2.png')) {
+      return styles.image5;
+    }
+    else if (source === require('./assets/safe3.png')) {
+      return styles.image;
+    }
+    else if (source === require('./assets/safe21.png')) {
+      return styles.image3;
+    } 
+    else if (source === require('./assets/safe22.png')) {
+      return styles.image4;
+    }
+    else if (source === require('./assets/safe23.png')) {
+      return styles.image;
+    }
+    else if (source === require('./assets/safe33.png')) {
+      return styles.image6;
+    }
+    else if (source === require('./assets/safe31.png') || source === require('./assets/safe32.png')) {
+      return styles.image7;
+    }
+    else if (source === require('./assets/safe43.png')) {
+      return styles.image8;
+    }
+    else if (source === require('./assets/safe41.png')) {
+      return styles.image9;
+    }
+    else if (source === require('./assets/safe42.png')) {
+      return styles.image10;
+    }
+    else if (source === require('./assets/safe53.png')) {
+      return styles.image10;
+    }
+    else if (source === require('./assets/safe51.png')) {
+      return styles.image11;
+    }
+    else if (source === require('./assets/safe52.png')) {
+      return styles.image12;
+    }
   };
 
   return (
