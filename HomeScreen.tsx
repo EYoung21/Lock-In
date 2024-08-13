@@ -37,14 +37,17 @@ const HomeScreen = () => {
   const [timerInterval, setTimerInterval] = useState(0);
   const [lockInTime, setLockInTime] = useState(0); // Variable to store lock in time
   const [elapsedTime, setElapsedTime] = useState(0); // Variable to store elapsed time
-  const [totalCurrency, setTotalCurrency] = useState(0);
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency } = useContext(TotalElapsedContext);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
 
-  const { totalElapsedTime, setTotalElapsedTime } = useContext(TotalElapsedContext);
+  // useEffect(() => {
+  //   setTotalCurrency(0);
+  // }, []);
 
-  useEffect(() => {
-    setTotalCurrency(0);
-  }, []);
+  // useEffect(() => {
+  //   setTotalElapsedTime(0);
+  // }, []);
+
 
   useEffect(() => {
     let timer:any;
@@ -89,9 +92,9 @@ const HomeScreen = () => {
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
       setTotalElapsedTime(totalElapsedTime + elapsedTimeInMinutes);
 
-      const factor = 100;
-      const updatedTotalCurrency = Math.round((totalCurrency + eval(elapsedTimeInMinutes.toFixed(2))) * factor) / factor;
-      setTotalCurrency(updatedTotalCurrency);
+      // const factor = 100;
+      // const updatedTotalCurrency = Math.round((totalCurrency + elapsedTimeInMinutes) * factor) / factor;
+      setTotalCurrency(totalCurrency + elapsedTimeInMinutes);
     } else {
       setIsLockedIn(true);
       setCollapsed(true);
@@ -114,13 +117,10 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency}</Text>
+      <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency.toFixed(2)}</Text>
       <Timer interval={timerInterval} />
       <Image source={imageSource} style={getImageStyle(imageSource)} />
-      <TouchableWithoutFeedback
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-      >
+      <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
         <Animated.View style={[styles.button, { transform: [{ scale: scaleAnim }] }]}>
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Animated.View>
