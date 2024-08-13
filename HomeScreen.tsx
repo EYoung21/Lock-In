@@ -115,7 +115,7 @@ const HomeScreen = () => {
     } else if (source === require('./assets/safe2.png')) {
       return styles.image5;
     } else if (source === require('./assets/safe3.png')) {
-      return styles.image;
+      return styles.image1;
     } else if (source === require('./assets/safe21.png')) {
       return styles.image3;
     } else if (source === require('./assets/safe22.png')) {
