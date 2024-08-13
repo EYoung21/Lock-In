@@ -117,6 +117,20 @@ const styles = StyleSheet.create({
       marginBottom: 20,
       marginRight: 5,
     },
+    image15: {
+      width: 250,
+      height: 250,
+      resizeMode: 'contain',
+      marginBottom: 20,
+      marginLeft: 15,
+    },
+    image16: {
+      width: 250,
+      height: 250,
+      resizeMode: 'contain',
+      marginBottom: 20,
+      marginLeft: 10,
+    },
 
     button: {
       backgroundColor: '#0d0d0d',
