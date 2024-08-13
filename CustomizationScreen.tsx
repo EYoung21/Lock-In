@@ -72,11 +72,12 @@ const customizations = {
     { color: '#FFD700', border: '#FFA500', cost: 1200, name: 'Gold' },
   ],
   safes: [
-    { id: '2DSafe', image1: require('./assets/safe1.png'), image2: require('./assets/safe2.png'), image3: require('./assets/safe3.png'), cost: 480 },
-    { id: '3DSafe', image1: require('./assets/safe21.png'), image2: require('./assets/safe22.png'), image3: require('./assets/safe23.png'), cost: 960 },
-    { id: 'DigitalSafe', image1: require('./assets/safe31.png'), image2: require('./assets/safe32.png'), image3: require('./assets/safe33.png'), cost: 1440 },
-    { id: 'LargeSafe', image1: require('./assets/safe41.png'), image2: require('./assets/safe42.png'), image3: require('./assets/safe43.png'), cost: 1920 },
-    { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
+    { id: '2DSafe', image1: require('./assets/safe1.png'), image2: require('./assets/safe2.png'), image3: require('./assets/safe3.png'), cost: 400 },
+    { id: '3DSafe', image1: require('./assets/safe21.png'), image2: require('./assets/safe22.png'), image3: require('./assets/safe23.png'), cost: 800 },
+    { id: 'DigitalSafe', image1: require('./assets/safe31.png'), image2: require('./assets/safe32.png'), image3: require('./assets/safe33.png'), cost: 1200 },
+    { id: 'LargeSafe', image1: require('./assets/safe41.png'), image2: require('./assets/safe42.png'), image3: require('./assets/safe43.png'), cost: 1600 },
+    { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2000 },
+    { id: 'GoldenBars', image1: require('./assets/safe61.png'), image2: require('./assets/safe62.png'), image3: require('./assets/safe63.png'), cost: 2400 },
   ],
 };
 
@@ -208,7 +209,7 @@ const CustomizationScreen = () => {
         horizontal
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.item, { backgroundColor: item.color }, { borderColor: item.border }]}
+            style={[styles.button, { backgroundColor: item.color }, { borderColor: item.border }]}
             onPress={() => handlePurchaseButton(item)}
           >
             {!purchasedButtons.includes(item.color) && <Text style={styles.cost}>Cost: {item.cost} min</Text>}
@@ -266,6 +267,20 @@ const styles = StyleSheet.create({
   safeImage: {
     width: 80,
     height: 80,
+  },
+  button: {
+    backgroundColor: '#0d0d0d',
+    padding: 10,
+    borderRadius: 45,  // Adjust this value to make the button circular
+    borderWidth: 2,  // Adjust the width of the border as needed
+    borderColor: '#2F4F4F',  // Specify the color of the border
+    zIndex: 1,
+    marginTop: 50,
+    width: 90,  // Set the width of the button
+    height: 90,  // Set the height of the button
+    justifyContent: 'center',  // Center the text within the button
+    alignItems: 'center',  // Center the text within the button
+    margin: 11,
   },
 });
 
