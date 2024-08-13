@@ -242,7 +242,7 @@ const StatisticsScreen: React.FC = () => {
       .range([screenHeight - 40, 0]);
 
     try {
-      line = d3Shape.line<GraphData>()
+      line = d3Shape.line()
         .x((d) => xScale(new Date(d.date)))
         .y((d) => yScale(d.minutes))
         .curve(d3Shape.curveBasis)(graphData) || '';

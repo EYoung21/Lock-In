@@ -11,6 +11,6 @@
     "noEmit": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "react-native-installed-apps.d.ts", "react-native-launcher-kit.d.ts"],
+  "include": ["src/**/*", "types/**/*", "react-native-stopwatch-timer.d.ts", "env.d.ts", "react-native-launcher-kit.d.ts", "react-native-installed-apps.d.ts", "declarations.d.ts"],
   "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
 }
