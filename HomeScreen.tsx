@@ -26,7 +26,6 @@ function Timer({ interval }) {
 
 const HomeScreen = () => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const [isAnimating, setIsAnimating] = useState(false);
   const [imageSource, setImageSource] = useState(require('./assets/safe2.png'));
   const [buttonText, setButtonText] = useState('Lock In');
   const [isLockedIn, setIsLockedIn] = useState(false);
