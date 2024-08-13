@@ -1,10 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, Button, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-import { supabase } from './supabaseClient';
 import { GOOGLE_WEB_CLIENT_ID } from '@env';
+import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
+import { scaleTime, scaleLinear } from 'd3-scale';
+import * as d3 from 'd3-shape';
+import { Picker } from '@react-native-picker/picker';
 
 interface DailyEntries {
   [key: string]: number;
@@ -19,9 +22,35 @@ interface WeeklyStats {
   daily: DailyEntries;
 }
 
+interface GraphData {
+  date: string;
+  minutes: number;
+}
+
 const StatisticsScreen: React.FC = () => {
-  const { totalElapsedTime, dailyEntries } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, dailyEntries, setDailyEntries } = useContext(TotalElapsedContext);
   const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [graphType, setGraphType] = useState<'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'>('daily');
+
+  useEffect(() => {
+    // Generate test data for the past three years
+    const generateTestData = () => {
+      const testEntries: DailyEntries = {};
+      const startDate = moment().subtract(0.1, 'years');
+      const endDate = moment();
+      
+      let currentDate = startDate.clone();
+      while (currentDate.isBefore(endDate)) {
+        const randomMinutes = Math.floor(Math.random() * 120); // Random minutes between 0 and 120
+        testEntries[currentDate.format('YYYY-MM-DD')] = randomMinutes;
+        currentDate.add(1, 'day');
+      }
+      
+      setDailyEntries(testEntries);
+    };
+
+    generateTestData();
+  }, [setDailyEntries]);
 
   GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -29,10 +58,24 @@ const StatisticsScreen: React.FC = () => {
     scopes: ['https://www.googleapis.com/auth/drive.file'],
   });
 
+  const getStartOfWeek = (date: moment.Moment) => date.startOf('isoWeek');
+
   const calculateWeeklyStats = (entries: DailyEntries): WeeklyStats[] => {
     const weeks: { [key: string]: { totalMinutes: number; days: number; daily: DailyEntries } } = {};
+
+    const entryDates = Object.keys(entries).map(date => moment(date));
+    if (entryDates.length === 0) return [];
+
+    const firstDate = getStartOfWeek(moment.min(entryDates));
+    const lastDate = getStartOfWeek(moment.max(entryDates)).add(1, 'week');
+
+    for (let week = firstDate.clone(); week.isBefore(lastDate); week.add(1, 'week')) {
+      const weekKey = week.format('YYYY-MM-DD');
+      weeks[weekKey] = { totalMinutes: 0, days: 0, daily: {} };
+    }
+
     Object.keys(entries).forEach((date) => {
-      const week = moment(date).startOf('isoWeek').format('YYYY-MM-DD');
+      const week = getStartOfWeek(moment(date)).format('YYYY-MM-DD');
       if (!weeks[week]) {
         weeks[week] = { totalMinutes: 0, days: 0, daily: {} };
       }
@@ -47,8 +90,8 @@ const StatisticsScreen: React.FC = () => {
         week: moment(week).format('MM/DD/YYYY'),
         totalMinutes,
         totalHours: (totalMinutes / 60).toFixed(2),
-        avgMinutes: (totalMinutes / days).toFixed(2),
-        avgHours: (totalMinutes / (days * 60)).toFixed(2),
+        avgMinutes: (totalMinutes / (days || 1)).toFixed(2),
+        avgHours: (totalMinutes / ((days || 1) * 60)).toFixed(2),
         daily,
       };
     });
@@ -57,13 +100,14 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const weeklyStats = calculateWeeklyStats(dailyEntries);
+  // console.log('Weekly Stats:', weeklyStats);  // Debugging log
 
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUserInfo(userInfo);
-  
+
       // Store user data in Supabase
       const { idToken } = await GoogleSignin.getTokens();
       const response = await fetch('http://localhost:3000/storeUser', {
@@ -90,7 +134,6 @@ const StatisticsScreen: React.FC = () => {
       }
     }
   };
-  
 
   const exportData = async () => {
     const data = weeklyStats.map(item => [
@@ -123,6 +166,86 @@ const StatisticsScreen: React.FC = () => {
     }
   };
 
+  // Graph data preparation
+  const prepareGraphData = (type: 'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'): GraphData[] => {
+    switch (type) {
+      case 'daily':
+        return Object.keys(dailyEntries).map(date => ({
+          date: moment(date).format('YYYY-MM-DD'),
+          minutes: dailyEntries[date],
+        }));
+      case 'averageWeekly':
+        const weeks = calculateWeeklyStats(dailyEntries);
+        if (weeks.length === 0) return [];
+        // console.log('Weekly Stats for Graph:', weeks);  // Debugging log
+        return weeks.map(week => ({
+          date: week.week,
+          minutes: week.totalMinutes / 7,
+        }));
+      case 'averageMonthly':
+        const months: { [key: string]: { totalMinutes: number; days: number } } = {};
+        Object.keys(dailyEntries).forEach(date => {
+          const month = moment(date).format('YYYY-MM');
+          if (!months[month]) {
+            months[month] = { totalMinutes: 0, days: 0 };
+          }
+          months[month].totalMinutes += dailyEntries[date];
+          months[month].days += 1;
+        });
+        return Object.keys(months).map(month => {
+          const daysInMonth = moment(month, 'YYYY-MM').daysInMonth();
+          return {
+            date: month,
+            minutes: months[month].totalMinutes / daysInMonth,
+          };
+        });
+      case 'averageYearly':
+        const years: { [key: string]: { totalMinutes: number; days: number } } = {};
+        Object.keys(dailyEntries).forEach(date => {
+          const year = moment(date).format('YYYY');
+          if (!years[year]) {
+            years[year] = { totalMinutes: 0, days: 0 };
+          }
+          years[year].totalMinutes += dailyEntries[date];
+          years[year].days += 1;
+        });
+        return Object.keys(years).map(year => {
+          const daysInYear = moment(year, 'YYYY').isLeapYear() ? 366 : 365;
+          return {
+            date: year,
+            minutes: years[year].totalMinutes / daysInYear,
+          };
+        });
+      default:
+        return [];
+    }
+  };
+
+  const graphData = prepareGraphData(graphType);
+  // console.log('Graph Data:', graphData);  // Debugging log
+
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = 300; // Increased height to fit labels
+  
+  const xScale = scaleTime()
+    .domain([new Date(graphData[0]?.date || new Date()), new Date(graphData[graphData.length - 1]?.date || new Date())])
+    .range([0, screenWidth - 40]);
+
+  const yScale = scaleLinear()
+    .domain([0, Math.max(...graphData.map(d => d.minutes))])
+    .range([screenHeight - 40, 0]); // Leave space for labels
+
+  const line = d3.line<GraphData>()
+    .x((d) => xScale(new Date(d.date)))
+    .y((d) => yScale(d.minutes))
+    .curve(d3.curveBasis)(graphData) || '';
+
+  const xAxisLabel = graphType === 'daily' ? 'Day' :
+                     graphType === 'averageWeekly' ? 'Week' :
+                     graphType === 'averageMonthly' ? 'Month' : 'Year';
+
+  const yAxisLabel = graphType === 'daily' ? 'Minutes' : 'Average Minutes';
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -137,7 +260,7 @@ const StatisticsScreen: React.FC = () => {
       </View>
       <Text style={styles.headerText}>Weekly Statistics</Text>
       <ScrollView horizontal>
-        <View>
+        <ScrollView style={styles.tableContainer} contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.table}>
             <View style={styles.tableRow}>
               <Text style={[styles.headerCell, styles.cellText]}>Week</Text>
@@ -170,7 +293,45 @@ const StatisticsScreen: React.FC = () => {
               </View>
             ))}
           </View>
-        </View>
+        </ScrollView>
+      </ScrollView>
+      <Text style={styles.headerText}>Daily Work Minutes Graph</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={graphType}
+          style={styles.picker}
+          onValueChange={(itemValue) => setGraphType(itemValue as 'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly')}
+        >
+          <Picker.Item label="Minutes per Day" value="daily" />
+          <Picker.Item label="Average Minutes per Week" value="averageWeekly" />
+          <Picker.Item label="Average Minutes per Month" value="averageMonthly" />
+          <Picker.Item label="Average Minutes per Year" value="averageYearly" />
+        </Picker>
+      </View>
+      <ScrollView horizontal>
+        <Svg width={screenWidth} height={screenHeight}>
+          <Rect width="100%" height="100%" fill="white" />
+          <Path d={line} stroke="skyblue" strokeWidth={2} fill="none" />
+          <SvgText
+            x={screenWidth / 2}
+            y={screenHeight - 10}
+            textAnchor="middle"
+            fontSize="16"
+            fill="black"
+          >
+            {xAxisLabel}
+          </SvgText>
+          <SvgText
+            x={-screenHeight / 2}
+            y={15}
+            textAnchor="middle"
+            fontSize="16"
+            fill="black"
+            transform="rotate(-90)"
+          >
+            {yAxisLabel}
+          </SvgText>
+        </Svg>
       </ScrollView>
     </View>
   );
@@ -202,6 +363,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 10,
   },
+  tableContainer: {
+    height: 300, // Adjust this value to control the scrollable height of the table
+  },
   table: {
     marginTop: 10,
     marginBottom: 20,
@@ -232,7 +396,15 @@ const styles = StyleSheet.create({
   },
   cellText: {
     color: '#000',
-  }
+  },
+  pickerContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  picker: {
+    width: 200,
+    height: 50,
+  },
 });
 
 export default StatisticsScreen;
