@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-#Lock In
-A productivity app.
-
-
-
-
-<<<<<<< HEAD
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
@@ -127,10 +119,4 @@ Contributions to Lock In are welcome! If you have any ideas for new features, bu
 Lock In is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.
 
 ## Contact
-
-<<<<<<< HEAD
-If you have any questions or feedback, you can reach out to the project maintainer at [your-email@example.com](mailto:your-email@example.com).
->>>>>>> c9fcfcf (Update README.md)
-=======
 If you have any questions or feedback, you can reach out to the project maintainer at [eliyoung4now@gmail.com](mailto:eliyoung4now@gmail.com).
->>>>>>> 6e80b8e (Update README.md)
