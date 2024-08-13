@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
       borderWidth: 2,  // Adjust the width of the border as needed
       borderColor: '#2F4F4F',  // Specify the color of the border
       zIndex: 1,
-      marginTop: 30,
+      marginTop: 50,
       width: 90,  // Set the width of the button
       height: 90,  // Set the height of the button
       justifyContent: 'center',  // Center the text within the button
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
       color: '#0d0d0d',
       fontSize: 60,
       fontWeight: '200',
+      marginBottom: 15,
     },
     totalCurrency: {
       position: 'absolute',
