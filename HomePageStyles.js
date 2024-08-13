@@ -24,28 +24,28 @@ const styles = StyleSheet.create({
       height: 220,
       resizeMode: 'contain',
       marginBottom: 20,
-      marginLeft: 30,
+      marginLeft: 25,
     },
     image3: {
       width: 200,
       height: 200,
       resizeMode: 'contain',
       marginBottom: 20,
-      marginLeft: 20,
+      marginLeft: 10,
     },
     image4: {
       width: 200,
       height: 200,
       resizeMode: 'contain',
       marginBottom: 20,
-      marginLeft: 14,
+      marginLeft: 3.5,
     },
     image5: {
       width: 220,
       height: 220,
       resizeMode: 'contain',
       marginBottom: 20,
-      marginLeft: 30.5,
+      marginLeft: 25,
     },
     image6: {
       width: 250,
@@ -89,26 +89,33 @@ const styles = StyleSheet.create({
       marginBottom: 20,
       marginRight: 24.5,
     },
-    image10: {
+    image11: {
       width: 325,
       height: 325,
       resizeMode: 'contain',
       marginBottom: 20,
       marginRight: 24.5,
     },
-    image11: {
+    image12: {
       width: 325,
       height: 325,
       resizeMode: 'contain',
       marginBottom: 20,
       marginRight: 30,
     },
-    image12: {
+    image13: {
       width: 315,
       height: 315,
       resizeMode: 'contain',
-      marginBottom: 25,
+      marginBottom: 23,
       marginLeft: 12.5,
+    },
+    image14: {
+      width: 200,
+      height: 200,
+      resizeMode: 'contain',
+      marginBottom: 20,
+      marginRight: 5,
     },
 
     button: {
