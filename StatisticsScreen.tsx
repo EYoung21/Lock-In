@@ -19,17 +19,15 @@ interface WeeklyStats {
   daily: DailyEntries;
 }
 
-// console.log(GOOGLE_WEB_CLIENT_ID);
-
-GoogleSignin.configure({
-  webClientId: GOOGLE_WEB_CLIENT_ID,
-  offlineAccess: true,
-  scopes: ['https://www.googleapis.com/auth/drive.file'],
-});
-
 const StatisticsScreen: React.FC = () => {
   const { totalElapsedTime, dailyEntries } = useContext(TotalElapsedContext);
   const [userInfo, setUserInfo] = useState<User | null>(null);
+
+  GoogleSignin.configure({
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+    offlineAccess: true,
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
 
   const calculateWeeklyStats = (entries: DailyEntries): WeeklyStats[] => {
     const weeks: { [key: string]: { totalMinutes: number; days: number; daily: DailyEntries } } = {};
@@ -78,6 +76,7 @@ const StatisticsScreen: React.FC = () => {
       const result = await response.json();
       console.log('User stored in backend:', result);
     } catch (error: any) {
+      console.log('Sign-in error details:', error); // Add this line for more detailed error logging
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled the login flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {

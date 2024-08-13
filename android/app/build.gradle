@@ -3,11 +3,22 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services' // Apply Google services plugin
 
+/**
+ * This is the configuration block to customize your React Native Android app.
+ * By default you don't need to apply any configuration, just uncomment the lines you need.
+ */
 react {
     // Configuration options
 }
 
+/**
+ * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
+ */
 def enableProguardInReleaseBuilds = false
+
+/**
+ * The preferred build flavor of JavaScriptCore (JSC)
+ */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
@@ -50,8 +61,13 @@ android {
 }
 
 dependencies {
+    // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:33.1.1')
+
+    // Add the Firebase SDK for Google Analytics
     implementation 'com.google.firebase:firebase-analytics'
+
+    // Add the dependencies for the other Firebase products you want to use
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
     implementation 'com.google.api-client:google-api-client:1.32.1'
@@ -68,6 +84,7 @@ dependencies {
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
+// Ensure the task dependency
 tasks.whenTaskAdded { task ->
     if (task.name == 'mapDebugSourceSetPaths') {
         task.dependsOn 'processDebugGoogleServices'
