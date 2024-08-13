@@ -1,7 +1,3 @@
-/**
- * @format
- */
-
 if (typeof process === 'undefined') {
   global.process = require('process');
 }
@@ -19,8 +15,4 @@ if (typeof process !== 'undefined' && typeof process.cwd === 'function') {
   require('dotenv').config();
 }
 
-try {
-  AppRegistry.registerComponent(appName, () => FullApp);
-} catch (error) {
-  console.error('Failed to register component:', error);
-}
+AppRegistry.registerComponent(appName, () => FullApp);

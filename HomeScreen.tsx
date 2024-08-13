@@ -16,17 +16,21 @@ import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
 
-const getTimerColor = (backgroundPalette) => {
+const getTimerColor = (backgroundPalette: string) => {
   if (backgroundPalette === '#000000') {
     return '#FFFFFF';
   }
   return '#0d0d0d';
 };
 
+type SafeImageKey = 'image1' | 'image2' | 'image3';
+
 const getCurrentRunningApp = async () => {
-  // Implement logic to get the currently running app
-  // This part is platform-specific and might require native modules or additional packages
-  // Placeholder for demonstration
+  if (Platform.OS === 'ios') {
+    //return currently running ios app
+  } else {
+    //return currently running android app
+  }
   return 'com.some.non.whitelisted.app';
 };
 
@@ -51,8 +55,8 @@ const HomeScreen = () => {
   useEffect(() => {
     if (!isLockedIn) {
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
-      setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
-      setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
+      setTotalElapsedTime((prevTime: number) => prevTime + elapsedTimeInMinutes);
+      setTotalCurrency((prevCurrency: number) => prevCurrency + elapsedTimeInMinutes);
       updateDailyEntries(elapsedTimeInMinutes);
     }
   }, [elapsedTime]);
@@ -67,14 +71,17 @@ const HomeScreen = () => {
       }
     };
 
+    
     const intervalId = setInterval(checkRunningApp, 1000);
-
     return () => clearInterval(intervalId);
+    
+
+    // For iOS, implement appropriate logic if possible
   }, [isLockedIn, whitelistedApps]);
 
-  const updateDailyEntries = (minutes) => {
+  const updateDailyEntries = (minutes: number) => {
     const today = moment().format('YYYY-MM-DD');
-    setDailyEntries((prevEntries) => {
+    setDailyEntries((prevEntries: any) => {
       const newEntries = { ...prevEntries };
       if (newEntries[today]) {
         newEntries[today] += minutes;
@@ -102,8 +109,8 @@ const HomeScreen = () => {
     { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
     { id: 'GoldenBars', image1: require('./assets/safe61.png'), image2: require('./assets/safe62.png'), image3: require('./assets/safe63.png'), cost: 2400 },
   ];
-
-  const getSafeImage = (id, imageKey) => {
+  
+  const getSafeImage = (id:String, imageKey:SafeImageKey) => {
     const safe = safes.find((safe) => safe.id === id);
     return safe ? safe[imageKey] : null;
   };
@@ -143,7 +150,7 @@ const HomeScreen = () => {
     }, 1000);
   };
 
-  const getImageStyle = (source) => {
+  const getImageStyle = (source:any) => {
     if (source === require('./assets/safe1.png')) {
       return styles.image2;
     } else if (source === require('./assets/safe2.png')) {

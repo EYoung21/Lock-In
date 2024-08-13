@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
-import AppList from 'react-native-installed-apps';  // For iOS
-import { InstalledApps } from 'react-native-launcher-kit';  // For Android
+// import AppList from 'react-native-installed-apps'; // For iOS
+import { InstalledApps } from 'react-native-launcher-kit'; // For Android
 import { TotalElapsedContext } from './TotalElapsedContext';
-
-console.log(AppList); // Check what is being exported
-console.log(InstalledApps); // Check what is being exported
 
 const SettingsScreen = () => {
   const { whitelistedApps, setWhitelistedApps } = useContext(TotalElapsedContext);
@@ -13,12 +10,33 @@ const SettingsScreen = () => {
 
   useEffect(() => {
     const fetchApps = async () => {
-      if (Platform.OS === 'ios') {
-        const apps = await AppList.getAll();
-        setApps(apps.map(app => ({ name: app.app, id: app.appPath })));
-      } else {
-        const apps = await InstalledApps.getApps();
-        setApps(apps.map(app => ({ name: app.label, id: app.packageName }))); // Changed to packageName
+      try {
+        if (Platform.OS === 'android') {
+          console.log('Running on Android');
+          console.log('InstalledApps.getApps:', InstalledApps?.getApps);
+          if (InstalledApps && typeof InstalledApps.getApps === 'function') {
+            const apps = await InstalledApps.getApps();
+            console.log('Fetched apps:', apps);
+            setApps(apps.map(app => ({ name: app.label, id: app.packageName })));
+          } else {
+            console.error('InstalledApps is not correctly initialized or does not have getApps method.');
+          }
+        }
+        // Uncomment and use this block for iOS when needed
+        // else if (Platform.OS === 'ios') {
+        //   console.log('Running on iOS');
+        //   console.log('AppList.getAll:', AppList?.getAll);
+        //   if (AppList && typeof AppList.getAll === 'function') {
+        //     AppList.getAll((apps) => {
+        //       console.log('Fetched apps:', apps);
+        //       setApps(apps.map(app => ({ name: app.app, id: app.appPath })));
+        //     });
+        //   } else {
+        //     console.error('AppList is not correctly initialized or does not have getAll method.');
+        //   }
+        // }
+      } catch (error) {
+        console.error('Failed to fetch apps:', error);
       }
     };
 
