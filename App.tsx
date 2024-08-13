@@ -5,7 +5,7 @@ import {
   View,
   Image, 
   TouchableWithoutFeedback, 
-  Animated 
+  Animated,
 } from 'react-native';
 import moment from 'moment';
 
@@ -85,11 +85,11 @@ const App = () => {
       setTotalElapsedTime(totalElapsedTime + elapsedTimeInMinutes); // Accumulates elapsed time into total elapsed time
       
       const factor = 100; // Adjust the factor based on the desired precision
-      const updatedTotalCurrency = Math.round((totalCurrency + eval(elapsedTimeInMinutes.toFixed(2))) * factor) / factor;
+      const updatedTotalCurrency = Math.round((totalCurrency + eval(elapsedTimeInMinutes.toFixed(2))) * factor) / factor; //handles rounding
       setTotalCurrency(updatedTotalCurrency);
 
     } else {
-      // Change the image source to safe3 and text to "Lock In"
+      // Change the image source to safe3 and text to "Lock Out"
       setImageSource(require('./assets/safe3.png'));
       setButtonText('Lock Out');
       setIsLockedIn(true);
