@@ -13,8 +13,9 @@ export const TotalElapsedProvider = ({ children }) => {
   const [buttonBorder, setButtonBorder] = useState('#696969');
   const [safe, setSafe] = useState('2DSafe');
 
-  // New state for whitelisted apps
+  // New state for whitelisted apps and monitoring toggle
   const [whitelistedApps, setWhitelistedApps] = useState(['com.lockin']); // Add "Lock In" to the whitelisted apps by default
+  const [appMonitoringEnabled, setAppMonitoringEnabled] = useState(false); // Default value for app monitoring toggle
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,8 +29,9 @@ export const TotalElapsedProvider = ({ children }) => {
         const storedbuttonBorder = await AsyncStorage.getItem('buttonBorder');
         const storedSafe = await AsyncStorage.getItem('safe');
 
-        // Load whitelisted apps
+        // Load whitelisted apps and app monitoring toggle state
         const storedWhitelistedApps = await AsyncStorage.getItem('whitelistedApps');
+        const storedAppMonitoringEnabled = await AsyncStorage.getItem('appMonitoringEnabled');
 
         if (elapsedTime !== null) setTotalElapsedTime(parseFloat(elapsedTime));
         if (currency !== null) setTotalCurrency(parseFloat(currency));
@@ -46,6 +48,9 @@ export const TotalElapsedProvider = ({ children }) => {
           setWhitelistedApps(parsedWhitelistedApps);
         } else {
           setWhitelistedApps(['com.lockin']);
+        }
+        if (storedAppMonitoringEnabled !== null) {
+          setAppMonitoringEnabled(JSON.parse(storedAppMonitoringEnabled));
         }
       } catch (error) {
         console.error('Failed to load data from storage', error);
@@ -67,37 +72,29 @@ export const TotalElapsedProvider = ({ children }) => {
         await AsyncStorage.setItem('buttonBorder', buttonBorder);
         await AsyncStorage.setItem('safe', safe);
 
-        // Save whitelisted apps
+        // Save whitelisted apps and app monitoring toggle state
         await AsyncStorage.setItem('whitelistedApps', JSON.stringify(whitelistedApps));
+        await AsyncStorage.setItem('appMonitoringEnabled', JSON.stringify(appMonitoringEnabled));
       } catch (error) {
         console.error('Failed to save data to storage', error);
       }
     };
 
     saveData();
-  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, whitelistedApps]);
+  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, whitelistedApps, appMonitoringEnabled]);
 
   return (
-    <TotalElapsedContext.Provider
-      value={{
-        totalElapsedTime,
-        setTotalElapsedTime,
-        totalCurrency,
-        setTotalCurrency,
-        dailyEntries,
-        setDailyEntries,
-        backgroundColor,
-        setBackgroundColor,
-        buttonColor,
-        setButtonColor,
-        buttonBorder,
-        setButtonBorder,
-        safe,
-        setSafe,
-        whitelistedApps,
-        setWhitelistedApps,
-      }}
-    >
+    <TotalElapsedContext.Provider value={{
+      totalElapsedTime, setTotalElapsedTime,
+      totalCurrency, setTotalCurrency,
+      dailyEntries, setDailyEntries,
+      backgroundColor, setBackgroundColor,
+      buttonColor, setButtonColor,
+      buttonBorder, setButtonBorder,
+      safe, setSafe,
+      whitelistedApps, setWhitelistedApps,
+      appMonitoringEnabled, setAppMonitoringEnabled,
+    }}>
       {children}
     </TotalElapsedContext.Provider>
   );

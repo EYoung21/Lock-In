@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform } from 'react-native';
 // import AppList from 'react-native-installed-apps'; // For iOS
 import { InstalledApps } from 'react-native-launcher-kit'; // For Android
 import { TotalElapsedContext } from './TotalElapsedContext';
@@ -7,7 +7,7 @@ import { TotalElapsedContext } from './TotalElapsedContext';
 const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
 const SettingsScreen = () => {
-  const { whitelistedApps, setWhitelistedApps } = useContext(TotalElapsedContext);
+  const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled } = useContext(TotalElapsedContext);
   const [apps, setApps] = useState<{ name: string, id: string }[]>([]);
 
   useEffect(() => {
@@ -66,9 +66,20 @@ const SettingsScreen = () => {
     );
   };
 
+  const handleToggle = (value: boolean) => {
+    setAppMonitoringEnabled(value);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Whitelist Productive Apps!</Text>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.toggleLabel}>Enable App Monitoring:</Text>
+        <Switch
+          value={appMonitoringEnabled}
+          onValueChange={handleToggle}
+        />
+      </View>
       <FlatList
         data={apps}
         keyExtractor={item => item.id}
@@ -96,7 +107,17 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    color: '#000'
+    color: '#000',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  toggleLabel: {
+    fontSize: 18,
+    color: '#000',
+    marginRight: 10,
   },
   appItem: {
     padding: 10,

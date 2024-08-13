@@ -31,6 +31,7 @@ class MainActivity : ReactActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         mPermissionListener?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
