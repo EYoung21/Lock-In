@@ -114,7 +114,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.heading, styles.totalCurrency]}>Mula in Minutes: {totalCurrency}</Text>
+      <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency}</Text>
       <Timer interval={timerInterval} />
       <Image source={imageSource} style={getImageStyle(imageSource)} />
       <TouchableWithoutFeedback
