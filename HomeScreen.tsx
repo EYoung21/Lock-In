@@ -12,12 +12,12 @@ import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 
-// Define the getTimerColor function outside of the component
+
 const getTimerColor = (backgroundPalette: string) => {
   if (backgroundPalette === '#000000') {
     return '#FFFFFF';
   }
-  return '#0d0d0d'; // Default color if the background is not black
+  return '#0d0d0d';
 };
 
 function Timer({ interval, color }: { interval: number, color: string }) {
@@ -41,7 +41,7 @@ const HomeScreen = () => {
   const [isLockedIn, setIsLockedIn] = useState(false);
 
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, setTotalElapsedTime, totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
   const [timerInterval, setTimerInterval] = useState(0);
   const [lockInTime, setLockInTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -60,6 +60,10 @@ const HomeScreen = () => {
     return () => clearInterval(timer);
   }, [isLockedIn]);
 
+  useEffect(() => {
+    setImageSource(getSafeImage(safe, 'image2'));
+  }, [safe]);
+
   const handlePressIn = () => {
     if (isActionInProgress) return;
     setIsActionInProgress(true);
@@ -67,6 +71,19 @@ const HomeScreen = () => {
       toValue: 1.5,
       useNativeDriver: true,
     }).start();
+  };
+
+  const safes = [
+    { id: '2DSafe', image1: require('./assets/safe1.png'), image2: require('./assets/safe2.png'), image3: require('./assets/safe3.png'), cost: 480 },
+    { id: '3DSafe', image1: require('./assets/safe21.png'), image2: require('./assets/safe22.png'), image3: require('./assets/safe23.png'), cost: 960 },
+    { id: 'DigitalSafe', image1: require('./assets/safe31.png'), image2: require('./assets/safe32.png'), image3: require('./assets/safe33.png'), cost: 1440 },
+    { id: 'LargeSafe', image1: require('./assets/safe41.png'), image2: require('./assets/safe42.png'), image3: require('./assets/safe43.png'), cost: 1920 },
+    { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
+  ];
+
+  const getSafeImage = (id:string, imageKey:string) => {
+    const safe = safes.find(safe => safe.id === id);
+    return safe ? safe[imageKey] : null;
   };
 
   const handlePressOut = () => {
@@ -79,12 +96,12 @@ const HomeScreen = () => {
       setIsLockedIn(false);
       setCollapsed(false);
       SystemNavigationBar.navigationShow();
-      setImageSource(require('./assets/safe1.png'));
+      setImageSource(getSafeImage(safe, 'image1'));
       setButtonText('Lock In');
       setElapsedTime(Date.now() - lockInTime);
       setLockInTime(0);
       setTimeout(() => {
-        setImageSource(require('./assets/safe2.png'));
+        setImageSource(getSafeImage(safe, 'image2'));
       }, 500);
 
       const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
@@ -94,7 +111,7 @@ const HomeScreen = () => {
       setIsLockedIn(true);
       setCollapsed(true);
       SystemNavigationBar.navigationHide();
-      setImageSource(require('./assets/safe3.png'));
+      setImageSource(getSafeImage(safe, 'image3'));
       setButtonText('Lock Out');
       setLockInTime(Date.now());
     }
@@ -121,7 +138,7 @@ const HomeScreen = () => {
           { 
             transform: [{ scale: scaleAnim }], 
             backgroundColor: buttonColor, 
-            borderColor: buttonBorder
+            borderColor: buttonBorder,
           }
         ]}>
           <Text style={styles.buttonText}>{buttonText}</Text>

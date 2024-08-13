@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,6 +14,14 @@ interface CustomizationButton {
   border: string;
   cost: number;
   name: string;
+}
+
+interface CustomizationSafe {
+  id: string;
+  image1: object;
+  image2: object;
+  image3: object;
+  cost: number;
 }
 
 const customizations = {
@@ -63,17 +71,20 @@ const customizations = {
     { color: '#C0C0C0', border: '#A9A9A9', cost: 1140, name: 'Silver' },
     { color: '#FFD700', border: '#FFA500', cost: 1200, name: 'Gold' },
   ],
-  // safes: [
-  //   { id: 'safe1', image: require('./assets/safe1.png'), cost: 800 },
-  //   { id: 'safe2', image: require('./assets/safe2.png'), cost: 1600 },
-  //   { id: 'safe3', image: require('./assets/safe3.png'), cost: 2400 },
-  // ],
+  safes: [
+    { id: '2DSafe', image1: require('./assets/safe1.png'), image2: require('./assets/safe2.png'), image3: require('./assets/safe3.png'), cost: 480 },
+    { id: '3DSafe', image1: require('./assets/safe21.png'), image2: require('./assets/safe22.png'), image3: require('./assets/safe23.png'), cost: 960 },
+    { id: 'DigitalSafe', image1: require('./assets/safe31.png'), image2: require('./assets/safe32.png'), image3: require('./assets/safe33.png'), cost: 1440 },
+    { id: 'LargeSafe', image1: require('./assets/safe41.png'), image2: require('./assets/safe42.png'), image3: require('./assets/safe43.png'), cost: 1920 },
+    { id: 'TreasureChest', image1: require('./assets/safe51.png'), image2: require('./assets/safe52.png'), image3: require('./assets/safe53.png'), cost: 2400 },
+  ],
 };
 
 const CustomizationScreen = () => {
-  const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder } = useContext(TotalElapsedContext);
-  const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']);
-  const [purchasedButtons, setPurchasedButtons] = useState<string[]>([]);
+  const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
+  const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']); //sets default background
+  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['0d0d0d']); //sets default button
+  const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
   useEffect(() => {
     const loadPurchasedColors = async () => {
@@ -98,7 +109,10 @@ const CustomizationScreen = () => {
       try {
         const buttons = await AsyncStorage.getItem('purchasedButtons');
         if (buttons) {
-          setPurchasedButtons(JSON.parse(buttons));
+          const parsedButtons = JSON.parse(buttons);
+          setPurchasedButtons([...parsedButtons, '#0d0d0d']);
+        } else {
+          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#0d0d0d']));
         }
       } catch (error) {
         console.error('Failed to load purchased buttons from storage', error);
@@ -108,8 +122,27 @@ const CustomizationScreen = () => {
     loadPurchasedButtons();
   }, []);
 
+
+  useEffect(() => {
+    const loadPurchasedSafes = async () => {
+      try {
+        const safes = await AsyncStorage.getItem('purchasedSafes');
+        if (safes) {
+          const parsedSafes = JSON.parse(safes);
+          setPurchasedSafes([...parsedSafes, '#2DSafe']);
+        } else {
+          await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['#2DSafe']));
+        }
+      } catch (error) {
+        console.error('Failed to load purchased safes from storage', error);
+      }
+    };
+
+    loadPurchasedSafes();
+  }, []);
+
   const handlePurchase = async (item: CustomizationItem) => {
-    if (totalCurrency >= item.cost || purchasedColors.includes(item.color)) {
+    if (totalCurrency >= item.cost || purchasedSafes.includes(item.color)) {
       if (!purchasedColors.includes(item.color)) {
         setTotalCurrency(totalCurrency - item.cost);
         const newPurchasedColors = [...purchasedColors, item.color];
@@ -133,6 +166,19 @@ const CustomizationScreen = () => {
       setButtonBorder(item.border);
       await AsyncStorage.setItem('buttonColor', item.color);
       await AsyncStorage.setItem('buttonBorder', item.border);
+    }
+  };
+
+  const handlePurchaseSafe = async (item: CustomizationSafe) => {
+    if (totalCurrency >= item.cost || purchasedSafes.includes(item.id)) {
+      if (!purchasedSafes.includes(item.id)) {
+        setTotalCurrency(totalCurrency - item.cost);
+        const newPurchasedSafes = [...purchasedSafes, item.id];
+        setPurchasedSafes(newPurchasedSafes);
+        await AsyncStorage.setItem('purchasedSafes', JSON.stringify(newPurchasedSafes));
+      }
+      setSafe(item.id);
+      await AsyncStorage.setItem('safe', item.id);
     }
   };
 
@@ -170,18 +216,18 @@ const CustomizationScreen = () => {
         )}
       />
       
-      {/* <Text style={styles.subtitle}>Safes</Text>
+      <Text style={styles.subtitle}>Safe</Text>
       <FlatList
         data={customizations.safes}
         keyExtractor={(item) => item.id}
         horizontal
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.item} onPress={() => handlePurchase(item)}>
-            <Image source={item.image} style={styles.safeImage} />
-            <Text style={styles.cost}>Cost: {item.cost}</Text>
+          <TouchableOpacity style={styles.item} onPress={() => handlePurchaseSafe(item)}>
+            <Image source={item.image3} style={styles.safeImage} />
+            {!purchasedSafes.includes(item.id) && <Text style={[styles.cost, { color: '#000000' }]}>Cost: {item.cost} min</Text>}
           </TouchableOpacity>
         )}
-      /> */}
+      />
     </View>
   );
 };
@@ -192,13 +238,6 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',  // Center content horizontally
   },
-  // title: {
-  //   fontSize: 24,
-  //   fontWeight: 'bold',
-  //   marginBottom: 16,
-  //   color: '#000000',  // Set text color to black
-  //   textAlign: 'center',  // Center the text
-  // },
   currency: {
     fontSize: 18,
     marginBottom: 16,
