@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 8,
+    margin: 7,
     borderRadius: 10,
   },
   cost: {
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0d0d0d',
     padding: 10,
     borderRadius: 45,  // Adjust this value to make the button circular
-    borderWidth: 2,  // Adjust the width of the border as needed
+    borderWidth: 4,  // Adjust the width of the border as needed
     borderColor: '#2F4F4F',  // Specify the color of the border
     zIndex: 1,
     marginTop: 50,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     height: 90,  // Set the height of the button
     justifyContent: 'center',  // Center the text within the button
     alignItems: 'center',  // Center the text within the button
-    margin: 11,
+    margin: 12,
   },
 });
 
