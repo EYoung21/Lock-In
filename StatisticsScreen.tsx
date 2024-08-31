@@ -30,7 +30,7 @@ interface GraphData {
 const StatisticsScreen: React.FC = () => {
   const { totalElapsedTime, dailyEntries, setDailyEntries } = useContext(TotalElapsedContext);
   const [userInfo, setUserInfo] = useState<User | null>(null);
-  const [graphType, setGraphType] = useState<'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'>('daily');
+  const [graphType, setGraphType] = useState<'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'>('daily');
 
 
   //testing function here
@@ -167,7 +167,7 @@ const StatisticsScreen: React.FC = () => {
     }
   };
 
-  const prepareGraphData = (type: 'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly'): GraphData[] => {
+  const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
     let data: GraphData[] = [];
     switch (type) {
       case 'daily':
@@ -176,7 +176,7 @@ const StatisticsScreen: React.FC = () => {
           minutes: dailyEntries[date],
         }));
         break;
-      case 'averageWeekly':
+      case 'average Weekly':
         const weeks = calculateWeeklyStats(dailyEntries);
         if (weeks.length === 0) return [];
           data = weeks.map(week => ({
@@ -184,7 +184,7 @@ const StatisticsScreen: React.FC = () => {
             minutes: parseFloat(week.avgMinutes),
           }));
           break;
-      case 'averageMonthly':
+      case 'average Monthly':
         const months: { [key: string]: { totalMinutes: number; days: number } } = {};
         Object.keys(dailyEntries).forEach(date => {
           const month = moment(date).format('YYYY-MM');
@@ -202,7 +202,7 @@ const StatisticsScreen: React.FC = () => {
           };
         });
         break;
-      case 'averageYearly':
+      case 'average Yearly':
         const years: { [key: string]: { totalMinutes: number; days: number } } = {};
         Object.keys(dailyEntries).forEach(date => {
           const year = moment(date).format('YYYY');
@@ -254,8 +254,8 @@ const StatisticsScreen: React.FC = () => {
   }
 
   const xAxisLabel = graphType === 'daily' ? 'Day' :
-                     graphType === 'averageWeekly' ? 'Week' :
-                     graphType === 'averageMonthly' ? 'Month' : 'Year';
+                     graphType === 'average Weekly' ? 'Week' :
+                     graphType === 'average Monthly' ? 'Month' : 'Year';
 
   const yAxisLabel = graphType === 'daily' ? 'Minutes' : 'Average Minutes';
 
@@ -322,12 +322,12 @@ const StatisticsScreen: React.FC = () => {
         <Picker
           selectedValue={graphType}
           style={styles.picker}
-          onValueChange={(itemValue) => setGraphType(itemValue as 'daily' | 'averageWeekly' | 'averageMonthly' | 'averageYearly')}
+          onValueChange={(itemValue) => setGraphType(itemValue as 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly')}
         >
           <Picker.Item label="Minutes per Day" value="daily" />
-          <Picker.Item label="Average Minutes per Week" value="averageWeekly" />
-          <Picker.Item label="Average Minutes per Month" value="averageMonthly" />
-          <Picker.Item label="Average Minutes per Year" value="averageYearly" />
+          <Picker.Item label="Average Minutes per Week" value="average Weekly" />
+          <Picker.Item label="Average Minutes per Month" value="average Monthly" />
+          <Picker.Item label="Average Minutes per Year" value="average Yearly" />
         </Picker>
       </View>
       <ScrollView horizontal>
