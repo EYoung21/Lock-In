@@ -50,9 +50,9 @@ const customizations = {
   ],
 
   buttonColors: [
-    { color: '#808080', border: '#696969', cost: 0, name: 'Gray' },
+    { color: '#000000', border: '#333333', cost: 0, name: 'Black' },
     { color: '#A52A2A', border: '#8B4513', cost: 60, name: 'Brown' },
-    { color: '#000000', border: '#333333', cost: 120, name: 'Black' },
+    { color: '#808080', border: '#696969', cost: 120, name: 'Gray' },
     { color: '#FFFF00', border: '#FFD700', cost: 180, name: 'Yellow' },
     { color: '#0000FF', border: '#0000CD', cost: 240, name: 'Blue' },
     { color: '#FF0000', border: '#B22222', cost: 300, name: 'Red' },
@@ -84,7 +84,7 @@ const customizations = {
 const CustomizationScreen = () => {
   const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
   const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']); //sets default background
-  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#808080']); //sets default button
+  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#000000']); //sets default button
   const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
   // Add this useEffect for resetting AsyncStorage for testing
@@ -101,10 +101,10 @@ const CustomizationScreen = () => {
         
         // Optionally reset to default values if needed
         await AsyncStorage.setItem('purchasedColors', JSON.stringify(['#FFFFFF']));
-        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#808080']));
+        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#000000']));
         await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['2DSafe']));
         await AsyncStorage.setItem('backgroundColor', '#FFFFFF');
-        await AsyncStorage.setItem('buttonColor', '#808080');
+        await AsyncStorage.setItem('buttonColor', '#000000');
         await AsyncStorage.setItem('buttonBorder', '#696969');
       } catch (error) {
         console.error('Failed to reset AsyncStorage', error);
@@ -138,9 +138,9 @@ const CustomizationScreen = () => {
         const buttons = await AsyncStorage.getItem('purchasedButtons');
         if (buttons) {
           const parsedButtons = JSON.parse(buttons);
-          setPurchasedButtons([...parsedButtons, '#808080']);
+          setPurchasedButtons([...parsedButtons, '#000000']);
         } else {
-          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#808080']));
+          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#000000']));
         }
       } catch (error) {
         console.error('Failed to load purchased buttons from storage', error);

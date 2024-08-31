@@ -9,8 +9,8 @@ export const TotalElapsedProvider = ({ children }) => {
   const [totalCurrency, setTotalCurrency] = useState(0);
   const [dailyEntries, setDailyEntries] = useState({});
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
-  const [buttonColor, setButtonColor] = useState('#808080');
-  const [buttonBorder, setButtonBorder] = useState('#696969');
+  const [buttonColor, setButtonColor] = useState('#000000');
+  const [buttonBorder, setButtonBorder] = useState('#333333');
   const [safe, setSafe] = useState('2DSafe');
 
   // New state for whitelisted apps and monitoring toggle
