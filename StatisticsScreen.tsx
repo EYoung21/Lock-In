@@ -317,7 +317,7 @@ const StatisticsScreen: React.FC = () => {
 
 
 
-      <Text style={styles.headerText}>Daily Work Minutes Graph</Text>
+      <Text style={styles.headerText}>{graphType.slice(0, 1).toUpperCase() + graphType.slice(1, graphType.length)} Minutes Graph</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={graphType}
