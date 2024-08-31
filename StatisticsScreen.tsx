@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native';
 import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
@@ -160,8 +160,10 @@ const StatisticsScreen: React.FC = () => {
       });
       const result = await response.text();
       console.log('Spreadsheet created:', result);
+      Alert.alert('Success', `Spreadsheet created: ${result}`);
     } catch (error) {
       console.error('Error exporting data to Google Sheets:', error);
+      Alert.alert('Error', 'Failed to export data');
     }
   };
 

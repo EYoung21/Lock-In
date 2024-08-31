@@ -50,9 +50,11 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-auth:23.0.0' // Check for the latest version
+    
     implementation platform('com.google.firebase:firebase-bom:33.1.1')
     implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
     implementation 'com.google.api-client:google-api-client:1.32.1'
     implementation 'com.google.api-client:google-api-client-android:1.32.1'
