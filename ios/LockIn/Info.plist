@@ -58,5 +58,17 @@
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>com.apple.developer.aps-environment</key>
 	<string>development</string> <!-- or production -->
+
+	<!-- App Icon Configuration -->
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>
