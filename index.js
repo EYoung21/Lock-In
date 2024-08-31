@@ -1,4 +1,12 @@
-import 'react-native-reanimated';  // Ensure this is included for React Native Reanimated
+import React, { useEffect } from 'react'; // Import React and useEffect
+import 'react-native-reanimated'; // Ensure this is included for React Native Reanimated
+import 'react-native-gesture-handler'; // Ensure this is included for gesture handling
+import { AppRegistry, Platform } from 'react-native';
+import FullApp from './FullApp';
+import { name as appName } from './app.json';
+import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import SplashScreen from 'react-native-splash-screen'; // Import SplashScreen
 
 if (typeof globalThis.process === 'undefined') {
   globalThis.process = require('process');
@@ -7,13 +15,6 @@ if (typeof globalThis.process === 'undefined') {
 if (typeof globalThis.process.cwd === 'undefined') {
   globalThis.process.cwd = () => '/';
 }
-
-import 'react-native-gesture-handler';
-import { AppRegistry, Platform } from 'react-native';
-import FullApp from './FullApp';
-import { name as appName } from './app.json';
-import PushNotification from 'react-native-push-notification';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 if (typeof globalThis.process !== 'undefined' && typeof globalThis.process.cwd === 'function') {
   require('dotenv').config();
@@ -43,4 +44,13 @@ PushNotification.createChannel(
   (created) => console.log(`createChannel returned '${created}'`)
 );
 
-AppRegistry.registerComponent(appName, () => FullApp);
+// Register the main component
+const AppWrapper = () => {
+  useEffect(() => {
+    SplashScreen.hide(); // Hide splash screen when your app is ready
+  }, []);
+
+  return <FullApp />;
+};
+
+AppRegistry.registerComponent(appName, () => AppWrapper);

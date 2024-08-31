@@ -19,6 +19,8 @@ class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Remove setContentView for splash screen here
+        // SplashScreen.show(this) // If using react-native-splash-screen
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

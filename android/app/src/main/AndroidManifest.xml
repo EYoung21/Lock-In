@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lockin"> <!-- Keep the package attribute here -->
+    package="com.lockin">
 
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,7 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="false"
-        android:theme="@style/AppTheme">
+        android:theme="@style/SplashTheme"> <!-- Apply SplashScreenTheme here -->
 
         <!-- Metadata for Google Sign-In -->
         <meta-data
@@ -24,7 +24,7 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
-            
+
             <!-- Main launcher intent filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
