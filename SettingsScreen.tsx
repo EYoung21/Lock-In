@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform } from 'react-native';
-// import AppList from 'react-native-installed-apps'; // For iOS
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image } from 'react-native';
 import { InstalledApps } from 'react-native-launcher-kit'; // For Android
 import { TotalElapsedContext } from './TotalElapsedContext';
 
@@ -8,19 +7,22 @@ const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
 const SettingsScreen = () => {
   const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled } = useContext(TotalElapsedContext);
-  const [apps, setApps] = useState<{ name: string, id: string }[]>([]);
+  const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
 
   useEffect(() => {
     const fetchApps = async () => {
       try {
         if (Platform.OS === 'android') {
           console.log('Running on Android');
-          console.log('InstalledApps.getApps:', InstalledApps?.getApps);
           if (InstalledApps && typeof InstalledApps.getApps === 'function') {
             const apps = await InstalledApps.getApps();
             const filteredApps = apps
               .filter(app => app.packageName !== LOCK_IN_APP_ID)
-              .map(app => ({ name: app.label, id: app.packageName }));
+              .map(app => ({ 
+                name: app.label, 
+                id: app.packageName,
+                icon: `data:image/png;base64,${app.icon}` // Convert icon data to a base64 string
+              }));
             console.log('Fetched apps:', filteredApps);
             setApps(filteredApps);
           } else {
@@ -35,7 +37,11 @@ const SettingsScreen = () => {
         //     AppList.getAll((apps) => {
         //       const filteredApps = apps
         //         .filter(app => app.appPath !== LOCK_IN_APP_ID)
-        //         .map(app => ({ name: app.app, id: app.appPath }));
+        //         .map(app => ({ 
+        //           name: app.app, 
+        //           id: app.appPath,
+        //           icon: `data:image/png;base64,${app.icon}` // If AppList supports icons
+        //         }));
         //       console.log('Fetched apps:', filteredApps);
         //       setApps(filteredApps);
         //     });
@@ -91,6 +97,10 @@ const SettingsScreen = () => {
             ]}
             onPress={() => toggleWhitelist(item.id)}
           >
+            <Image
+              source={{ uri: item.icon }} // Display the app icon
+              style={styles.icon}
+            />
             <Text style={styles.appText}>{item.name}</Text>
           </TouchableOpacity>
         )}
@@ -120,6 +130,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   appItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
     margin: 5,
     backgroundColor: '#FF0000',
@@ -132,6 +144,11 @@ const styles = StyleSheet.create({
   appText: {
     fontSize: 16,
     color: '#000', // Set the app name text color to black
+    marginLeft: 10,
+  },
+  icon: {
+    width: 40,
+    height: 40,
   },
 });
 
