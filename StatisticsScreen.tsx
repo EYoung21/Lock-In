@@ -37,7 +37,7 @@ const StatisticsScreen: React.FC = () => {
   useEffect(() => {
     const generateTestData = () => {
       const testEntries: DailyEntries = {};
-      const startDate = moment().subtract(0.1, 'years');
+      const startDate = moment().subtract(0.5, 'years');
       const endDate = moment();
       let currentDate = startDate.clone();
       while (currentDate.isBefore(endDate)) {
@@ -261,9 +261,11 @@ const StatisticsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      
       <View style={styles.header}>
         <Text style={styles.totalText}>Total elapsed locked in time: {totalElapsedTime.toFixed(2)} minutes</Text>
       </View>
+      
       <View>
         {userInfo ? (
           <Button title="Backup to Google Drive" onPress={exportData} />
@@ -271,43 +273,50 @@ const StatisticsScreen: React.FC = () => {
           <Button title="Sign in with Google" onPress={signIn} />
         )}
       </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.headerText}>Weekly Statistics</Text>
-      <ScrollView horizontal>
-        <ScrollView style={styles.tableContainer} contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.headerCell, styles.cellText]}>Week</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Total Hours</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Total Minutes</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Avg Hours</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Avg Minutes</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Monday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Tuesday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Wednesday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Thursday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Friday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Saturday</Text>
-              <Text style={[styles.headerCell, styles.cellText]}>Sunday</Text>
-            </View>
-            {weeklyStats.map((item) => (
-              <View key={item.week} style={styles.tableRow}>
-                <Text style={[styles.cell, styles.cellText]}>{item.week}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{Number(item.totalHours).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{item.totalMinutes.toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{Number(item.avgHours).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{Number(item.avgMinutes).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
-                <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.tableContainer}>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={[styles.headerCell, styles.cellText]}>Week</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Total Hours</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Total Minutes</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Avg Hours</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Avg Minutes</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Monday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Tuesday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Wednesday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Thursday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Friday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Saturday</Text>
+                <Text style={[styles.headerCell, styles.cellText]}>Sunday</Text>
               </View>
-            ))}
+              {weeklyStats.map((item) => (
+                <View key={item.week} style={styles.tableRow}>
+                  <Text style={[styles.cell, styles.cellText]}>{item.week}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{Number(item.totalHours).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{item.totalMinutes.toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{Number(item.avgHours).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{Number(item.avgMinutes).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                  <Text style={[styles.cell, styles.cellText]}>{(item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         </ScrollView>
       </ScrollView>
+
+
+
       <Text style={styles.headerText}>Daily Work Minutes Graph</Text>
       <View style={styles.pickerContainer}>
         <Picker
@@ -351,7 +360,9 @@ const StatisticsScreen: React.FC = () => {
         </Svg>
       </ScrollView>
       {graphData.length === 0 && <Text style={styles.noDataText}>No data available for the selected graph type</Text>}
+      </ScrollView>
     </View>
+    
   );
 };
 
@@ -381,8 +392,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 10,
   },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   tableContainer: {
-    height: 300,
+    flex: 1,  // Change to flex to allow dynamic height
+    width: '100%',
   },
   table: {
     marginTop: 10,
@@ -410,14 +425,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     textAlign: 'center',
-    alignSelf: 'center',
   },
   cellText: {
     color: '#000',
   },
   pickerContainer: {
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 0,
   },
   picker: {
     width: 200,
