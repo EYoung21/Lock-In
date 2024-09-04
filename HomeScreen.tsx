@@ -96,6 +96,48 @@ const HomeScreen = () => {
     }
   }, [elapsedTime]);
 
+  useEffect(() => {
+    if (!isLockedIn) {
+      const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
+      setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
+      setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
+      updateDailyEntries(elapsedTimeInMinutes);
+    }
+  }, [elapsedTime]);
+
+  // const getCurrentRunningApp = () => {
+  //   return new Promise((resolve, reject) => {
+  //     CurrentAppModule.getCurrentRunningApp((appName) => {
+  //       if (appName === "unknown") {
+  //         reject("Unable to retrieve the current app");
+  //       } else {
+  //         resolve(appName);
+  //       }
+  //     });
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   const checkRunningApp = async () => {
+  //     if (!isLockedIn || !appMonitoringEnabled) return;
+
+  //     try {
+  //       const currentApp = await getCurrentRunningApp();
+  //       if (!whitelistedApps.includes(currentApp)) {
+  //         showNotification('Lock In', 'You have been locked out for using a non-whitelisted app.');
+  //         handlePressOut();
+  //       }
+  //     } catch (error) {
+  //       console.error('Error retrieving current running app:', error);
+  //     }
+  //   };
+
+  //   const intervalId = setInterval(checkRunningApp, 1000);
+  //   return () => clearInterval(intervalId);
+  // }, [isLockedIn, appMonitoringEnabled, whitelistedApps]);
+
+  //above is code to monitor current app, still need to code that functionality.
+
   const updateDailyEntries = (minutes) => {
     const today = moment().format('YYYY-MM-DD');
     setDailyEntries((prevEntries) => {
