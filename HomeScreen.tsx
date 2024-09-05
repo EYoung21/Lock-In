@@ -18,6 +18,12 @@ import moment from 'moment';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
+import { NativeModules } from 'react-native';
+
+const { AppServiceModule } = NativeModules;
+
+// const { CurrentAppModule } = NativeModules;
+
 // Set up push notification configuration
 PushNotification.configure({
   onNotification: function (notification) {
@@ -83,6 +89,29 @@ const HomeScreen = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
 
+
+  // When your whitelisted apps change, update the native module
+  useEffect(() => {
+    if (appMonitoringEnabled) {
+      AppServiceModule.updateWhitelistedApps(whitelistedApps)
+        .then(() => {
+          console.log("Whitelisted apps updated successfully");
+        })
+        .catch((error) => {
+          console.error("Failed to update whitelisted apps:", error);
+        });
+    }
+  }, [whitelistedApps, appMonitoringEnabled]);
+
+  // Start the service when monitoring is enabled
+  useEffect(() => {
+    if (isLockedIn && appMonitoringEnabled) {
+      AppServiceModule.startService();
+    } else {
+      AppServiceModule.stopService();
+    }
+  }, [isLockedIn, appMonitoringEnabled]);
+
   useEffect(() => {
     setImageSource(getSafeImage(safe, 'image2'));
   }, [safe]);
@@ -105,16 +134,14 @@ const HomeScreen = () => {
     }
   }, [elapsedTime]);
 
-  // const getCurrentRunningApp = () => {
-  //   return new Promise((resolve, reject) => {
-  //     CurrentAppModule.getCurrentRunningApp((appName) => {
-  //       if (appName === "unknown") {
-  //         reject("Unable to retrieve the current app");
-  //       } else {
-  //         resolve(appName);
-  //       }
-  //     });
-  //   });
+  // const getCurrentRunningApp = async () => {
+  //   try {
+  //     const currentApp = await CurrentAppModule.getCurrentRunningApp();
+  //     console.log("Current app:", currentApp);
+  //     return currentApp;
+  //   } catch (error) {
+  //     console.error("Error getting current app:", error);
+  //   }
   // };
 
   // useEffect(() => {
@@ -182,6 +209,9 @@ const HomeScreen = () => {
 
     if (isLockedIn) {
       const currentTime = Date.now();
+
+      AppServiceModule.stopService();
+
       setIsLockedIn(false);
       setCollapsed(false);
       SystemNavigationBar.navigationShow();
@@ -203,6 +233,9 @@ const HomeScreen = () => {
       setLockInTime(Date.now());
       setStopwatchStart(true);
       setStopwatchReset(false);
+      if (appMonitoringEnabled) {
+        AppServiceModule.startService();
+      }
     }
     setTimeout(() => {
       setIsActionInProgress(false);

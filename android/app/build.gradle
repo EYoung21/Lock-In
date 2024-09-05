@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.facebook.react:react-native:+'
+    
     implementation 'com.google.firebase:firebase-auth:23.0.0' // Check for the latest version
     
     implementation platform('com.google.firebase:firebase-bom:33.1.1')

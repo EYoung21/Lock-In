@@ -1,12 +1,56 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image } from 'react-native';
-import { InstalledApps } from 'react-native-launcher-kit'; // For Android
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image, PermissionsAndroid, AppState, AppStateStatus } from 'react-native';
+import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
+import { Linking, Alert } from 'react-native';
+import { NativeModules } from 'react-native';
+
+const { AppServiceModule } = NativeModules;
 
 const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
+const requestUsageStatsPermission = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        // App has come back to the foreground
+        appStateSubscription.remove();
+        
+        // Check if the permission was granted
+        const granted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.PACKAGE_USAGE_STATS
+        );
+        
+        resolve(granted);
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    Alert.alert(
+      'Permission Required',
+      'To monitor running apps, you need to enable usage access for this app. The app will now open your device settings. Please grant the permission and return to the app.',
+      [
+        { text: 'Cancel', style: 'cancel', onPress: () => {
+          appStateSubscription.remove();
+          resolve(false);
+        }},
+        { 
+          text: 'Open Settings', 
+          
+          onPress: () => {
+            Linking.openSettings();
+            // startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+          }
+        },
+      ],
+      { cancelable: false }
+    );
+  });
+};
+
 const SettingsScreen = () => {
-  const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled } = useContext(TotalElapsedContext);
+  const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn } = useContext(TotalElapsedContext);
   const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
 
   useEffect(() => {
@@ -62,7 +106,18 @@ const SettingsScreen = () => {
     if (!whitelistedApps.includes(LOCK_IN_APP_ID)) {
       setWhitelistedApps(prevState => [...prevState, LOCK_IN_APP_ID]);
     }
+
+    // Update the native module with the current whitelisted apps
+    updateNativeWhitelistedApps(whitelistedApps);
   }, [whitelistedApps]);
+
+  const updateNativeWhitelistedApps = async (apps: string[]) => {
+    try {
+      await AppServiceModule.updateWhitelistedApps(apps);
+    } catch (error) {
+      console.error('Failed to update whitelisted apps in native module:', error);
+    }
+  };
 
   const toggleWhitelist = (appId: string) => {
     setWhitelistedApps(prevState =>
@@ -72,10 +127,50 @@ const SettingsScreen = () => {
     );
   };
 
-  const handleToggle = (value: boolean) => {
-    setAppMonitoringEnabled(value);
-  };
+  const handleToggle = async (value: boolean) => {
+    if (value && !appMonitoringEnabled) {
+      let permissionGranted = false;
 
+      if (Platform.OS === 'android') {
+        permissionGranted = await requestUsageStatsPermission();
+        if (!permissionGranted) {
+          console.log('Usage stats permission not granted');
+          return;
+        }
+      } else if (Platform.OS === 'ios') {
+        // iOS doesn't require explicit permission for app usage stats
+        permissionGranted = true;
+      }
+
+      if (!permissionGranted) {
+        console.log('Permission not granted');
+        return;
+      }
+
+      if (!isLockedIn) {
+        console.log('User is not locked in, service not started');
+        return;
+      }
+
+      try {
+        await AppServiceModule.startService();
+        console.log('App monitoring service started');
+        setAppMonitoringEnabled(true);
+      } catch (error) {
+        console.error('Failed to start app monitoring service:', error);
+        return;
+      }
+    } else if (!value && appMonitoringEnabled) {
+      try {
+        await AppServiceModule.stopService();
+        console.log('App monitoring service stopped');
+        setAppMonitoringEnabled(false);
+      } catch (error) {
+        console.error('Failed to stop app monitoring service:', error);
+      }
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Whitelist Productive Apps!</Text>
