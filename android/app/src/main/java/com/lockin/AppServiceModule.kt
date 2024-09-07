@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReadableArray
 import android.content.Intent
 import android.provider.Settings
 
+import com.lockin.ForegroundService
 
 
 class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
