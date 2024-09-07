@@ -9,38 +9,32 @@ const { AppServiceModule } = NativeModules;
 
 const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
-const requestUsageStatsPermission = (): Promise<boolean> => {
+
+const checkUsageStatsPermission = async () => {
+  if (Platform.OS === 'android') {
+    try {
+      const hasPermission = await AppServiceModule.hasUsageStatsPermission();
+      return hasPermission;
+    } catch (error) {
+      console.error('Error checking usage stats permission:', error);
+      return false;
+    }
+  }
+  return false; // For iOS or other platforms, return false
+};
+
+const requestUsageStatsPermission = () => {
   return new Promise((resolve) => {
-    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'active') {
-        // App has come back to the foreground
-        appStateSubscription.remove();
-        
-        // Check if the permission was granted
-        const granted = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.PACKAGE_USAGE_STATS
-        );
-        
-        resolve(granted);
-      }
-    };
-
-    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-
     Alert.alert(
       'Permission Required',
       'To monitor running apps, you need to enable usage access for this app. The app will now open your device settings. Please grant the permission and return to the app.',
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => {
-          appStateSubscription.remove();
-          resolve(false);
-        }},
+        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
         { 
           text: 'Open Settings', 
-          
           onPress: () => {
             Linking.openSettings();
-            // startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+            resolve(true);
           }
         },
       ],
@@ -52,8 +46,19 @@ const requestUsageStatsPermission = (): Promise<boolean> => {
 const SettingsScreen = () => {
   const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn } = useContext(TotalElapsedContext);
   const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [isCheckingPermission, setIsCheckingPermission] = useState(true);
 
   useEffect(() => {
+    
+    const checkPermission = async () => {
+      setIsCheckingPermission(true);
+      const permission = await checkUsageStatsPermission();
+      setHasPermission(permission)
+      setIsCheckingPermission(false);
+    };
+    checkPermission()
+    
     const fetchApps = async () => {
       try {
         if (Platform.OS === 'android') {
@@ -127,49 +132,45 @@ const SettingsScreen = () => {
     );
   };
 
-  const handleToggle = async (value: boolean) => {
-    if (value && !appMonitoringEnabled) {
-      let permissionGranted = false;
-
-      if (Platform.OS === 'android') {
-        permissionGranted = await requestUsageStatsPermission();
-        if (!permissionGranted) {
-          console.log('Usage stats permission not granted');
-          return;
+  const handleToggle = async (value) => {
+    if (value) {
+      if (!hasPermission) {
+        const userResponded = await requestUsageStatsPermission();
+        if (userResponded) {
+          // Wait a bit for the user to grant the permission
+          setTimeout(async () => {
+            const permission = await checkUsageStatsPermission();
+            setHasPermission(permission);
+            if (permission) {
+              setAppMonitoringEnabled(true);
+              if (isLockedIn) {
+                AppServiceModule.startService();
+              }
+            } else {
+              Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
+            }
+          }, 1000); // Wait for 1 second
         }
-      } else if (Platform.OS === 'ios') {
-        // iOS doesn't require explicit permission for app usage stats
-        permissionGranted = true;
-      }
-
-      if (!permissionGranted) {
-        console.log('Permission not granted');
-        return;
-      }
-
-      if (!isLockedIn) {
-        console.log('User is not locked in, service not started');
-        return;
-      }
-
-      try {
-        await AppServiceModule.startService();
-        console.log('App monitoring service started');
+      } else {
         setAppMonitoringEnabled(true);
-      } catch (error) {
-        console.error('Failed to start app monitoring service:', error);
-        return;
+        if (isLockedIn) {
+          AppServiceModule.startService();
+        }
       }
-    } else if (!value && appMonitoringEnabled) {
-      try {
-        await AppServiceModule.stopService();
-        console.log('App monitoring service stopped');
-        setAppMonitoringEnabled(false);
-      } catch (error) {
-        console.error('Failed to stop app monitoring service:', error);
-      }
+    } else {
+      setAppMonitoringEnabled(false);
+      AppServiceModule.stopService();
     }
   };
+  
+  if (isCheckingPermission) {
+    return (
+      <View style={styles.container}>
+        <Text>Checking permissions...</Text>
+      </View>
+    );
+  }
+  
   
   return (
     <View style={styles.container}>
@@ -179,6 +180,7 @@ const SettingsScreen = () => {
         <Switch
           value={appMonitoringEnabled}
           onValueChange={handleToggle}
+          //add way to make it so that appMonitoringEnabled can only be true if useage permission is true
         />
       </View>
       <FlatList

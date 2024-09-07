@@ -1,5 +1,8 @@
 package com.lockin
 
+import android.app.AppOpsManager
+import android.content.Context
+import android.os.Process
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -10,6 +13,25 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     override fun getName(): String {
         return "AppServiceModule"
+    }
+
+    @ReactMethod
+    fun hasUsageStatsPermission(promise: Promise) {
+        val appOps = reactApplicationContext.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
+        
+        if (appOps == null) {
+            promise.reject("ERROR", "AppOpsManager not available")
+            return
+        }
+        
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            reactApplicationContext.packageName
+        )
+        
+        val granted = mode == AppOpsManager.MODE_ALLOWED
+        promise.resolve(granted)
     }
 
     @ReactMethod
