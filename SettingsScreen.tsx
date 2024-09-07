@@ -33,8 +33,12 @@ const requestUsageStatsPermission = () => {
         { 
           text: 'Open Settings', 
           onPress: () => {
-            Linking.openSettings();
-            resolve(true);
+            AppServiceModule.openUsageAccessSettings()
+              .then(() => resolve(true))
+              .catch((error) => {
+                console.error('Failed to open usage access settings:', error);
+                resolve(false);
+              });
           }
         },
       ],
@@ -162,7 +166,7 @@ const SettingsScreen = () => {
       AppServiceModule.stopService();
     }
   };
-  
+
   if (isCheckingPermission) {
     return (
       <View style={styles.container}>
