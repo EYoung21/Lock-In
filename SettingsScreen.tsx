@@ -1,14 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image, PermissionsAndroid, AppState, AppStateStatus } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image, Alert } from 'react-native';
 import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
-import { Linking, Alert } from 'react-native';
 import { NativeModules } from 'react-native';
 
 const { AppServiceModule } = NativeModules;
 
 const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
-
 
 const checkUsageStatsPermission = async () => {
   if (Platform.OS === 'android') {
@@ -51,18 +49,39 @@ const SettingsScreen = () => {
   const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn } = useContext(TotalElapsedContext);
   const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
-  const [isCheckingPermission, setIsCheckingPermission] = useState(true);
+
+  const checkPermission = async () => {
+    const permission = await checkUsageStatsPermission();
+    setHasPermission(permission);
+    return permission;
+  };
 
   useEffect(() => {
-    
-    const checkPermission = async () => {
-      setIsCheckingPermission(true);
-      const permission = await checkUsageStatsPermission();
-      setHasPermission(permission)
-      setIsCheckingPermission(false);
+    const syncAppMonitoringWithPermission = async () => {
+      const permission = await checkPermission();
+      if (permission) {
+        setAppMonitoringEnabled(true);
+        if (isLockedIn) {
+          AppServiceModule.startService();
+        }
+      } else {
+        setAppMonitoringEnabled(false);
+        AppServiceModule.stopService();
+      }
     };
-    checkPermission()
-    
+
+    // Initial sync
+    syncAppMonitoringWithPermission();
+
+    // Set up an interval to continuously check permission status
+    const intervalId = setInterval(() => {
+      syncAppMonitoringWithPermission();
+    }, 1000); // Check every second
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
+
+  useEffect(() => {
     const fetchApps = async () => {
       try {
         if (Platform.OS === 'android') {
@@ -82,26 +101,6 @@ const SettingsScreen = () => {
             console.error('InstalledApps is not correctly initialized or does not have getApps method.');
           }
         }
-        // Uncomment and use this block for iOS when needed
-        // else if (Platform.OS === 'ios') {
-        //   console.log('Running on iOS');
-        //   console.log('AppList.getAll:', AppList?.getAll);
-        //   if (AppList && typeof AppList.getAll === 'function') {
-        //     AppList.getAll((apps) => {
-        //       const filteredApps = apps
-        //         .filter(app => app.appPath !== LOCK_IN_APP_ID)
-        //         .map(app => ({ 
-        //           name: app.app, 
-        //           id: app.appPath,
-        //           icon: `data:image/png;base64,${app.icon}` // If AppList supports icons
-        //         }));
-        //       console.log('Fetched apps:', filteredApps);
-        //       setApps(filteredApps);
-        //     });
-        //   } else {
-        //     console.error('AppList is not correctly initialized or does not have getAll method.');
-        //   }
-        // }
       } catch (error) {
         console.error('Failed to fetch apps:', error);
       }
@@ -141,7 +140,6 @@ const SettingsScreen = () => {
       if (!hasPermission) {
         const userResponded = await requestUsageStatsPermission();
         if (userResponded) {
-          // Wait a bit for the user to grant the permission
           setTimeout(async () => {
             const permission = await checkUsageStatsPermission();
             setHasPermission(permission);
@@ -166,15 +164,6 @@ const SettingsScreen = () => {
       AppServiceModule.stopService();
     }
   };
-
-  if (isCheckingPermission) {
-    return (
-      <View style={styles.container}>
-        <Text>Checking permissions...</Text>
-      </View>
-    );
-  }
-  
   
   return (
     <View style={styles.container}>
@@ -184,7 +173,6 @@ const SettingsScreen = () => {
         <Switch
           value={appMonitoringEnabled}
           onValueChange={handleToggle}
-          //add way to make it so that appMonitoringEnabled can only be true if useage permission is true
         />
       </View>
       <FlatList
