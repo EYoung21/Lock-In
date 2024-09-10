@@ -10,6 +10,8 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import android.content.Intent
 import android.provider.Settings
+import android.net.Uri // Import Uri
+import android.os.Build // Import Build
 
 import com.lockin.ForegroundService
 
@@ -49,6 +51,40 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
         
         val granted = mode == AppOpsManager.MODE_ALLOWED
         promise.resolve(granted)
+    }
+
+    @ReactMethod
+    fun openManageOverlayPermission(promise: Promise) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${reactApplicationContext.packageName}")
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                reactApplicationContext.startActivity(intent)
+                promise.resolve(true)
+            } else {
+                // For devices below Android Marshmallow, the overlay permission is granted by default
+                promise.resolve(true)
+            }
+        } catch (e: Exception) {
+            promise.reject("OPEN_OVERLAY_PERMISSION_ERROR", "Failed to open manage overlay permission settings", e)
+        }
+    }
+
+    @ReactMethod
+    fun hasManageOverlayPermission(promise: Promise) {
+        try {
+            val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(reactApplicationContext)
+            } else {
+                true // Overlay permission is granted by default on Android versions below Marshmallow
+            }
+            promise.resolve(hasPermission)
+        } catch (e: Exception) {
+            promise.reject("CHECK_OVERLAY_PERMISSION_ERROR", "Failed to check overlay permission", e)
+        }
     }
 
     @ReactMethod

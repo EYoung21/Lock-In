@@ -17,6 +17,11 @@ export const TotalElapsedProvider = ({ children }) => {
   const [whitelistedApps, setWhitelistedApps] = useState(['com.lockin']); // Add "Lock In" to the whitelisted apps by default
   const [appMonitoringEnabled, setAppMonitoringEnabled] = useState(false); // Default value for app monitoring toggle
 
+  const [manageOverlayEnabled, setManageOverlayEnabled] = useState(false);
+
+  const [appMonitoringOn, setAppMonitoringOn] = useState(false);
+  const [manageOverlayOn, setManageOverlayOn] = useState(false);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -32,6 +37,9 @@ export const TotalElapsedProvider = ({ children }) => {
         // Load whitelisted apps and app monitoring toggle state
         const storedWhitelistedApps = await AsyncStorage.getItem('whitelistedApps');
         const storedAppMonitoringEnabled = await AsyncStorage.getItem('appMonitoringEnabled');
+        const storedManageOverlayEnabled = await AsyncStorage.getItem('manageOverlayEnabled');
+        const storedAppMonitoringOn = await AsyncStorage.getItem('appMonitoringOn');
+        const storedManageOverlayOn = await AsyncStorage.getItem('manageOverlayOn');
 
         if (elapsedTime !== null) setTotalElapsedTime(parseFloat(elapsedTime));
         if (currency !== null) setTotalCurrency(parseFloat(currency));
@@ -51,6 +59,15 @@ export const TotalElapsedProvider = ({ children }) => {
         }
         if (storedAppMonitoringEnabled !== null) {
           setAppMonitoringEnabled(JSON.parse(storedAppMonitoringEnabled));
+        }
+        if (storedManageOverlayEnabled !== null) {
+          setManageOverlayEnabled(JSON.parse(storedManageOverlayEnabled));
+        }
+        if (storedManageOverlayOn !== null) {
+          setManageOverlayOn(JSON.parse(storedManageOverlayOn));
+        }
+        if (storedAppMonitoringOn !== null) {
+          setAppMonitoringOn(JSON.parse(storedAppMonitoringOn));
         }
       } catch (error) {
         console.error('Failed to load data from storage', error);
@@ -75,13 +92,17 @@ export const TotalElapsedProvider = ({ children }) => {
         // Save whitelisted apps and app monitoring toggle state
         await AsyncStorage.setItem('whitelistedApps', JSON.stringify(whitelistedApps));
         await AsyncStorage.setItem('appMonitoringEnabled', JSON.stringify(appMonitoringEnabled));
+        await AsyncStorage.setItem('manageOverlayEnabled', JSON.stringify(manageOverlayEnabled));
+
+        await AsyncStorage.setItem('appMonitoringOn', JSON.stringify(appMonitoringOn));
+        await AsyncStorage.setItem('manageOverlayOn', JSON.stringify(manageOverlayOn));
       } catch (error) {
         console.error('Failed to save data to storage', error);
       }
     };
 
     saveData();
-  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, whitelistedApps, appMonitoringEnabled]);
+  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, whitelistedApps, appMonitoringEnabled, manageOverlayEnabled, appMonitoringOn, manageOverlayOn]);
 
   return (
     <TotalElapsedContext.Provider value={{
@@ -94,6 +115,9 @@ export const TotalElapsedProvider = ({ children }) => {
       safe, setSafe,
       whitelistedApps, setWhitelistedApps,
       appMonitoringEnabled, setAppMonitoringEnabled,
+      manageOverlayEnabled, setManageOverlayEnabled,
+      appMonitoringOn, setAppMonitoringOn,
+      manageOverlayOn, setManageOverlayOn,
     }}>
       {children}
     </TotalElapsedContext.Provider>

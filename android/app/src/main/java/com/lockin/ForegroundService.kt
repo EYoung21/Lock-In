@@ -17,6 +17,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 
+import android.app.usage.UsageEvents
+
 class ForegroundService : Service() {
 
     companion object {
@@ -137,9 +139,17 @@ class ForegroundService : Service() {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val endTime = System.currentTimeMillis()
         val beginTime = endTime - 1000 * 60 // Check usage in the last 1 minute
-        val usageStatsList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime)
+        val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
+        var currentApp: String? = null
 
-        return usageStatsList?.maxByOrNull { it.lastTimeUsed }?.packageName
+        while (usageEvents.hasNextEvent()) {
+            val event = UsageEvents.Event()
+            usageEvents.getNextEvent(event)
+            if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                currentApp = event.packageName
+            }
+        }
+        return currentApp
     }
 
     override fun onDestroy() {

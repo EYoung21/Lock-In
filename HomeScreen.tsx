@@ -80,7 +80,10 @@ const HomeScreen = () => {
     safe,
     setSafe,
     whitelistedApps,
-    appMonitoringEnabled
+    appMonitoringEnabled,
+    manageOverlayEnabled,
+    appMonitoringOn,
+    manageOverlayOn,
   } = useContext(TotalElapsedContext);
 
   const [stopwatchStart, setStopwatchStart] = useState(false);
@@ -233,7 +236,7 @@ const HomeScreen = () => {
       setLockInTime(Date.now());
       setStopwatchStart(true);
       setStopwatchReset(false);
-      if (appMonitoringEnabled) {
+      if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
         AppServiceModule.startService();
       }
     }
