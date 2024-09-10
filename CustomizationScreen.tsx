@@ -87,6 +87,13 @@ const CustomizationScreen = () => {
   const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#000000']); //sets default button
   const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
 
+  // useEffect(() => {
+  //   setTotalCurrency(50000000)
+
+  //   // resetAsyncStorage(); // Uncomment this line to reset AsyncStorage
+  // }, []); // You can comment this useEffect out after testing
+
+
   // Add this useEffect for resetting AsyncStorage for testing
   useEffect(() => {
     const resetAsyncStorage = async () => {
