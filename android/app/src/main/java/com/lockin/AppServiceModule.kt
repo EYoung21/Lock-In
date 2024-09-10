@@ -12,11 +12,16 @@ import android.content.Intent
 import android.provider.Settings
 import android.net.Uri // Import Uri
 import android.os.Build // Import Build
+import android.util.Log
 
 import com.lockin.ForegroundService
 
 
 class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+
+    init {
+        Log.e("AppServiceModule", "Module initialized")
+    }
 
     override fun getName(): String {
         return "AppServiceModule"

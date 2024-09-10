@@ -49,6 +49,7 @@ class ForegroundService : Service() {
     private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
+        Log.e(TAG, "ForegroundService created")
         super.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }

@@ -8,6 +8,7 @@ import com.facebook.react.ReactRootView
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler
+import android.util.Log
 
 class MainActivity : ReactActivity() {
 
@@ -18,6 +19,7 @@ class MainActivity : ReactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e("MainApp", "Application started")
         super.onCreate(savedInstanceState)
         // Remove setContentView for splash screen here
         // SplashScreen.show(this) // If using react-native-splash-screen
