@@ -179,6 +179,8 @@ const SettingsScreen = () => {
     updateNativeWhitelistedApps(whitelistedApps);
   }, [whitelistedApps]);
 
+  console.log('Updating whitelisted apps:', whitelistedApps);
+  
   const updateNativeWhitelistedApps = async (apps: string[]) => {
     try {
       await AppServiceModule.updateWhitelistedApps(apps);

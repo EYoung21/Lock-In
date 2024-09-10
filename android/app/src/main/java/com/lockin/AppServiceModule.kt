@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.net.Uri // Import Uri
 import android.os.Build // Import Build
 import android.util.Log
+import com.facebook.react.bridge.ReadableType
 
 import com.lockin.ForegroundService
 
@@ -94,9 +95,30 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     @ReactMethod
     fun updateWhitelistedApps(apps: ReadableArray, promise: Promise) {
-        val whitelistedApps = apps.toArrayList().mapNotNull { it as? String }
-        ForegroundService.updateWhitelistedApps(whitelistedApps, reactApplicationContext)
-        promise.resolve(null)
+        try {
+            Log.d("UpdateWhitelistedApps", "Received array of size: ${apps.size()}")
+            val whitelistedApps = mutableListOf<String>()
+            for (i in 0 until apps.size()) {
+                when (apps.getType(i)) {
+                    ReadableType.String -> {
+                        val app = apps.getString(i)
+                        if (app != null) {
+                            whitelistedApps.add(app)
+                            Log.d("UpdateWhitelistedApps", "Added app: $app")
+                        } else {
+                            Log.w("UpdateWhitelistedApps", "Null string at index $i")
+                        }
+                    }
+                    else -> Log.w("UpdateWhitelistedApps", "Unexpected type at index $i: ${apps.getType(i)}")
+                }
+            }
+            ForegroundService.updateWhitelistedApps(whitelistedApps, reactApplicationContext)
+            Log.d("UpdateWhitelistedApps", "Updated whitelisted apps: $whitelistedApps")
+            promise.resolve(null)
+        } catch (e: Exception) {
+            Log.e("UpdateWhitelistedApps", "Error updating whitelisted apps", e)
+            promise.reject("ERROR", "Failed to update whitelisted apps", e)
+        }
     }
 
     @ReactMethod
