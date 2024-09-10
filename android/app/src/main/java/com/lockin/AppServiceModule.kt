@@ -97,9 +97,11 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
     @ReactMethod
     fun startService(promise: Promise) {
         try {
+            android.util.Log.d("AppServiceModule", "Starting ForegroundService")
             ForegroundService.startService(reactApplicationContext)
             promise.resolve(null)
         } catch (e: Exception) {
+            android.util.Log.e("AppServiceModule", "Failed to start service", e)
             promise.reject("SERVICE_START_ERROR", "Failed to start the service", e)
         }
     }

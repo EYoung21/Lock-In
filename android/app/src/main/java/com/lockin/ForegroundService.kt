@@ -16,18 +16,21 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
+import android.util.Log
 
 import android.app.usage.UsageEvents
 
 class ForegroundService : Service() {
 
     companion object {
+        private const val TAG = "ForegroundService"
         private var whitelistedApps: List<String> = emptyList()
         private var reactContext: ReactApplicationContext? = null
 
         fun updateWhitelistedApps(apps: List<String>, context: ReactApplicationContext) {
             whitelistedApps = apps
             reactContext = context
+            android.util.Log.d("ForegroundService", "Updated whitelisted apps: $whitelistedApps")
         }
 
         fun startService(context: Context) {
@@ -59,7 +62,7 @@ class ForegroundService : Service() {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 android.graphics.PixelFormat.TRANSLUCENT
             )
             params.gravity = Gravity.CENTER
@@ -67,8 +70,7 @@ class ForegroundService : Service() {
             try {
                 windowManager.addView(overlayView, params)
             } catch (e: Exception) {
-                // Handle exception (e.g., permission denied)
-                e.printStackTrace()
+                Log.e(TAG, "Failed to add overlay view", e)
             }
         }
     }
@@ -100,7 +102,7 @@ class ForegroundService : Service() {
                 } else {
                     hideOverlay()
                 }
-                handler.postDelayed(this, 5000) // Check every 5 seconds
+                handler.postDelayed(this, 1000) // Check every 5 seconds
             }
         })
     }
@@ -111,12 +113,14 @@ class ForegroundService : Service() {
                 createOverlayView()
             }
             overlayView?.visibility = View.VISIBLE
+            android.util.Log.d("ForegroundService", "Showing overlay")
         }
     }
 
     private fun hideOverlay() {
         handler.post {
             overlayView?.visibility = View.GONE
+            android.util.Log.d("ForegroundService", "Hiding overlay")
         }
     }
 
@@ -134,11 +138,10 @@ class ForegroundService : Service() {
         return null
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getCurrentForegroundApp(context: Context): String? {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val endTime = System.currentTimeMillis()
-        val beginTime = endTime - 1000 * 60 // Check usage in the last 1 minute
+        val beginTime = endTime - 1000 * 10 // Check usage in the last 10 seconds
         val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
         var currentApp: String? = null
 
@@ -149,6 +152,7 @@ class ForegroundService : Service() {
                 currentApp = event.packageName
             }
         }
+        android.util.Log.d("ForegroundService", "Current foreground app: $currentApp")
         return currentApp
     }
 
