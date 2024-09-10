@@ -258,8 +258,8 @@ const SettingsScreen = () => {
   const handleToggleOn1 = async (value) => {
     if (value) {
       if (!hasPermission) {
-        const userResponded = await requestUsageStatsPermission();
-        if (userResponded) {
+        const userResponded3 = await requestUsageStatsPermission();
+        if (userResponded3) {
           setTimeout(async () => {
             const permission = await checkUsageStatsPermission();
             setHasPermission(permission);
@@ -310,7 +310,7 @@ const SettingsScreen = () => {
         }
       }
     } else {
-      setManageOverlayEnabled(false);
+      setManageOverlayOn(false);
       AppServiceModule.stopService();
     }
   };
