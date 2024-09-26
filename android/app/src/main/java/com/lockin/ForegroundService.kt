@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.widget.Button
 
 import android.app.usage.UsageEvents
 
@@ -70,6 +71,12 @@ class ForegroundService : Service() {
                 android.graphics.PixelFormat.TRANSLUCENT
             )
             params.gravity = Gravity.CENTER
+
+            // Find and set up the close button
+            val closeButton = overlayView?.findViewById<Button>(R.id.closeButton)
+            closeButton?.setOnClickListener {
+                hideOverlay()
+            }
 
             try {
                 windowManager.addView(overlayView, params)
