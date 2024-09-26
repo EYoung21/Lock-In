@@ -104,7 +104,7 @@ const HomeScreen = () => {
           console.error("Failed to update whitelisted apps:", error);
         });
     }
-  }, [whitelistedApps, appMonitoringEnabled]);
+  }, [whitelistedApps]);
 
   // Start the service when monitoring is enabled
   useEffect(() => {
@@ -208,6 +208,14 @@ const HomeScreen = () => {
     return safe ? safe[imageKey] : null;
   };
 
+  const updateNativeWhitelistedApps = async (apps: string[]) => {
+    try {
+      await AppServiceModule.updateWhitelistedApps(apps);
+    } catch (error) {
+      console.error('Failed to update whitelisted apps in native module:', error);
+    }
+  };
+
   const handlePressOut = () => {
     Animated.spring(scaleAnim, {
       toValue: 1.75,
@@ -216,7 +224,7 @@ const HomeScreen = () => {
 
     if (isLockedIn) {
       const currentTime = Date.now();
-
+      
       AppServiceModule.stopService();
 
       setIsLockedIn(false);
@@ -241,6 +249,7 @@ const HomeScreen = () => {
       setStopwatchStart(true);
       setStopwatchReset(false);
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
+        updateNativeWhitelistedApps(whitelistedApps);
         AppServiceModule.startService()
         .then(() => console.log("Service started successfully"))
         .catch(error => console.error("Failed to start service:", error));
