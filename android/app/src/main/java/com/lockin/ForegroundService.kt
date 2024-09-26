@@ -17,6 +17,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import android.app.NotificationChannel
+import android.app.NotificationManager
 
 import android.app.usage.UsageEvents
 
@@ -90,7 +93,36 @@ class ForegroundService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startMonitoring()
+        startForeground()
         return START_STICKY
+    }
+
+    private fun startForeground() {
+        val channelId = "ForegroundServiceChannel"
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("App Monitor")
+            .setContentText("Monitoring app usage")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Foreground Service Channel",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+
+        startForeground(1, notificationBuilder.build())
+    }
+
+    private fun updateOverlayVisibility(show: Boolean) {
+        if (show && overlayView == null) {
+            createOverlayView()
+        }
+        overlayView?.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun startMonitoring() {
@@ -98,12 +130,12 @@ class ForegroundService : Service() {
             override fun run() {
                 val currentApp = getCurrentForegroundApp(this@ForegroundService)
                 if (currentApp != null && !whitelistedApps.contains(currentApp)) {
-                    showOverlay()
+                    updateOverlayVisibility(true)
                     sendEventToReactNative("handleAppProhibited")
                 } else {
-                    hideOverlay()
+                    updateOverlayVisibility(false)
                 }
-                handler.postDelayed(this, 1000) // Check every 5 seconds
+                handler.postDelayed(this, 1000) // Check every second
             }
         })
     }
@@ -139,22 +171,16 @@ class ForegroundService : Service() {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun getCurrentForegroundApp(context: Context): String? {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val endTime = System.currentTimeMillis()
-        val beginTime = endTime - 1000 * 10 // Check usage in the last 10 seconds
-        val usageEvents = usageStatsManager.queryEvents(beginTime, endTime)
-        var currentApp: String? = null
-
-        while (usageEvents.hasNextEvent()) {
-            val event = UsageEvents.Event()
-            usageEvents.getNextEvent(event)
-            if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                currentApp = event.packageName
-            }
+        val time = System.currentTimeMillis()
+        val appList = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 1000, time)
+        if (appList != null && appList.size > 0) {
+            val sortedMap = appList.sortedByDescending { it.lastTimeUsed }
+            return sortedMap[0].packageName
         }
-        android.util.Log.d("ForegroundService", "Current foreground app: $currentApp")
-        return currentApp
+        return null
     }
 
     override fun onDestroy() {
