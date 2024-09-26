@@ -108,10 +108,14 @@ const HomeScreen = () => {
 
   // Start the service when monitoring is enabled
   useEffect(() => {
-    if (isLockedIn && appMonitoringEnabled) {
-      AppServiceModule.startService();
+    if (isLockedIn && appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
+      AppServiceModule.startService()
+        .then(() => console.log("Service started successfully"))
+        .catch(error => console.error("Failed to start service:", error));
     } else {
-      AppServiceModule.stopService();
+      AppServiceModule.stopService()
+        .then(() => console.log("Service stopped successfully"))
+        .catch(error => console.error("Failed to stop service:", error));
     }
   }, [isLockedIn, appMonitoringEnabled]);
 
@@ -237,7 +241,11 @@ const HomeScreen = () => {
       setStopwatchStart(true);
       setStopwatchReset(false);
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
-        AppServiceModule.startService();
+        AppServiceModule.startService()
+        .then(() => console.log("Service started successfully"))
+        .catch(error => console.error("Failed to start service:", error));
+      } else {
+        Alert.alert("Permission Required", "Please grant all necessary permissions to use this feature.");
       }
     }
     setTimeout(() => {
