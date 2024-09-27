@@ -137,12 +137,17 @@ class ForegroundService : Service() {
             override fun run() {
                 val currentApp = getCurrentForegroundApp(this@ForegroundService)
                 if (currentApp != null && blacklistedApps.contains(currentApp)) {
-                    updateOverlayVisibility(true)
-                    sendEventToReactNative("handleAppProhibited")
-                } else {
-                    updateOverlayVisibility(false)
+                    // Redirect to Lock In app
+                    val lockInIntent = packageManager.getLaunchIntentForPackage("com.lockin")
+                    if (lockInIntent != null) {
+                        lockInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(lockInIntent)
+                        sendEventToReactNative("handleAppProhibited")
+                    } else {
+                        Log.e(TAG, "Failed to launch Lock In app")
+                    }
                 }
-                handler.postDelayed(this, 1000) // Check every second
+                handler.postDelayed(this, 500) // Check every half second for quicker response
             }
         })
     }
