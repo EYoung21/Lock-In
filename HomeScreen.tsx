@@ -79,7 +79,7 @@ const HomeScreen = () => {
     setButtonBorder,
     safe,
     setSafe,
-    whitelistedApps,
+    blacklistedApps,
     appMonitoringEnabled,
     manageOverlayEnabled,
     appMonitoringOn,
@@ -93,18 +93,18 @@ const HomeScreen = () => {
   const [isActionInProgress, setIsActionInProgress] = useState(false);
 
 
-  // When your whitelisted apps change, update the native module
+  // When your blacklisted apps change, update the native module
   useEffect(() => {
     if (appMonitoringEnabled) {
-      AppServiceModule.updateWhitelistedApps(whitelistedApps)
+      AppServiceModule.updateBlacklistedApps(blacklistedApps)
         .then(() => {
-          console.log("Whitelisted apps updated successfully");
+          console.log("Blacklisted apps updated successfully");
         })
         .catch((error) => {
-          console.error("Failed to update whitelisted apps:", error);
+          console.error("Failed to update blacklisted apps:", error);
         });
     }
-  }, [whitelistedApps]);
+  }, [blacklistedApps]);
 
   // Start the service when monitoring is enabled
   useEffect(() => {
@@ -157,8 +157,8 @@ const HomeScreen = () => {
 
   //     try {
   //       const currentApp = await getCurrentRunningApp();
-  //       if (!whitelistedApps.includes(currentApp)) {
-  //         showNotification('Lock In', 'You have been locked out for using a non-whitelisted app.');
+  //       if (blacklistedApps.includes(currentApp)) {
+  //         showNotification('Lock In', 'You have been locked out for using a blacklisted app.');
   //         handlePressOut();
   //       }
   //     } catch (error) {
@@ -168,7 +168,7 @@ const HomeScreen = () => {
 
   //   const intervalId = setInterval(checkRunningApp, 1000);
   //   return () => clearInterval(intervalId);
-  // }, [isLockedIn, appMonitoringEnabled, whitelistedApps]);
+  // }, [isLockedIn, appMonitoringEnabled, blacklistedApps]);
 
   //above is code to monitor current app, still need to code that functionality.
 
@@ -208,11 +208,11 @@ const HomeScreen = () => {
     return safe ? safe[imageKey] : null;
   };
 
-  const updateNativeWhitelistedApps = async (apps: string[]) => {
+  const updateNativeBlacklistedApps = async (apps: string[]) => {
     try {
-      await AppServiceModule.updateWhitelistedApps(apps);
+      await AppServiceModule.updateBlacklistedApps(apps);
     } catch (error) {
-      console.error('Failed to update whitelisted apps in native module:', error);
+      console.error('Failed to update blacklisted apps in native module:', error);
     }
   };
 
@@ -249,7 +249,7 @@ const HomeScreen = () => {
       setStopwatchStart(true);
       setStopwatchReset(false);
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
-        updateNativeWhitelistedApps(whitelistedApps);
+        updateNativeBlacklistedApps(blacklistedApps);
         AppServiceModule.startService()
         .then(() => console.log("Service started successfully"))
         .catch(error => console.error("Failed to start service:", error));
