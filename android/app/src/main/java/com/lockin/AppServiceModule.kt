@@ -94,30 +94,30 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
 
     @ReactMethod
-    fun updateWhitelistedApps(apps: ReadableArray, promise: Promise) {
+    fun updateBlacklistedApps(apps: ReadableArray, promise: Promise) {
         try {
-            Log.d("UpdateWhitelistedApps", "Received array of size: ${apps.size()}")
-            val whitelistedApps = mutableListOf<String>()
+            Log.d("UpdateBlacklistedApps", "Received array of size: ${apps.size()}")
+            val blacklistedApps = mutableListOf<String>()
             for (i in 0 until apps.size()) {
                 when (apps.getType(i)) {
                     ReadableType.String -> {
                         val app = apps.getString(i)
                         if (app != null) {
-                            whitelistedApps.add(app)
-                            Log.d("UpdateWhitelistedApps", "Added app: $app")
+                            blacklistedApps.add(app)
+                            Log.d("UpdateBlacklistedApps", "Added app: $app")
                         } else {
-                            Log.w("UpdateWhitelistedApps", "Null string at index $i")
+                            Log.w("UpdateBlacklistedApps", "Null string at index $i")
                         }
                     }
-                    else -> Log.w("UpdateWhitelistedApps", "Unexpected type at index $i: ${apps.getType(i)}")
+                    else -> Log.w("UpdateBlacklistedApps", "Unexpected type at index $i: ${apps.getType(i)}")
                 }
             }
-            ForegroundService.updateWhitelistedApps(whitelistedApps, reactApplicationContext)
-            Log.d("UpdateWhitelistedApps", "Updated whitelisted apps: $whitelistedApps")
+            ForegroundService.updateBlacklistedApps(blacklistedApps, reactApplicationContext)
+            Log.d("UpdateBlacklistedApps", "Updated blacklisted apps: $blacklistedApps")
             promise.resolve(null)
         } catch (e: Exception) {
-            Log.e("UpdateWhitelistedApps", "Error updating whitelisted apps", e)
-            promise.reject("ERROR", "Failed to update whitelisted apps", e)
+            Log.e("UpdateBlacklistedApps", "Error updating blacklisted apps", e)
+            promise.reject("ERROR", "Failed to update blacklisted apps", e)
         }
     }
 

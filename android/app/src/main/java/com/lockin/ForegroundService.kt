@@ -28,13 +28,13 @@ class ForegroundService : Service() {
 
     companion object {
         private const val TAG = "ForegroundService"
-        private var whitelistedApps: List<String> = emptyList()
+        private var blacklistedApps: List<String> = emptyList()
         private var reactContext: ReactApplicationContext? = null
 
-        fun updateWhitelistedApps(apps: List<String>, context: ReactApplicationContext) {
-            whitelistedApps = apps
+        fun updateBlacklistedApps(apps: List<String>, context: ReactApplicationContext) {
+            blacklistedApps = apps
             reactContext = context
-            android.util.Log.d("ForegroundService", "Updated whitelisted apps: $whitelistedApps")
+            android.util.Log.d("ForegroundService", "Updated blacklisted apps: $blacklistedApps")
         }
 
         fun startService(context: Context) {
@@ -136,7 +136,7 @@ class ForegroundService : Service() {
         handler.post(object : Runnable {
             override fun run() {
                 val currentApp = getCurrentForegroundApp(this@ForegroundService)
-                if (currentApp != null && !whitelistedApps.contains(currentApp)) {
+                if (currentApp != null && blacklistedApps.contains(currentApp)) {
                     updateOverlayVisibility(true)
                     sendEventToReactNative("handleAppProhibited")
                 } else {

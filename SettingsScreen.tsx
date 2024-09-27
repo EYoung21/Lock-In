@@ -83,7 +83,7 @@ const requestManageOverlayPermission = () => {
 };
 
 const SettingsScreen = () => {
-  const { whitelistedApps, setWhitelistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn, manageOverlayEnabled, setManageOverlayEnabled, appMonitoringOn, setAppMonitoringOn, manageOverlayOn, setManageOverlayOn } = useContext(TotalElapsedContext);
+  const { blacklistedApps, setBlacklistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn, manageOverlayEnabled, setManageOverlayEnabled, appMonitoringOn, setAppMonitoringOn, manageOverlayOn, setManageOverlayOn } = useContext(TotalElapsedContext);
   const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
   const [hasPermission2, setHasPermission2] = useState(false);
@@ -170,27 +170,27 @@ const SettingsScreen = () => {
   }, []);
 
   useEffect(() => {
-    // Ensure "Lock In" is always whitelisted
-    if (!whitelistedApps.includes(LOCK_IN_APP_ID)) {
-      setWhitelistedApps(prevState => [...prevState, LOCK_IN_APP_ID]);
+    // Ensure "Lock In" is never blacklisted
+    if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
+      setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
     }
 
-    // Update the native module with the current whitelisted apps
-    updateNativeWhitelistedApps(whitelistedApps);
-  }, [whitelistedApps]);
+    // Update the native module with the current blacklisted apps
+    updateNativeBlacklistedApps(blacklistedApps);
+  }, [blacklistedApps]);
 
-  console.log('Updating whitelisted apps:', whitelistedApps);
+  console.log('Updating blacklisted apps:', blacklistedApps);
   
-  const updateNativeWhitelistedApps = async (apps: string[]) => {
+  const updateNativeBlacklistedApps = async (apps: string[]) => {
     try {
-      await AppServiceModule.updateWhitelistedApps(apps);
+      await AppServiceModule.updateBlacklistedApps(apps);
     } catch (error) {
-      console.error('Failed to update whitelisted apps in native module:', error);
+      console.error('Failed to update blacklisted apps in native module:', error);
     }
   };
 
-  const toggleWhitelist = (appId: string) => {
-    setWhitelistedApps(prevState =>
+  const toggleBlacklist = (appId: string) => {
+    setBlacklistedApps(prevState =>
       prevState.includes(appId)
         ? prevState.filter(id => id !== appId)
         : [...prevState, appId]
@@ -319,7 +319,7 @@ const SettingsScreen = () => {
   
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Whitelist Productive Apps!</Text>
+      <Text style={styles.text}>Blackelist Unproductive Apps!</Text>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Permission:</Text>
         <Switch
@@ -355,9 +355,9 @@ const SettingsScreen = () => {
           <TouchableOpacity
             style={[
               styles.appItem,
-              whitelistedApps.includes(item.id) && styles.whitelisted
+              blacklistedApps.includes(item.id) && styles.blacklisted
             ]}
-            onPress={() => toggleWhitelist(item.id)}
+            onPress={() => toggleBlacklist(item.id)}
           >
             <Image
               source={{ uri: item.icon }} // Display the app icon
@@ -396,12 +396,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     margin: 5,
-    backgroundColor: '#FF0000',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  whitelisted: {
     backgroundColor: 'green',
+    borderWidth: 1,
+    borderColor: '#DDD',
+  },
+  blacklisted: {
+    backgroundColor: 'red',
   },
   appText: {
     fontSize: 16,
