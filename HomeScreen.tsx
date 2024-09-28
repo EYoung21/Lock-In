@@ -8,8 +8,9 @@ import {
   SafeAreaView,
   Platform,
   Alert,
+  StyleSheet,
 } from 'react-native';
-import { Stopwatch } from 'react-native-stopwatch-timer';
+import BackgroundTimer from 'react-native-background-timer';
 import styles from './HomePageStyles';
 import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
@@ -21,8 +22,6 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { NativeModules } from 'react-native';
 
 const { AppServiceModule } = NativeModules;
-
-// const { CurrentAppModule } = NativeModules;
 
 // Set up push notification configuration
 PushNotification.configure({
@@ -86,12 +85,9 @@ const HomeScreen = () => {
     manageOverlayOn,
   } = useContext(TotalElapsedContext);
 
-  const [stopwatchStart, setStopwatchStart] = useState(false);
-  const [stopwatchReset, setStopwatchReset] = useState(false);
-  const [lockInTime, setLockInTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
-
+  const [timerStartTime, setTimerStartTime] = useState(Date.now());
 
   // When your blacklisted apps change, update the native module
   useEffect(() => {
@@ -105,6 +101,10 @@ const HomeScreen = () => {
         });
     }
   }, [blacklistedApps]);
+
+  useEffect(() => {
+    setTotalCurrency(500000);
+  }, []);
 
   // Start the service when monitoring is enabled
   useEffect(() => {
@@ -124,53 +124,13 @@ const HomeScreen = () => {
   }, [safe]);
 
   useEffect(() => {
-    if (!isLockedIn) {
-      const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
+    if (!isLockedIn && elapsedTime > 0) {
+      const elapsedTimeInMinutes = elapsedTime / (60 * 1000);
       setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
       setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
       updateDailyEntries(elapsedTimeInMinutes);
     }
-  }, [elapsedTime]);
-
-  useEffect(() => {
-    if (!isLockedIn) {
-      const elapsedTimeInMinutes = elapsedTime / (1000 * 60);
-      setTotalElapsedTime((prevTime) => prevTime + elapsedTimeInMinutes);
-      setTotalCurrency((prevCurrency) => prevCurrency + elapsedTimeInMinutes);
-      updateDailyEntries(elapsedTimeInMinutes);
-    }
-  }, [elapsedTime]);
-
-  // const getCurrentRunningApp = async () => {
-  //   try {
-  //     const currentApp = await CurrentAppModule.getCurrentRunningApp();
-  //     console.log("Current app:", currentApp);
-  //     return currentApp;
-  //   } catch (error) {
-  //     console.error("Error getting current app:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const checkRunningApp = async () => {
-  //     if (!isLockedIn || !appMonitoringEnabled) return;
-
-  //     try {
-  //       const currentApp = await getCurrentRunningApp();
-  //       if (blacklistedApps.includes(currentApp)) {
-  //         showNotification('Lock In', 'You have been locked out for using a blacklisted app.');
-  //         handlePressOut();
-  //       }
-  //     } catch (error) {
-  //       console.error('Error retrieving current running app:', error);
-  //     }
-  //   };
-
-  //   const intervalId = setInterval(checkRunningApp, 1000);
-  //   return () => clearInterval(intervalId);
-  // }, [isLockedIn, appMonitoringEnabled, blacklistedApps]);
-
-  //above is code to monitor current app, still need to code that functionality.
+  }, [isLockedIn, elapsedTime]);
 
   const updateDailyEntries = (minutes) => {
     const today = moment().format('YYYY-MM-DD');
@@ -208,12 +168,26 @@ const HomeScreen = () => {
     return safe ? safe[imageKey] : null;
   };
 
-  const updateNativeBlacklistedApps = async (apps: string[]) => {
+  const updateNativeBlacklistedApps = async (apps) => {
     try {
       await AppServiceModule.updateBlacklistedApps(apps);
     } catch (error) {
       console.error('Failed to update blacklisted apps in native module:', error);
     }
+  };
+
+  const startTimer = () => {
+    setTimerStartTime(Date.now());
+    BackgroundTimer.runBackgroundTimer(() => {
+      setElapsedTime((prevTime) => prevTime + 1000);
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    BackgroundTimer.stopBackgroundTimer();
+    const currentTime = Date.now();
+    const totalElapsed = currentTime - timerStartTime;
+    setElapsedTime(totalElapsed);
   };
 
   const handlePressOut = () => {
@@ -223,19 +197,13 @@ const HomeScreen = () => {
     }).start();
 
     if (isLockedIn) {
-      const currentTime = Date.now();
-      
       AppServiceModule.stopService();
-
       setIsLockedIn(false);
       setCollapsed(false);
       SystemNavigationBar.navigationShow();
       setImageSource(getSafeImage(safe, 'image1'));
       setButtonText('Lock In');
-      setElapsedTime(currentTime - lockInTime);
-      setLockInTime(0);
-      setStopwatchStart(false);
-      setStopwatchReset(true);
+      stopTimer();
       setTimeout(() => {
         setImageSource(getSafeImage(safe, 'image2'));
       }, 700);
@@ -245,14 +213,13 @@ const HomeScreen = () => {
       SystemNavigationBar.navigationHide();
       setImageSource(getSafeImage(safe, 'image3'));
       setButtonText('Lock Out');
-      setLockInTime(Date.now());
-      setStopwatchStart(true);
-      setStopwatchReset(false);
+      setElapsedTime(0);
+      startTimer();
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
         updateNativeBlacklistedApps(blacklistedApps);
         AppServiceModule.startService()
-        .then(() => console.log("Service started successfully"))
-        .catch(error => console.error("Failed to start service:", error));
+          .then(() => console.log("Service started successfully"))
+          .catch(error => console.error("Failed to start service:", error));
       } else {
         Alert.alert("Permission Required", "Please grant all necessary permissions to use this feature.");
       }
@@ -298,17 +265,22 @@ const HomeScreen = () => {
     }
   };
 
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.heading, styles.totalCurrency]}>$ in minutes: {totalCurrency.toFixed(2)}</Text>
-      <Stopwatch
-        laps
-        msecs
-        start={stopwatchStart}
-        reset={stopwatchReset}
-        options={options}
-        getTime={(time) => setElapsedTime(moment.duration(time).asMilliseconds())}
-      />
+      <View style={localStyles.timerContainer}>
+        <Text style={[localStyles.timerText, { color: getTimerColor(backgroundColor) }]}>
+          {formatTime(elapsedTime)}
+        </Text>
+      </View>
       <Image source={imageSource} style={getImageStyle(imageSource)} />
       <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
         <Animated.View
@@ -328,18 +300,16 @@ const HomeScreen = () => {
   );
 };
 
-const options = {
-  container: {
-    backgroundColor: '#000',
-    padding: 5,
-    borderRadius: 5,
-    width: 220,
+const localStyles = StyleSheet.create({
+  timerContainer: {
+    marginVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  text: {
-    fontSize: 30,
-    color: '#FFF',
-    marginLeft: 7,
+  timerText: {
+    fontSize: 48,
+    fontWeight: 'bold',
   },
-};
+});
 
 export default HomeScreen;

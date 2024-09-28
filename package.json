@@ -27,6 +27,7 @@
     "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-native": "^0.74.1",
+    "react-native-background-timer": "^2.4.1",
     "react-native-config": "^1.5.3",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.18.1",
