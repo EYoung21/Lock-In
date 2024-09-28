@@ -170,25 +170,37 @@ const SettingsScreen = () => {
     fetchApps();
   }, []);
 
-  useEffect(() => {
-    // Ensure "Lock In" is never blacklisted
-    if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
-      setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
-    }
+  //dont think below func is needed because lock in is never on the list of installed apps...
 
-    // Update the native module with the current blacklisted apps
-    updateNativeBlacklistedApps(blacklistedApps);
-  }, [blacklistedApps]);
+  // useEffect(() => {
+  //   // Ensure "Lock In" is never blacklisted
+  //   if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
+  //     setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
+  //   }
 
-  console.log('Updating blacklisted apps:');
+  //   // Update the native module with the current blacklisted apps
+  //   updateNativeBlacklistedApps(blacklistedApps);
+  // }, [blacklistedApps]);
   
   const updateNativeBlacklistedApps = async (apps: string[]) => {
     try {
       await AppServiceModule.updateBlacklistedApps(apps);
+      console.log('Updated blacklisted apps');
     } catch (error) {
       console.error('Failed to update blacklisted apps in native module:', error);
     }
   };
+
+  useEffect(() => {
+    // Ensure "Lock In" is never blacklisted
+    //dont think below lines are needed because lock in is never on the list of installed apps...
+    // if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
+    //   setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
+    // }
+
+    // Update the native module with the current blacklisted apps
+    updateNativeBlacklistedApps(blacklistedApps);
+  }, [blacklistedApps]);
 
   const toggleBlacklist = (appId: string) => {
     setBlacklistedApps(prevState =>

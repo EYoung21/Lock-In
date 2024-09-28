@@ -90,17 +90,17 @@ const HomeScreen = () => {
   const [timerStartTime, setTimerStartTime] = useState(Date.now());
 
   // When your blacklisted apps change, update the native module
-  useEffect(() => {
-    if (appMonitoringEnabled) {
-      AppServiceModule.updateBlacklistedApps(blacklistedApps)
-        .then(() => {
-          console.log("Blacklisted apps updated successfully");
-        })
-        .catch((error) => {
-          console.error("Failed to update blacklisted apps:", error);
-        });
-    }
-  }, [blacklistedApps]);
+  // useEffect(() => {
+  //   if (appMonitoringEnabled) {
+  //     AppServiceModule.updateBlacklistedApps(blacklistedApps)
+  //       .then(() => {
+  //         console.log("Blacklisted apps updated successfully");
+  //       })
+  //       .catch((error) => {
+  //         console.error("Failed to update blacklisted apps:", error);
+  //       });
+  //   }
+  // }, [blacklistedApps]);
 
   useEffect(() => {
     setTotalCurrency(500000);
@@ -168,13 +168,13 @@ const HomeScreen = () => {
     return safe ? safe[imageKey] : null;
   };
 
-  const updateNativeBlacklistedApps = async (apps) => {
-    try {
-      await AppServiceModule.updateBlacklistedApps(apps);
-    } catch (error) {
-      console.error('Failed to update blacklisted apps in native module:', error);
-    }
-  };
+  // const updateNativeBlacklistedApps = async (apps) => {
+  //   try {
+  //     await AppServiceModule.updateBlacklistedApps(apps);
+  //   } catch (error) {
+  //     console.error('Failed to update blacklisted apps in native module:', error);
+  //   }
+  // };
 
   const startTimer = () => {
     setTimerStartTime(Date.now());
@@ -216,7 +216,7 @@ const HomeScreen = () => {
       setElapsedTime(0);
       startTimer();
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
-        updateNativeBlacklistedApps(blacklistedApps);
+        // updateNativeBlacklistedApps(blacklistedApps);
         AppServiceModule.startService()
           .then(() => console.log("Service started successfully"))
           .catch(error => console.error("Failed to start service:", error));
