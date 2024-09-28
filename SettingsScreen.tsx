@@ -155,7 +155,8 @@ const SettingsScreen = () => {
                 id: app.packageName,
                 icon: `data:image/png;base64,${app.icon}` // Convert icon data to a base64 string
               }));
-            console.log('Fetched apps:', filteredApps);
+            console.log('Fetched apps:');
+            //, filteredApps
             setApps(filteredApps);
           } else {
             console.error('InstalledApps is not correctly initialized or does not have getApps method.');
@@ -179,7 +180,7 @@ const SettingsScreen = () => {
     updateNativeBlacklistedApps(blacklistedApps);
   }, [blacklistedApps]);
 
-  console.log('Updating blacklisted apps:', blacklistedApps);
+  console.log('Updating blacklisted apps:');
   
   const updateNativeBlacklistedApps = async (apps: string[]) => {
     try {
@@ -350,7 +351,7 @@ const SettingsScreen = () => {
       </View>
       <FlatList
         data={apps}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => `${item.id}-${index}`} // Updated keyExtractor
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
@@ -360,7 +361,7 @@ const SettingsScreen = () => {
             onPress={() => toggleBlacklist(item.id)}
           >
             <Image
-              source={{ uri: item.icon }} // Display the app icon
+              source={{ uri: item.icon }}
               style={styles.icon}
             />
             <Text style={styles.appText}>{item.name}</Text>
