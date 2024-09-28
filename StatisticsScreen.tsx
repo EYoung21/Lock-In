@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert } from 'r
 // import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-import { GOOGLE_WEB_CLIENT_ID } from '@env';
+// import { GOOGLE_WEB_CLIENT_ID } from '@env';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
 import { scaleTime, scaleLinear } from 'd3-scale';
 import * as d3Shape from 'd3-shape';
@@ -29,7 +29,7 @@ interface GraphData {
 
 const StatisticsScreen: React.FC = () => {
   const { totalElapsedTime, dailyEntries, setDailyEntries } = useContext(TotalElapsedContext);
-  const [userInfo, setUserInfo] = useState<User | null>(null);
+  // const [userInfo, setUserInfo] = useState<User | null>(null);
   const [graphType, setGraphType] = useState<'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'>('daily');
 
 
