@@ -208,15 +208,15 @@ const HomeScreen = () => {
         setImageSource(getSafeImage(safe, 'image2'));
       }, 700);
     } else {
-      setIsLockedIn(true);
-      setCollapsed(true);
-      SystemNavigationBar.navigationHide();
-      setImageSource(getSafeImage(safe, 'image3'));
-      setButtonText('Lock Out');
-      setElapsedTime(0);
-      startTimer();
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
         // updateNativeBlacklistedApps(blacklistedApps);
+        setIsLockedIn(true);
+        setCollapsed(true);
+        SystemNavigationBar.navigationHide();
+        setImageSource(getSafeImage(safe, 'image3'));
+        setButtonText('Lock Out');
+        setElapsedTime(0);
+        startTimer();
         AppServiceModule.startService()
           .then(() => console.log("Service started successfully"))
           .catch(error => console.error("Failed to start service:", error));

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native';
-import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
+// import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
 import { GOOGLE_WEB_CLIENT_ID } from '@env';
@@ -51,11 +51,11 @@ const StatisticsScreen: React.FC = () => {
     generateTestData();
   }, [setDailyEntries]);
 
-  GoogleSignin.configure({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-    offlineAccess: true,
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
+  // GoogleSignin.configure({
+  //   webClientId: GOOGLE_WEB_CLIENT_ID,
+  //   offlineAccess: true,
+  //   scopes: ['https://www.googleapis.com/auth/drive.file'],
+  // });
 
   const getStartOfWeek = (date: moment.Moment) => date.startOf('isoWeek');
 
@@ -102,37 +102,37 @@ const StatisticsScreen: React.FC = () => {
   const weeklyStats = calculateWeeklyStats(dailyEntries);
   // console.log('Weekly Stats:', JSON.stringify(weeklyStats));
 
-  const signIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      setUserInfo(userInfo);
+  // const signIn = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices();
+  //     const userInfo = await GoogleSignin.signIn();
+  //     setUserInfo(userInfo);
 
-      const { idToken } = await GoogleSignin.getTokens();
-      const response = await fetch('http://localhost:3000/storeUser', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ idToken }),
-      });
-      const result = await response.json();
-      console.log('User stored in backend:', result);
-    } catch (error: any) {
-      console.log('Sign-in error details:', error);
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('User cancelled the login flow');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Sign in is in progress');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Play services not available');
-      } else if (error.code === 'DEVELOPER_ERROR') {
-        console.log('Developer error:', error.message);
-      } else {
-        console.log('An unexpected error occurred', error);
-      }
-    }
-  };
+  //     const { idToken } = await GoogleSignin.getTokens();
+  //     const response = await fetch('http://localhost:3000/storeUser', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ idToken }),
+  //     });
+  //     const result = await response.json();
+  //     console.log('User stored in backend:', result);
+  //   } catch (error: any) {
+  //     console.log('Sign-in error details:', error);
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       console.log('User cancelled the login flow');
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       console.log('Sign in is in progress');
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       console.log('Play services not available');
+  //     } else if (error.code === 'DEVELOPER_ERROR') {
+  //       console.log('Developer error:', error.message);
+  //     } else {
+  //       console.log('An unexpected error occurred', error);
+  //     }
+  //   }
+  // };
 
   const exportData = async () => {
     const data = weeklyStats.map(item => [
@@ -266,13 +266,13 @@ const StatisticsScreen: React.FC = () => {
         <Text style={styles.totalText}>Total elapsed locked in time: {totalElapsedTime.toFixed(2)} minutes</Text>
       </View>
       
-      <View>
+      {/* <View>
         {userInfo ? (
           <Button title="Backup to Google Drive" onPress={exportData} />
         ) : (
           <Button title="Sign in with Google" onPress={signIn} />
         )}
-      </View>
+      </View> */}
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.headerText}>Weekly Statistics</Text>
