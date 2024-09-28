@@ -16,41 +16,32 @@ import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-import PushNotification from 'react-native-push-notification';
+// import {PushNotification} from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 import { NativeModules } from 'react-native';
 
 const { AppServiceModule } = NativeModules;
 
-// Set up push notification configuration
-PushNotification.configure({
-  onNotification: function (notification) {
-    console.log('NOTIFICATION:', notification);
-  },
-  popInitialNotification: true,
-  requestPermissions: Platform.OS === 'ios',
-});
-
-const showNotification = (title, message) => {
-  PushNotification.localNotification({
-    channelId: 'your-channel-id',
-    autoCancel: true,
-    largeIcon: 'ic_launcher',
-    smallIcon: 'ic_notification',
-    bigText: message,
-    subText: 'Local Notification Demo',
-    color: 'blue',
-    vibrate: true,
-    vibration: 300,
-    title: title,
-    message: message,
-    playSound: true,
-    soundName: 'default',
-    importance: 'high',
-    priority: 'high',
-  });
-};
+// const showNotification = (title, message) => {
+//   PushNotification.localNotification({
+//     channelId: 'your-channel-id',
+//     autoCancel: true,
+//     largeIcon: 'ic_launcher',
+//     smallIcon: 'ic_notification',
+//     bigText: message,
+//     subText: 'Local Notification Demo',
+//     color: 'blue',
+//     vibrate: true,
+//     vibration: 300,
+//     title: title,
+//     message: message,
+//     playSound: true,
+//     soundName: 'default',
+//     importance: 'high',
+//     priority: 'high',
+//   });
+// };
 
 const getTimerColor = (backgroundPalette) => {
   return backgroundPalette === '#000000' ? '#FFFFFF' : '#0d0d0d';
