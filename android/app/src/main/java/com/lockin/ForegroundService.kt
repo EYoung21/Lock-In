@@ -21,6 +21,7 @@ import androidx.core.app.NotificationCompat
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.widget.Button
+import android.content.pm.ServiceInfo
 
 import android.app.usage.UsageEvents
 
@@ -122,7 +123,11 @@ class ForegroundService : Service() {
             manager.createNotificationChannel(channel)
         }
 
-        startForeground(1, notificationBuilder.build())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(1, notificationBuilder.build())
+        }
     }
 
     private fun updateOverlayVisibility(show: Boolean) {

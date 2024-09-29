@@ -201,6 +201,9 @@ const HomeScreen = () => {
     } else {
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
         // updateNativeBlacklistedApps(blacklistedApps);
+        AppServiceModule.startService()
+          .then(() => console.log("Service started successfully"))
+          .catch(error => console.error("Failed to start service:", error));
         setIsLockedIn(true);
         setCollapsed(true);
         SystemNavigationBar.navigationHide();
@@ -208,9 +211,6 @@ const HomeScreen = () => {
         setButtonText('Lock Out');
         setElapsedTime(0);
         startTimer();
-        AppServiceModule.startService()
-          .then(() => console.log("Service started successfully"))
-          .catch(error => console.error("Failed to start service:", error));
       } else {
         Alert.alert("Permission Required", "Please grant all necessary permissions to use this feature.");
       }

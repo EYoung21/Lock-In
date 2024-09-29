@@ -125,7 +125,12 @@ class AppServiceModule(reactContext: ReactApplicationContext) : ReactContextBase
     fun startService(promise: Promise) {
         try {
             android.util.Log.d("AppServiceModule", "Starting ForegroundService")
-            ForegroundService.startService(reactApplicationContext)
+            val intent = Intent(reactApplicationContext, ForegroundService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                reactApplicationContext.startForegroundService(intent)
+            } else {
+                reactApplicationContext.startService(intent)
+            }
             promise.resolve(null)
         } catch (e: Exception) {
             android.util.Log.e("AppServiceModule", "Failed to start service", e)
