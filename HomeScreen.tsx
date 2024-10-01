@@ -168,17 +168,21 @@ const HomeScreen = () => {
   // };
 
   const startTimer = () => {
-    setTimerStartTime(Date.now());
+    const startTime = Date.now();
+    setTimerStartTime(startTime);
+  
     BackgroundTimer.runBackgroundTimer(() => {
-      setElapsedTime((prevTime) => prevTime + 1000);
+      const currentTime = Date.now();
+      const totalElapsed = currentTime - startTime;
+      setElapsedTime(totalElapsed); // Calculate the elapsed time relative to start
     }, 1000);
   };
-
+  
   const stopTimer = () => {
     BackgroundTimer.stopBackgroundTimer();
     const currentTime = Date.now();
     const totalElapsed = currentTime - timerStartTime;
-    setElapsedTime(totalElapsed);
+    setElapsedTime(totalElapsed); // Set the final elapsed time
   };
 
   const handlePressOut = () => {
