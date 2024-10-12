@@ -52,6 +52,7 @@ const StatisticsScreen: React.FC = () => {
   }, [setDailyEntries]);
 
   // GoogleSignin.configure({
+
   //   webClientId: GOOGLE_WEB_CLIENT_ID,
   //   offlineAccess: true,
   //   scopes: ['https://www.googleapis.com/auth/drive.file'],
@@ -59,11 +60,11 @@ const StatisticsScreen: React.FC = () => {
 
   const getStartOfWeek = (date: moment.Moment) => date.startOf('isoWeek');
 
-  const calculateWeeklyStats = (entries: DailyEntries): WeeklyStats[] => {
+  const calculateWeeklyStats = (entries: DailyEntries): [WeeklyStats[], number] => {
     const weeks: { [key: string]: { totalMinutes: number; days: number; daily: DailyEntries } } = {};
-  
+    
     const entryDates = Object.keys(entries).map(date => moment(date));
-    if (entryDates.length === 0) return [];
+    if (entryDates.length === 0) return [[], 0];
   
     const firstDate = getStartOfWeek(moment.min(entryDates));
     const lastDate = getStartOfWeek(moment.max(entryDates)).add(1, 'week');
@@ -72,7 +73,8 @@ const StatisticsScreen: React.FC = () => {
       const weekKey = week.format('YYYY-MM-DD');
       weeks[weekKey] = { totalMinutes: 0, days: 0, daily: {} };
     }
-  
+
+    let totalDays = 0;
     Object.keys(entries).forEach((date) => {
       const week = getStartOfWeek(moment(date)).format('YYYY-MM-DD');
       if (!weeks[week]) {
@@ -80,6 +82,7 @@ const StatisticsScreen: React.FC = () => {
       }
       weeks[week].totalMinutes += entries[date];
       weeks[week].days += 1;
+      totalDays += 1;
       weeks[week].daily[date] = entries[date];
     });
   
@@ -96,10 +99,11 @@ const StatisticsScreen: React.FC = () => {
       };
     });
   
-    return weeklyStats;
+    return [weeklyStats, totalDays];
   };
-
-  const weeklyStats = calculateWeeklyStats(dailyEntries);
+  const returned = calculateWeeklyStats(dailyEntries)
+  const weeklyStats = returned[0];
+  const totalDays2 = returned[1];
   // console.log('Weekly Stats:', JSON.stringify(weeklyStats));
 
   // const signIn = async () => {
@@ -134,38 +138,38 @@ const StatisticsScreen: React.FC = () => {
   //   }
   // };
 
-  const exportData = async () => {
-    const data = weeklyStats.map(item => [
-      item.week,
-      item.totalHours,
-      item.totalMinutes.toFixed(2),
-      item.avgHours,
-      item.avgMinutes,
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
-      (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
-    ]);
+  // const exportData = async () => {
+  //   const data = weeklyStats.map(item => [
+  //     item.week,
+  //     item.totalHours,
+  //     item.totalMinutes.toFixed(2),
+  //     item.avgHours,
+  //     item.avgMinutes,
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
+  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
+  //   ]);
 
-    try {
-      const response = await fetch('http://localhost:3000/createSheet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data }),
-      });
-      const result = await response.text();
-      console.log('Spreadsheet created:', result);
-      Alert.alert('Success', `Spreadsheet created: ${result}`);
-    } catch (error) {
-      console.error('Error exporting data to Google Sheets:', error);
-      Alert.alert('Error', 'Failed to export data');
-    }
-  };
+  //   try {
+  //     const response = await fetch('http://localhost:3000/createSheet', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ data }),
+  //     });
+  //     const result = await response.text();
+  //     console.log('Spreadsheet created:', result);
+  //     Alert.alert('Success', `Spreadsheet created: ${result}`);
+  //   } catch (error) {
+  //     console.error('Error exporting data to Google Sheets:', error);
+  //     Alert.alert('Error', 'Failed to export data');
+  //   }
+  // };
 
   const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
     let data: GraphData[] = [];
@@ -178,8 +182,8 @@ const StatisticsScreen: React.FC = () => {
         break;
       case 'average Weekly':
         const weeks = calculateWeeklyStats(dailyEntries);
-        if (weeks.length === 0) return [];
-          data = weeks.map(week => ({
+        if (weeks[0].length === 0) return [];
+          data = weeks[0].map(week => ({
             date: moment(week.week, 'MM/DD/YYYY').format('YYYY-MM-DD'),
             minutes: parseFloat(week.avgMinutes),
           }));
@@ -263,16 +267,13 @@ const StatisticsScreen: React.FC = () => {
     <View style={styles.container}>
       
       <View style={styles.header}>
-        <Text style={styles.totalText}>Total minutes / hours locked in: {totalElapsedTime.toFixed(2)} minutes ({totalElapsedTime.toFixed(2)}/60 hours)</Text>
+        <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes ({(totalElapsedTime/60).toFixed(2)} hours)</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.totalText}>Average hours locked in per day: {totalElapsedTime.toFixed(2)} minutes</Text>
+        <Text style={styles.totalText}>Average time locked in per day: {(totalElapsedTime / totalDays2).toFixed(2)} minutes ({((totalElapsedTime / totalDays2) / 60).toFixed(2)} hours)</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.totalText}>Average hours locked in per week: {totalElapsedTime.toFixed(2)} minutes</Text>
-      </View>
-      <View style={styles.header}>
-        <Text style={styles.totalText}>Average minutes / hours locked in per week: {totalElapsedTime.toFixed(2)} minutes</Text>
+        <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
       </View>
       
       {/* <View>
