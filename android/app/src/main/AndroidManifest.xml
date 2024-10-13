@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lockin">
 
@@ -8,6 +9,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MainApplication"
@@ -15,11 +18,6 @@
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:theme="@style/SplashTheme"> <!-- Apply SplashScreenTheme here -->
-
-        <!-- Metadata for Google Sign-In -->
-        <meta-data
-            android:name="com.google.android.gms.auth.api.credentials.CLIENT_ID"
-            android:value="293282385409-sn1geg2beka1vnb7u3i28ejkju96aqo0.apps.googleusercontent.com" />
 
         <activity
             android:name=".MainActivity"
@@ -33,12 +31,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <!-- Intent filter to handle Google Sign-In -->
-            <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.signin.SIGN_IN" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -63,5 +55,16 @@
             android:name=".ForegroundService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <!-- File Provider for sharing files -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

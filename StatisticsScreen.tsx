@@ -1,13 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert } from 'react-native';
-// import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
+import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert, Platform } from 'react-native';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-// import { GOOGLE_WEB_CLIENT_ID } from '@env';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
 import { scaleTime, scaleLinear } from 'd3-scale';
 import * as d3Shape from 'd3-shape';
 import { Picker } from '@react-native-picker/picker';
+import RNFS from 'react-native-fs';
+import Share from 'react-native-share';
+import DocumentPicker from 'react-native-document-picker';
 
 interface DailyEntries {
   [key: string]: number;
@@ -32,6 +33,61 @@ const StatisticsScreen: React.FC = () => {
   // const [userInfo, setUserInfo] = useState<User | null>(null);
   const [graphType, setGraphType] = useState<'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'>('daily');
 
+  const downloadCSV = async () => {
+    const csvContent = Object.entries(dailyEntries)
+      .map(([date, minutes]) => `${date},${minutes}`)
+      .join('\n');
+    const header = 'Date,Minutes\n';
+    const csvString = `${header}${csvContent}`;
+    
+    const path = Platform.OS === 'ios' 
+      ? `${RNFS.DocumentDirectoryPath}/chastity_data.csv`
+      : `${RNFS.ExternalDirectoryPath}/chastity_data.csv`;
+
+    try {
+      await RNFS.writeFile(path, csvString, 'utf8');
+      
+      await Share.open({
+        url: Platform.OS === 'android' ? `file://${path}` : path,
+        type: 'text/csv',
+        filename: 'chastity_data.csv'
+      });
+    } catch (error) {
+      console.error('Error sharing file:', error);
+      Alert.alert('Error', 'Failed to download and share CSV');
+    }
+  };
+
+  const uploadCSV = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.csv],
+      });
+      
+      const fileContent = await RNFS.readFile(res[0].uri, 'utf8');
+      const lines = fileContent.split('\n');
+      const newEntries: DailyEntries = {};
+      
+      // Skip the header row
+      for (let i = 1; i < lines.length; i++) {
+        const [date, minutes] = lines[i].split(',');
+        if (date && minutes) {
+          newEntries[date.trim()] = parseInt(minutes.trim(), 10);
+        }
+      }
+      
+      setDailyEntries(newEntries);
+      Alert.alert('Success', 'CSV data uploaded and synced successfully');
+    } catch (error) {
+      if (DocumentPicker.isCancel(error)) {
+        // User cancelled the picker
+      } else {
+        console.error('Error uploading CSV:', error);
+        Alert.alert('Error', 'Failed to upload and sync CSV data');
+      }
+    }
+  };
+
 
   //testing function here
   useEffect(() => {
@@ -50,13 +106,6 @@ const StatisticsScreen: React.FC = () => {
 
     generateTestData();
   }, [setDailyEntries]);
-
-  // GoogleSignin.configure({
-
-  //   webClientId: GOOGLE_WEB_CLIENT_ID,
-  //   offlineAccess: true,
-  //   scopes: ['https://www.googleapis.com/auth/drive.file'],
-  // });
 
   const getStartOfWeek = (date: moment.Moment) => date.startOf('isoWeek');
 
@@ -105,71 +154,6 @@ const StatisticsScreen: React.FC = () => {
   const weeklyStats = returned[0];
   const totalDays2 = returned[1];
   // console.log('Weekly Stats:', JSON.stringify(weeklyStats));
-
-  // const signIn = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices();
-  //     const userInfo = await GoogleSignin.signIn();
-  //     setUserInfo(userInfo);
-
-  //     const { idToken } = await GoogleSignin.getTokens();
-  //     const response = await fetch('http://localhost:3000/storeUser', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ idToken }),
-  //     });
-  //     const result = await response.json();
-  //     console.log('User stored in backend:', result);
-  //   } catch (error: any) {
-  //     console.log('Sign-in error details:', error);
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       console.log('User cancelled the login flow');
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       console.log('Sign in is in progress');
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       console.log('Play services not available');
-  //     } else if (error.code === 'DEVELOPER_ERROR') {
-  //       console.log('Developer error:', error.message);
-  //     } else {
-  //       console.log('An unexpected error occurred', error);
-  //     }
-  //   }
-  // };
-
-  // const exportData = async () => {
-  //   const data = weeklyStats.map(item => [
-  //     item.week,
-  //     item.totalHours,
-  //     item.totalMinutes.toFixed(2),
-  //     item.avgHours,
-  //     item.avgMinutes,
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(1).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(2).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(3).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(4).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(5).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(6).format('YYYY-MM-DD')] || 0).toFixed(2),
-  //     (item.daily[moment(item.week, 'MM/DD/YYYY').isoWeekday(7).format('YYYY-MM-DD')] || 0).toFixed(2)
-  //   ]);
-
-  //   try {
-  //     const response = await fetch('http://localhost:3000/createSheet', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ data }),
-  //     });
-  //     const result = await response.text();
-  //     console.log('Spreadsheet created:', result);
-  //     Alert.alert('Success', `Spreadsheet created: ${result}`);
-  //   } catch (error) {
-  //     console.error('Error exporting data to Google Sheets:', error);
-  //     Alert.alert('Error', 'Failed to export data');
-  //   }
-  // };
 
   const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
     let data: GraphData[] = [];
@@ -275,14 +259,11 @@ const StatisticsScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
       </View>
-      
-      {/* <View>
-        {userInfo ? (
-          <Button title="Backup to Google Drive" onPress={exportData} />
-        ) : (
-          <Button title="Sign in with Google" onPress={signIn} />
-        )}
-      </View> */}
+
+      <View style={styles.buttonContainer}>
+        <Button title="Download CSV" onPress={downloadCSV} />
+        <Button title="Upload CSV" onPress={uploadCSV} />
+      </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.headerText}>Weekly Statistics</Text>
@@ -452,7 +433,12 @@ const styles = StyleSheet.create({
     color: 'red',
     alignSelf: 'center',
     marginVertical: 10,
-  }
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
 });
 
 export default StatisticsScreen;
