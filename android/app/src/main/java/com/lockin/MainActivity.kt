@@ -25,13 +25,6 @@ class MainActivity : ReactActivity() {
         // SplashScreen.show(this) // If using react-native-splash-screen
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (GoogleSignInHelper.handleSignInResult(requestCode, resultCode, data)) {
-            return
-        }
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
