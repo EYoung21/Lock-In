@@ -60,24 +60,26 @@ const StatisticsScreen: React.FC = () => {
 
   const uploadCSV = async () => {
     try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.csv],
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
       });
       
-      const fileContent = await RNFS.readFile(res[0].uri, 'utf8');
-      const lines = fileContent.split('\n');
-      const newEntries: DailyEntries = {};
-      
-      // Skip the header row
-      for (let i = 1; i < lines.length; i++) {
-        const [date, minutes] = lines[i].split(',');
-        if (date && minutes) {
-          newEntries[date.trim()] = parseInt(minutes.trim(), 10);
+      if (result[0].uri) {
+        const fileContent = await RNFS.readFile(result[0].uri, 'utf8');
+        const lines = fileContent.split('\n');
+        const newEntries: DailyEntries = {};
+        
+        // Skip the header row
+        for (let i = 1; i < lines.length; i++) {
+          const [date, minutes] = lines[i].split(',');
+          if (date && minutes) {
+            newEntries[date.trim()] = parseInt(minutes.trim(), 10);
+          }
         }
+        
+        setDailyEntries(newEntries);
+        Alert.alert('Success', 'CSV data uploaded and synced successfully');
       }
-      
-      setDailyEntries(newEntries);
-      Alert.alert('Success', 'CSV data uploaded and synced successfully');
     } catch (error) {
       if (DocumentPicker.isCancel(error)) {
         // User cancelled the picker

@@ -94,6 +94,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				1234567890ABCDEF1234567890ABCDEF /* GoogleService-Info.plist */,
 			);
 			name = LockIn;
 			sourceTree = "<group>";

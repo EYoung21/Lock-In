@@ -78,4 +78,4 @@ yarn-error.log
 
 #add google-services api keys
 android/app/google-services.json.enc
-
+ios/LockIn/GoogleService-Info.plist

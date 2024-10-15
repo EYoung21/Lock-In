@@ -46,6 +46,10 @@ android {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
     }
 }
 
@@ -54,7 +58,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.7.0"
     implementation 'com.google.firebase:firebase-auth:23.0.0' // Check for the latest version
     
-    implementation platform('com.google.firebase:firebase-bom:33.1.1')
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
@@ -62,6 +66,8 @@ dependencies {
     implementation 'com.google.api-client:google-api-client-android:1.32.1'
     implementation 'com.google.apis:google-api-services-drive:v3-rev136-1.25.0'
     implementation "com.facebook.react:react-native:0.74.1" // Ensure this matches your React Native version
+    
+    // classpath 'com.google.gms:google-services:4.4.2'
 
     if (project.hasProperty("hermesEnabled") && hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
