@@ -1,0 +1,80 @@
+[debug] [2024-10-15T09:05:40.363Z] ----------------------------------------------------------------------
+[debug] [2024-10-15T09:05:40.369Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2024-10-15T09:05:40.369Z] CLI Version:   13.22.0
+[debug] [2024-10-15T09:05:40.369Z] Platform:      darwin
+[debug] [2024-10-15T09:05:40.369Z] Node Version:  v20.11.1
+[debug] [2024-10-15T09:05:40.369Z] Time:          Tue Oct 15 2024 05:05:40 GMT-0400 (Eastern Daylight Time)
+[debug] [2024-10-15T09:05:40.369Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-10-15T09:05:40.406Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-10-15T09:05:40.407Z] > authorizing via signed-in user (eliyoung4now@gmail.com)
+[debug] [2024-10-15T09:05:40.407Z] [iam] checking project lock-in-426700 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2024-10-15T09:05:40.407Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:40.407Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:40.408Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions [none]
+[debug] [2024-10-15T09:05:40.408Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions x-goog-quota-user=projects/lock-in-426700
+[debug] [2024-10-15T09:05:40.408Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-10-15T09:05:40.433Z] *** [apiv2] error from fetch(https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"cloudfunctions.functions.create\",\"cloudfunctions.functions.delete\",\"cloudfunctions.functions.get\",\"cloudfunctions.functions.list\",\"cloudfunctions.functions.update\",\"cloudfunctions.operations.get\",\"firebase.projects.get\"]}"}): FetchError: request to https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions failed, reason: getaddrinfo ENOTFOUND cloudresourcemanager.googleapis.com
+[debug] [2024-10-15T09:05:40.433Z] [iam] error while checking permissions, command may fail: FirebaseError: Failed to make request to https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions
+[debug] [2024-10-15T09:05:40.433Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:40.434Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:40.434Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2024-10-15T09:05:40.434Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2024-10-15T09:05:40.436Z] *** [apiv2] error from fetch(https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"iam.serviceAccounts.actAs\"]}"}): FetchError: request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo ENOTFOUND iam.googleapis.com
+[debug] [2024-10-15T09:05:40.436Z] [functions] service account IAM check errored, deploy may fail: Failed to make request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions {"name":"FirebaseError","children":[],"exit":1,"message":"Failed to make request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions","original":{"message":"request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo ENOTFOUND iam.googleapis.com","type":"system","errno":"ENOTFOUND","code":"ENOTFOUND"},"status":500}
+[info] 
+[info] === Deploying to 'lock-in-426700'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2024-10-15T09:05:43.150Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:43.150Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:05:43.151Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 [none]
+[debug] [2024-10-15T09:05:43.153Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects/lock-in-426700, {"headers":{},"method":"GET","signal":{}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 failed, reason: getaddrinfo ENOTFOUND firebase.googleapis.com
+[debug] [2024-10-15T09:05:43.153Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 (original: request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 failed, reason: getaddrinfo ENOTFOUND firebase.googleapis.com)
+[debug] [2024-10-15T09:05:43.155Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:261:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project lock-in-426700. Please make sure the project exists and your account has permission to access it.
+[debug] [2024-10-15T09:07:48.583Z] ----------------------------------------------------------------------
+[debug] [2024-10-15T09:07:48.588Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2024-10-15T09:07:48.588Z] CLI Version:   13.22.0
+[debug] [2024-10-15T09:07:48.588Z] Platform:      darwin
+[debug] [2024-10-15T09:07:48.589Z] Node Version:  v20.11.1
+[debug] [2024-10-15T09:07:48.589Z] Time:          Tue Oct 15 2024 05:07:48 GMT-0400 (Eastern Daylight Time)
+[debug] [2024-10-15T09:07:48.589Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-10-15T09:07:48.624Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-10-15T09:07:48.624Z] > authorizing via signed-in user (eliyoung4now@gmail.com)
+[debug] [2024-10-15T09:07:48.624Z] [iam] checking project lock-in-426700 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2024-10-15T09:07:48.625Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:48.625Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:48.626Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions [none]
+[debug] [2024-10-15T09:07:48.626Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions x-goog-quota-user=projects/lock-in-426700
+[debug] [2024-10-15T09:07:48.626Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2024-10-15T09:07:48.654Z] *** [apiv2] error from fetch(https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"cloudfunctions.functions.create\",\"cloudfunctions.functions.delete\",\"cloudfunctions.functions.get\",\"cloudfunctions.functions.list\",\"cloudfunctions.functions.update\",\"cloudfunctions.operations.get\",\"firebase.projects.get\"]}"}): FetchError: request to https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions failed, reason: getaddrinfo ENOTFOUND cloudresourcemanager.googleapis.com
+[debug] [2024-10-15T09:07:48.654Z] [iam] error while checking permissions, command may fail: FirebaseError: Failed to make request to https://cloudresourcemanager.googleapis.com/v1/projects/lock-in-426700:testIamPermissions
+[debug] [2024-10-15T09:07:48.654Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:48.654Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:48.654Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2024-10-15T09:07:48.654Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2024-10-15T09:07:48.657Z] *** [apiv2] error from fetch(https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions, {"headers":{},"method":"POST","body":"{\"permissions\":[\"iam.serviceAccounts.actAs\"]}"}): FetchError: request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo ENOTFOUND iam.googleapis.com
+[debug] [2024-10-15T09:07:48.657Z] [functions] service account IAM check errored, deploy may fail: Failed to make request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions {"name":"FirebaseError","children":[],"exit":1,"message":"Failed to make request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions","original":{"message":"request to https://iam.googleapis.com/v1/projects/lock-in-426700/serviceAccounts/lock-in-426700@appspot.gserviceaccount.com:testIamPermissions failed, reason: getaddrinfo ENOTFOUND iam.googleapis.com","type":"system","errno":"ENOTFOUND","code":"ENOTFOUND"},"status":500}
+[info] 
+[info] === Deploying to 'lock-in-426700'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2024-10-15T09:07:51.196Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:51.196Z] Checked if tokens are valid: true, expires at: 1728986521253
+[debug] [2024-10-15T09:07:51.196Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 [none]
+[debug] [2024-10-15T09:07:51.199Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects/lock-in-426700, {"headers":{},"method":"GET","signal":{}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 failed, reason: getaddrinfo ENOTFOUND firebase.googleapis.com
+[debug] [2024-10-15T09:07:51.199Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 (original: request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700 failed, reason: getaddrinfo ENOTFOUND firebase.googleapis.com)
+[debug] [2024-10-15T09:07:51.201Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects/lock-in-426700
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:261:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project lock-in-426700. Please make sure the project exists and your account has permission to access it.
