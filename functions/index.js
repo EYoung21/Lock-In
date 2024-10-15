@@ -1,19 +1,53 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require("firebase-functions");
+const nodemailer = require("nodemailer");
+const admin = require("firebase-admin");
+admin.initializeApp();
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: functions.config().gmail.email,
+    pass: functions.config().gmail.password,
+  },
+});
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+exports.sendVerificationCode = functions.firestore
+  .document("verificationCodes/{email}")
+  .onCreate(async (snap, context) => {
+    console.log("Function triggered for email:", context.params.email);
+    const email = context.params.email;
+    const data = snap.data();
+    const code = data.code;
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+    console.log("Verification code:", code);
+    console.log("Using email configuration:", functions.config().gmail.email);
+
+    const mailOptions = {
+      from: `Your App <${functions.config().gmail.email}>`,
+      to: email,
+      subject: "Your Verification Code",
+      text: `Your verification code is: ${code}. This code will expire in 10 minutes.`,
+    };
+
+    try {
+      console.log("Attempting to send email...");
+      await transporter.sendMail(mailOptions);
+      console.log("Verification email sent successfully to:", email);
+      return null;
+    } catch (error) {
+      console.error("Error sending email to", email, ":", error);
+      // You might want to delete the document if email sending fails
+      try {
+        await snap.ref.delete();
+        console.log("Deleted verification code document for", email);
+      } catch (deleteError) {
+        console.error(
+          "Error deleting verification code document for",
+          email,
+          ":",
+          deleteError
+        );
+      }
+      return null;
+    }
+  });

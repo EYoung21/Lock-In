@@ -148,6 +148,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         </>
       ) : (
         <>
+          <Text>Enter the verification code sent to your email:</Text>
           <TextInput
             style={styles.input}
             placeholder="Verification Code"
