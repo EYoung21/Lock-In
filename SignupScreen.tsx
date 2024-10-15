@@ -16,6 +16,8 @@ interface SignUpScreenProps {
   navigation: SignUpScreenNavigationProp;
 }
 
+//this comonent didn't send email or prompt submission of verification code after its suppose to send it (not sure if its even sending it)
+
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
