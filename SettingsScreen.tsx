@@ -220,6 +220,8 @@ const SettingsScreen = () => {
             setHasPermission(permission);
             if (permission) {
               setAppMonitoringEnabled(true);
+              setAppMonitoringOn(true);
+              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
               if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
                 AppServiceModule.startService();
               }
@@ -250,6 +252,8 @@ const SettingsScreen = () => {
             setHasPermission2(permission2);
             if (permission2) {
               setManageOverlayEnabled(true);
+              setManageOverlayOn(true);
+              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
               if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayOn) {
                 AppServiceModule.startService();
               }
@@ -332,7 +336,7 @@ const SettingsScreen = () => {
   
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Blackelist Unproductive Apps!</Text>
+      <Text style={styles.text}>Blacklist Unproductive Apps!</Text>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Permission:</Text>
         <Switch

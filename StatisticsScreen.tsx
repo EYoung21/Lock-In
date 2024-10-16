@@ -262,7 +262,7 @@ const StatisticsScreen: React.FC = () => {
         <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.totalText}>Average time locked in per session: {(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
+        <Text style={styles.totalText}>Average time locked in per session:{totalTimesLockedIn} {(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes ({((totalElapsedTime / totalTimesLockedIn)/60).toFixed(2)} hours)</Text>
       </View>
 
 

@@ -53,7 +53,6 @@ const HomeScreen = () => {
   const [buttonText, setButtonText] = useState('Lock In');
   const [isLockedIn, setIsLockedIn] = useState(false);
   const { collapsed, setCollapsed } = useContext(CollapseContext);
-  const {totalTimesLockedIn, setTotalTimesLockedIn} = useContext(CollapseContext);
 
   const {
     totalElapsedTime,
@@ -75,6 +74,8 @@ const HomeScreen = () => {
     manageOverlayEnabled,
     appMonitoringOn,
     manageOverlayOn,
+    totalTimesLockedIn, 
+    setTotalTimesLockedIn,
   } = useContext(TotalElapsedContext);
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -203,6 +204,7 @@ const HomeScreen = () => {
       setTimeout(() => {
         setImageSource(getSafeImage(safe, 'image2'));
       }, 700);
+      setTotalTimesLockedIn((parseInt(totalTimesLockedIn) + 1).toString());
     } else {
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
         // updateNativeBlacklistedApps(blacklistedApps);

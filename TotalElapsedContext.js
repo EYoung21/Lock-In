@@ -73,7 +73,7 @@ export const TotalElapsedProvider = ({ children }) => {
           setAppMonitoringOn(JSON.parse(storedAppMonitoringOn));
         }
         if (storedTotalTimesLockedIn !== null) {
-          setTotalTimesLockedIn(totalTimesLockedIn);
+          setTotalTimesLockedIn(storedTotalTimesLockedIn);
         }
       } catch (error) {
         console.error('Failed to load data from storage', error);
@@ -95,7 +95,7 @@ export const TotalElapsedProvider = ({ children }) => {
         await AsyncStorage.setItem('buttonBorder', buttonBorder);
         await AsyncStorage.setItem('safe', safe);
         
-        await AsyncStorage.setItem('totalTimesLockedIn', totalTimesLockedIn);
+        await AsyncStorage.setItem('totalTimesLockedIn', totalTimesLockedIn.toString());
 
         // Save blacklisted apps and app monitoring toggle state
         await AsyncStorage.setItem('blacklistedApps', JSON.stringify(blacklistedApps));
