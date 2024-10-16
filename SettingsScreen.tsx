@@ -3,7 +3,8 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, I
 import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import { NativeModules } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const { AppServiceModule } = NativeModules;
 
@@ -357,7 +358,7 @@ const SettingsScreen = () => {
     </TouchableOpacity>
   ), [blacklistedApps, toggleBlacklist]);
 
-  const keyExtractor = useCallback((item: AppItem) => item.id, []);
+  const keyExtractor = useCallback((item: AppItem, index: number) => `${item.id}-${index}`, []);
 
   return (
     <View style={styles.container}>
