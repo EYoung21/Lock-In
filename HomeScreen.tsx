@@ -52,8 +52,9 @@ const HomeScreen = () => {
   const [imageSource, setImageSource] = useState(require('./assets/safe2.png'));
   const [buttonText, setButtonText] = useState('Lock In');
   const [isLockedIn, setIsLockedIn] = useState(false);
-
   const { collapsed, setCollapsed } = useContext(CollapseContext);
+  const {totalTimesLockedIn, setTotalTimesLockedIn} = useContext(CollapseContext);
+
   const {
     totalElapsedTime,
     setTotalElapsedTime,

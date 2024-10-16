@@ -29,7 +29,7 @@ interface GraphData {
 }
 
 const StatisticsScreen: React.FC = () => {
-  const { totalElapsedTime, dailyEntries, setDailyEntries } = useContext(TotalElapsedContext);
+  const { totalElapsedTime, dailyEntries, setDailyEntries, totalTimesLockedIn, setTotalTimesLockedIn, } = useContext(TotalElapsedContext);
   // const [userInfo, setUserInfo] = useState<User | null>(null);
   const [graphType, setGraphType] = useState<'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'>('daily');
 
@@ -261,6 +261,10 @@ const StatisticsScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
       </View>
+      <View style={styles.header}>
+        <Text style={styles.totalText}>Average time locked in per session: {(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
+      </View>
+
 
       <View style={styles.buttonContainer}>
         <Button title="Download CSV" onPress={downloadCSV} />

@@ -12,6 +12,7 @@ export const TotalElapsedProvider = ({ children }) => {
   const [buttonColor, setButtonColor] = useState('#000000');
   const [buttonBorder, setButtonBorder] = useState('#333333');
   const [safe, setSafe] = useState('2DSafe');
+  const [totalTimesLockedIn, setTotalTimesLockedIn,] = useState(0);
 
   // New state blacklisted apps and monitoring toggle
   const [blacklistedApps, setBlacklistedApps] = useState(['com.lockin']); // Add "Lock In" to the blacklisted apps by default
@@ -40,6 +41,8 @@ export const TotalElapsedProvider = ({ children }) => {
         const storedManageOverlayEnabled = await AsyncStorage.getItem('manageOverlayEnabled');
         const storedAppMonitoringOn = await AsyncStorage.getItem('appMonitoringOn');
         const storedManageOverlayOn = await AsyncStorage.getItem('manageOverlayOn');
+        const storedTotalTimesLockedIn = await AsyncStorage.getItem('totalTimesLockedIn');
+        
 
         if (elapsedTime !== null) setTotalElapsedTime(parseFloat(elapsedTime));
         if (currency !== null) setTotalCurrency(parseFloat(currency));
@@ -69,6 +72,9 @@ export const TotalElapsedProvider = ({ children }) => {
         if (storedAppMonitoringOn !== null) {
           setAppMonitoringOn(JSON.parse(storedAppMonitoringOn));
         }
+        if (storedTotalTimesLockedIn !== null) {
+          setTotalTimesLockedIn(totalTimesLockedIn);
+        }
       } catch (error) {
         console.error('Failed to load data from storage', error);
       }
@@ -88,6 +94,8 @@ export const TotalElapsedProvider = ({ children }) => {
         await AsyncStorage.setItem('buttonColor', buttonColor);
         await AsyncStorage.setItem('buttonBorder', buttonBorder);
         await AsyncStorage.setItem('safe', safe);
+        
+        await AsyncStorage.setItem('totalTimesLockedIn', totalTimesLockedIn);
 
         // Save blacklisted apps and app monitoring toggle state
         await AsyncStorage.setItem('blacklistedApps', JSON.stringify(blacklistedApps));
@@ -102,7 +110,7 @@ export const TotalElapsedProvider = ({ children }) => {
     };
 
     saveData();
-  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, blacklistedApps, appMonitoringEnabled, manageOverlayEnabled, appMonitoringOn, manageOverlayOn]);
+  }, [totalElapsedTime, totalCurrency, dailyEntries, backgroundColor, buttonColor, buttonBorder, safe, blacklistedApps, appMonitoringEnabled, manageOverlayEnabled, appMonitoringOn, manageOverlayOn, totalTimesLockedIn]);
 
   return (
     <TotalElapsedContext.Provider value={{
@@ -118,6 +126,7 @@ export const TotalElapsedProvider = ({ children }) => {
       manageOverlayEnabled, setManageOverlayEnabled,
       appMonitoringOn, setAppMonitoringOn,
       manageOverlayOn, setManageOverlayOn,
+      totalTimesLockedIn, setTotalTimesLockedIn,
     }}>
       {children}
     </TotalElapsedContext.Provider>
