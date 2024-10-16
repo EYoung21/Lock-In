@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import { StackNavigationProp } from '@react-navigation/stack';
+import NetInfo from '@react-native-community/netinfo';
 
 type RootStackParamList = {
   Login: undefined;
@@ -18,6 +19,7 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async (): Promise<void> => {
     if (email.trim() === '' || password.trim() === '') {
@@ -25,13 +27,27 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return;
     }
 
+    setLoading(true);
+
     try {
+      const isConnected = await NetInfo.fetch().then(state => state.isConnected);
+      if (!isConnected) {
+        Alert.alert('No Internet Connection', 'Please check your internet connection and try again.');
+        return;
+      }
+
       await auth().signInWithEmailAndPassword(email, password);
       console.log('User signed in!');
+      
+      // AccountSync is handled by the auth state listener in index.js
+      // No need to call accountSync.startSync() here
+      
       // Navigation to main app screen is handled by the auth state listener in FullApp component
     } catch (error) {
       console.error(error);
       Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +60,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loading}
       />
       <TextInput
         style={styles.input}
@@ -51,13 +68,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity 
+        style={[styles.button, loading && styles.disabledButton]} 
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.signUpLink} 
         onPress={() => navigation.navigate('SignUp')}
+        disabled={loading}
       >
         <Text style={styles.signUpText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
@@ -82,6 +109,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 10,
     alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'gray',
   },
   buttonText: {
     color: 'white',

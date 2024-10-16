@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { StackNavigationProp } from '@react-navigation/stack';
+import NetInfo from '@react-native-community/netinfo';
 
 type RootStackParamList = {
   Login: undefined;
@@ -16,8 +17,6 @@ interface SignUpScreenProps {
   navigation: SignUpScreenNavigationProp;
 }
 
-//this comonent didn't send email or prompt submission of verification code after its suppose to send it (not sure if its even sending it)
-
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,6 +29,16 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
     return Math.floor(100000 + Math.random() * 900000).toString();
   };
 
+  const checkInternetConnection = async (): Promise<boolean> => {
+    const netInfo = await NetInfo.fetch();
+    const isConnected = netInfo.isConnected;
+    if (isConnected === null || isConnected === false) {
+      Alert.alert('No Internet Connection', 'Please check your internet connection and try again.');
+      return false;
+    }
+    return true;
+  };
+
   const sendVerificationCode = async () => {
     if (email.trim() === '' || password.trim() === '' || confirmPassword.trim() === '') {
       Alert.alert('Error', 'Please fill in all fields');
@@ -40,6 +49,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
+
+    if (!(await checkInternetConnection())) return;
 
     setLoading(true);
 
@@ -65,6 +76,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       Alert.alert('Error', 'Please enter the verification code');
       return;
     }
+
+    if (!(await checkInternetConnection())) return;
 
     setLoading(true);
 
@@ -119,6 +132,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!loading}
           />
           <TextInput
             style={styles.input}
@@ -126,6 +140,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            editable={!loading}
           />
           <TextInput
             style={styles.input}
@@ -133,9 +148,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
+            editable={!loading}
           />
           <TouchableOpacity 
-            style={styles.button} 
+            style={[styles.button, loading && styles.disabledButton]}
             onPress={sendVerificationCode}
             disabled={loading}
           >
@@ -155,9 +171,10 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
             value={verificationCode}
             onChangeText={setVerificationCode}
             keyboardType="numeric"
+            editable={!loading}
           />
           <TouchableOpacity 
-            style={styles.button} 
+            style={[styles.button, loading && styles.disabledButton]}
             onPress={handleSignUp}
             disabled={loading}
           >
@@ -172,6 +189,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       <TouchableOpacity 
         style={styles.loginLink} 
         onPress={() => navigation.navigate('Login')}
+        disabled={loading}
       >
         <Text style={styles.loginText}>Already have an account? Login</Text>
       </TouchableOpacity>
@@ -196,6 +214,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 10,
     alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'gray',
   },
   buttonText: {
     color: 'white',

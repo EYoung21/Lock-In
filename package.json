@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.23.1",
-    "@react-native-community/netinfo": "^11.3.2",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-native-community/push-notification-ios": "^1.11.0",
     "@react-native-firebase/app": "^21.0.0",
     "@react-native-firebase/auth": "^21.0.0",
@@ -26,7 +26,7 @@
     "d3": "^7.9.0",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
-    "firebase-tools": "^1.2.0",
+    "firebase-tools": "^13.22.0",
     "googleapis": "^140.0.0",
     "moment": "^2.30.1",
     "nodemailer": "^6.9.15",
