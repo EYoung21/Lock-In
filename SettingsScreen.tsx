@@ -1,12 +1,20 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image, Alert } from 'react-native';
 import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import { NativeModules } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const { AppServiceModule } = NativeModules;
 
-const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
+const LOCK_IN_APP_ID = 'com.lockin';
+
+// Define the type for an app item
+interface AppItem {
+  name: string;
+  id: string;
+  icon: string;
+}
 
 const checkUsageStatsPermission = async () => {
   if (Platform.OS === 'android') {
@@ -84,7 +92,7 @@ const requestManageOverlayPermission = () => {
 
 const SettingsScreen = () => {
   const { blacklistedApps, setBlacklistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn, manageOverlayEnabled, setManageOverlayEnabled, appMonitoringOn, setAppMonitoringOn, manageOverlayOn, setManageOverlayOn } = useContext(TotalElapsedContext);
-  const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
+  const [apps, setApps] = useState<AppItem[]>([]); // Explicitly type the state
   const [hasPermission, setHasPermission] = useState(false);
   const [hasPermission2, setHasPermission2] = useState(false);
 
@@ -147,16 +155,15 @@ const SettingsScreen = () => {
         if (Platform.OS === 'android') {
           console.log('Running on Android');
           if (InstalledApps && typeof InstalledApps.getApps === 'function') {
-            const apps = await InstalledApps.getApps();
-            const filteredApps = apps
+            const fetchedApps = await InstalledApps.getApps();
+            const filteredApps: AppItem[] = fetchedApps
               .filter(app => app.packageName !== LOCK_IN_APP_ID)
               .map(app => ({ 
                 name: app.label, 
                 id: app.packageName,
-                icon: `data:image/png;base64,${app.icon}` // Convert icon data to a base64 string
+                icon: `data:image/png;base64,${app.icon}`
               }));
             console.log('Fetched apps:');
-            //, filteredApps
             setApps(filteredApps);
           } else {
             console.error('InstalledApps is not correctly initialized or does not have getApps method.');
@@ -334,55 +341,65 @@ const SettingsScreen = () => {
     }
   };
   
+  const renderItem = useCallback(({ item }: { item: AppItem }) => (
+    <TouchableOpacity
+      style={[
+        styles.appItem,
+        blacklistedApps.includes(item.id) && styles.blacklisted
+      ]}
+      onPress={() => toggleBlacklist(item.id)}
+    >
+      <Image
+        source={{ uri: item.icon }}
+        style={styles.icon}
+      />
+      <Text style={styles.appText}>{item.name}</Text>
+    </TouchableOpacity>
+  ), [blacklistedApps, toggleBlacklist]);
+
+  const keyExtractor = useCallback((item: AppItem) => item.id, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Blacklist Unproductive Apps!</Text>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Permission:</Text>
-        <Switch
-          value={appMonitoringEnabled} //permission
-          onValueChange={handleToggle}
+        <Ionicons 
+          name={appMonitoringEnabled ? "checkmark-circle" : "close-circle"} 
+          size={24} 
+          color={appMonitoringEnabled ? "green" : "red"} 
         />
       </View>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Toggle:</Text>
         <Switch
-          value={appMonitoringOn} //status
+          value={appMonitoringOn}
           onValueChange={handleToggleOn1}
         />
       </View>
       <View style={styles.toggleContainer}>
-      <Text style={styles.toggleLabel}>Android Overlay Permission:</Text>
-        <Switch
-          value={manageOverlayEnabled} //permission
-          onValueChange={handleToggle2}
+        <Text style={styles.toggleLabel}>Android Overlay Permission:</Text>
+        <Ionicons 
+          name={manageOverlayEnabled ? "checkmark-circle" : "close-circle"} 
+          size={24} 
+          color={manageOverlayEnabled ? "green" : "red"} 
         />
       </View>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>Android Overlay Toggle:</Text>
         <Switch
-          value={manageOverlayOn} //status
+          value={manageOverlayOn}
           onValueChange={handleToggleOn2}
         />
       </View>
       <FlatList
         data={apps}
-        keyExtractor={(item, index) => `${item.id}-${index}`} // Updated keyExtractor
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.appItem,
-              blacklistedApps.includes(item.id) && styles.blacklisted
-            ]}
-            onPress={() => toggleBlacklist(item.id)}
-          >
-            <Image
-              source={{ uri: item.icon }}
-              style={styles.icon}
-            />
-            <Text style={styles.appText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
     </View>
   );
