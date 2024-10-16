@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView, Dimensions, Alert, Platform } from 'react-native';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
@@ -29,9 +29,27 @@ interface GraphData {
 }
 
 const StatisticsScreen: React.FC = () => {
-  const { totalElapsedTime, dailyEntries, setDailyEntries, totalTimesLockedIn, setTotalTimesLockedIn, } = useContext(TotalElapsedContext);
-  // const [userInfo, setUserInfo] = useState<User | null>(null);
+  const { totalElapsedTime, dailyEntries, setDailyEntries, totalTimesLockedIn } = useContext(TotalElapsedContext);
   const [graphType, setGraphType] = useState<'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'>('daily');
+
+  useEffect(() => {
+    const generateTestData = () => {
+      const testEntries: DailyEntries = {};
+      const startDate = moment().subtract(0.5, 'years');
+      const endDate = moment();
+      let currentDate = startDate.clone();
+      while (currentDate.isBefore(endDate)) {
+        const randomMinutes = Math.floor(Math.random() * 60);
+        testEntries[currentDate.format('YYYY-MM-DD')] = randomMinutes;
+        currentDate.add(1, 'day');
+      }
+      setDailyEntries(testEntries);
+    };
+
+    if (Object.keys(dailyEntries).length === 0) {
+      generateTestData();
+    }
+  }, []);
 
   const downloadCSV = async () => {
     const csvContent = Object.entries(dailyEntries)
@@ -90,25 +108,6 @@ const StatisticsScreen: React.FC = () => {
     }
   };
 
-
-  //testing function here
-  useEffect(() => {
-    const generateTestData = () => {
-      const testEntries: DailyEntries = {};
-      const startDate = moment().subtract(0.5, 'years');
-      const endDate = moment();
-      let currentDate = startDate.clone();
-      while (currentDate.isBefore(endDate)) {
-        const randomMinutes = Math.floor(Math.random() * 60);
-        testEntries[currentDate.format('YYYY-MM-DD')] = randomMinutes;
-        currentDate.add(1, 'day');
-      }
-      setDailyEntries(testEntries);
-    };
-
-    generateTestData();
-  }, [setDailyEntries]);
-
   const getStartOfWeek = (date: moment.Moment) => date.startOf('isoWeek');
 
   const calculateWeeklyStats = (entries: DailyEntries): [WeeklyStats[], number] => {
@@ -139,7 +138,6 @@ const StatisticsScreen: React.FC = () => {
   
     const weeklyStats = Object.keys(weeks).map((week) => {
       const { totalMinutes, days, daily } = weeks[week];
-      // console.log(`Processing week ${week}: Total Minutes = ${totalMinutes}, Days = ${days}`); // Debug log
       return {
         week: moment(week).format('MM/DD/YYYY'),
         totalMinutes,
@@ -152,10 +150,6 @@ const StatisticsScreen: React.FC = () => {
   
     return [weeklyStats, totalDays];
   };
-  const returned = calculateWeeklyStats(dailyEntries)
-  const weeklyStats = returned[0];
-  const totalDays2 = returned[1];
-  // console.log('Weekly Stats:', JSON.stringify(weeklyStats));
 
   const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
     let data: GraphData[] = [];
@@ -213,12 +207,11 @@ const StatisticsScreen: React.FC = () => {
       default:
         return [];
     }
-    // console.log('Prepared Graph Data:', data);
     return data;
   };
 
-  const graphData = prepareGraphData(graphType);
-  // console.log('Graph Data:', graphData);
+  const [weeklyStats, totalDays2] = useMemo(() => calculateWeeklyStats(dailyEntries), [dailyEntries]);
+  const graphData = useMemo(() => prepareGraphData(graphType), [graphType, dailyEntries]);
 
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = 300;
@@ -251,7 +244,6 @@ const StatisticsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.header}>
         <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes ({(totalElapsedTime/60).toFixed(2)} hours)</Text>
       </View>
@@ -262,9 +254,8 @@ const StatisticsScreen: React.FC = () => {
         <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.totalText}>Average time locked in per session:{totalTimesLockedIn} {(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes ({((totalElapsedTime / totalTimesLockedIn)/60).toFixed(2)} hours)</Text>
+        <Text style={styles.totalText}>Average time locked in per session: {totalTimesLockedIn > 0 ? `${(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes (${((totalElapsedTime / totalTimesLockedIn)/60).toFixed(2)} hours)` : 'N/A'}</Text>
       </View>
-
 
       <View style={styles.buttonContainer}>
         <Button title="Download CSV" onPress={downloadCSV} />
