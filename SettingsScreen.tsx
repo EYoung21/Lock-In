@@ -277,15 +277,18 @@ const SettingsScreen = () => {
   const handleToggle = async (value) => {
     if (value) {
       if (!appMonitoringEnabled) {
-        requestUsageStatsPermission();
-        if (appMonitoringEnabled) {
-          setAppMonitoringOn(true);
-          //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-          if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
-            AppServiceModule.startService();
-          }
-        } else {
-          Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
+        const userResponded = await requestUsageStatsPermission();
+        if (userResponded) {
+            if (AppServiceModule.hasUsageStatsPermission()) {
+              setAppMonitoringOn(true);
+              setAppMonitoringEnabled(true);
+              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+              if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+                AppServiceModule.startService();
+              }
+            } else {
+              Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
+            }
         }
       }
     } else {
@@ -296,15 +299,18 @@ const SettingsScreen = () => {
   const handleToggle2 = async (value) => {
     if (value) {
       if (!manageOverlayEnabled) {
-        requestManageOverlayPermission();
-        if (manageOverlayEnabled) {
-          setManageOverlayOn(true);
-          //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-          if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
-            AppServiceModule.startService();
-          }
-        } else {
-          Alert.alert('Permission not granted', 'Android overlay cannot be enabled without the required permission.');
+        const userResponded = await requestManageOverlayPermission();
+        if (userResponded) {
+            if (AppServiceModule.hasManageOverlayPermission()) {
+              setManageOverlayEnabled(true);
+              setManageOverlayOn(true);
+              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+              if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+                AppServiceModule.startService();
+              }
+            } else {
+              Alert.alert('Permission not granted', 'Android overlay cannot be enabled without the required permission.');
+            }
         }
       }
     } else {
@@ -317,7 +323,8 @@ const SettingsScreen = () => {
       if (!appMonitoringEnabled) {
         const userResponded = await requestUsageStatsPermission();
         if (userResponded) {
-            if (appMonitoringEnabled) {
+            if (AppServiceModule.hasUsageStatsPermission()) {
+              setAppMonitoringEnabled(true);
               setAppMonitoringOn(true);
               if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringEnabled) {
                 AppServiceModule.startService();
@@ -343,7 +350,8 @@ const SettingsScreen = () => {
       if (!manageOverlayEnabled) {
         const userResponded = await requestManageOverlayPermission();
         if (userResponded) {
-            if (manageOverlayEnabled) {
+            if (AppServiceModule.hasManageOverlayPermission()) {
+              setManageOverlayEnabled(true);
               setManageOverlayOn(true);
               if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayEnabled) {
                 AppServiceModule.startService();
@@ -414,12 +422,13 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         )}
       />
-      <View>
+      {/* for debugging */}
+      {/* <View>
       <Text>Toggle 1 (Monitoring Enabled): {appMonitoringEnabled ? 'On' : 'Off'}</Text>
       <Text>Toggle 2 (Monitoring On): {appMonitoringOn ? 'On' : 'Off'}</Text>
       <Text>Toggle 3 (Overlay Enabled): {manageOverlayEnabled ? 'On' : 'Off'}</Text>
       <Text>Toggle 4 (Overlay On): {manageOverlayOn ? 'On' : 'Off'}</Text>
-      </View>
+      </View> */}
     </View>
   );
 };

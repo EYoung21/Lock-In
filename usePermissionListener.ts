@@ -8,32 +8,41 @@ type SetPermissionFunction = (enabled: boolean) => void;
 const usePermissionListener = (
   setAppMonitoringEnabled: SetPermissionFunction,
   setManageOverlayEnabled: SetPermissionFunction,
-  isLockedIn: boolean
+  setAppMonitoringOn: SetPermissionFunction,
+  setManageOverlayOn: SetPermissionFunction,
+  isLockedIn: boolean,
 ) => {
   const eventEmitterRef = useRef<NativeEventEmitter | null>(null);
   const appStateSubscriptionRef = useRef<NativeEventSubscription | null>(null);
+  const isCheckingPermissions = useRef(false);
 
   const checkAndSyncPermissions = useCallback(async () => {
+    if (isCheckingPermissions.current) return;
+    isCheckingPermissions.current = true;
+
     try {
-      const usageStatsPermission = await AppServiceModule.hasUsageStatsPermission();
-      const manageOverlayPermission = await AppServiceModule.hasManageOverlayPermission();
+      const [usageStatsPermission, manageOverlayPermission] = await Promise.all([
+        AppServiceModule.hasUsageStatsPermission(),
+        AppServiceModule.hasManageOverlayPermission()
+      ]);
 
       setAppMonitoringEnabled(usageStatsPermission);
       setManageOverlayEnabled(manageOverlayPermission);
 
-      if (isLockedIn && usageStatsPermission && manageOverlayPermission) {
-        await AppServiceModule.startService();
-      } else {
-        await AppServiceModule.stopService();
-      }
+      if (!usageStatsPermission) setAppMonitoringOn(false);
+      if (!manageOverlayPermission) setManageOverlayOn(false);
+      
     } catch (error) {
       console.error('Error checking permissions:', error);
+    } finally {
+      isCheckingPermissions.current = false;
     }
-  }, [setAppMonitoringEnabled, setManageOverlayEnabled, isLockedIn]);
+  }, [setAppMonitoringEnabled, setManageOverlayEnabled, setAppMonitoringOn, setManageOverlayOn, isLockedIn]);
+
+  const debouncedCheck = useCallback(debounce(checkAndSyncPermissions, 300), [checkAndSyncPermissions]);
 
   useEffect(() => {
     let isMounted = true;
-    const debouncedCheck = debounce(checkAndSyncPermissions, 300);
 
     const setupListeners = async () => {
       if (!eventEmitterRef.current) {
@@ -64,12 +73,10 @@ const usePermissionListener = (
       debouncedCheck();
 
       return () => {
-        isMounted = false;
         usageStatsListener.remove();
         overlayListener.remove();
         PermissionListener.stopListening();
         appStateSubscriptionRef.current?.remove();
-        debouncedCheck.cancel();
       };
     };
 
@@ -85,24 +92,19 @@ const usePermissionListener = (
       PermissionListener.stopListening();
       debouncedCheck.cancel();
     };
-  }, [checkAndSyncPermissions]);
+  }, [debouncedCheck]);
 };
 
-// Simple debounce function
+// Improved debounce function
 function debounce<F extends (...args: any[]) => any>(func: F, wait: number) {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeoutId: NodeJS.Timeout | null = null;
   const debouncedFunction = function(this: any, ...args: Parameters<F>) {
-    const context = this;
-    if (timeout !== null) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(() => func.apply(context, args), wait);
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), wait);
   } as F & { cancel: () => void };
 
-  debouncedFunction.cancel = function() {
-    if (timeout !== null) {
-      clearTimeout(timeout);
-    }
+  debouncedFunction.cancel = () => {
+    if (timeoutId) clearTimeout(timeoutId);
   };
 
   return debouncedFunction;
