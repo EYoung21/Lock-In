@@ -46,7 +46,7 @@ const StatisticsScreen: React.FC = () => {
       setDailyEntries(testEntries);
     };
 
-    if (Object.keys(dailyEntries).length === 0) {
+    if (Object.keys(dailyEntries).length === 0) { //only generates test data if daily entries is empty (user hasn't locked in yet)
       generateTestData();
     }
   }, []);
