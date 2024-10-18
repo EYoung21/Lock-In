@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AccountSync from './services/AccountSync.js'; // Adjust the import path as needed
+import AccountSync from './services/AccountSync'; // Import AccountSync
 
 export const TotalElapsedContext = createContext();
 
@@ -108,6 +108,38 @@ export const TotalElapsedProvider = ({ children }) => {
     loadData();
   }, []);
 
+  const manualSync = async () => {
+    try {
+      setSyncStatus('Syncing...');
+  
+      // Step 1: Fetch the latest data from the cloud
+      const cloudData = await fetchFromCloudStorage();
+  
+      // Step 2: Merge cloud data with local data
+      const mergedData = mergeData(await loadFromLocalStorage(), cloudData);
+  
+      // Step 3: Update local state with merged data
+      updateStateWithMergedData(mergedData);
+  
+      // Step 4: Save merged data to local storage
+      await saveToLocalStorage();
+  
+      // Step 5: Push merged data to cloud
+      await saveToCloudStorage();
+  
+      const now = new Date();
+      setLastSyncTime(now);
+      await AsyncStorage.setItem('lastSyncTime', now.toISOString());
+      
+      setSyncStatus('Sync completed successfully');
+    } catch (error) {
+      console.error('Manual sync failed:', error);
+      setSyncStatus('Sync failed. Please try again.');
+    }
+  };
+
+  const [syncStatus, setSyncStatus] = useState('');
+
   const loadFromLocalStorage = async () => {
     const data = {};
     try {
@@ -130,13 +162,29 @@ export const TotalElapsedProvider = ({ children }) => {
     return data;
   };
 
+  // Helper function to fetch data from cloud storage
+  const fetchFromCloudStorage = async () => {
+    const data = {};
+    try {
+      for (const key of Object.keys(changedData)) {
+        const cloudItem = await AccountSync.getItem(key);
+        if (cloudItem) {
+          data[key] = cloudItem;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching from cloud storage:', error);
+    }
+    return data;
+  };
+
   const loadFromCloudStorage = async () => {
     const data = {};
     try {
       for (const key of Object.keys(changedData)) {
         const cloudItem = await AccountSync.getItem(key);
-        if (cloudItem && cloudItem.timestamp > lastSyncTime) {
-          data[key] = cloudItem.value;
+        if (cloudItem) {
+          data[key] = cloudItem;
         }
       }
     } catch (error) {
@@ -144,11 +192,14 @@ export const TotalElapsedProvider = ({ children }) => {
     }
     return data;
   };
-
+  
+  // Existing merge function (you might need to modify this based on your specific data structure)
   const mergeData = (localData, cloudData) => {
     const merged = { ...localData };
     for (const key in cloudData) {
       if (cloudData[key] !== null) {
+        // You might want to add more sophisticated merging logic here
+        // For example, comparing timestamps if available
         merged[key] = cloudData[key];
       }
     }
@@ -258,6 +309,9 @@ export const TotalElapsedProvider = ({ children }) => {
             case 'manageOverlayOn':
               value = JSON.stringify(manageOverlayOn);
               break;
+            default:
+              console.warn(`Unhandled key in saveToCloudStorage: ${key}`);
+              continue; // Skip this iteration if the key is not recognized
           }
           await AccountSync.setItem(key, value);
         }
@@ -265,6 +319,8 @@ export const TotalElapsedProvider = ({ children }) => {
       setChangedData({}); // Reset changed data after sync
     } catch (error) {
       console.error('Error saving to cloud storage:', error);
+      // Optionally, you could re-throw the error here if you want to handle it in the caller function
+      // throw error;
     }
   };
 
@@ -284,6 +340,8 @@ export const TotalElapsedProvider = ({ children }) => {
       manageOverlayOn, setManageOverlayOn: setManageOverlayOnWithTracking,
       totalTimesLockedIn, setTotalTimesLockedIn: setTotalTimesLockedInWithTracking,
       lastSyncTime,
+      manualSync,
+      syncStatus,
     }}>
       {children}
     </TotalElapsedContext.Provider>

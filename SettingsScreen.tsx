@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, I
 import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import { NativeModules } from 'react-native';
+import SyncButton from './SyncButton';
 
 const { AppServiceModule } = NativeModules;
 
@@ -395,6 +396,10 @@ const SettingsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View>
+      <Text>Sync all changes with cloud and local storage!</Text>
+      <SyncButton />
+    </View>
       <Text style={styles.text}>Blacklist Unproductive Apps!</Text>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Permission:</Text>

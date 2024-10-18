@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react'; // Import React and useEffect
-import 'react-native-reanimated'; // Ensure this is included for React Native Reanimated
-import 'react-native-gesture-handler'; // Ensure this is included for gesture handling
+import React, { useEffect } from 'react';
+import 'react-native-reanimated';
+import 'react-native-gesture-handler';
 import { AppRegistry, Platform } from 'react-native';
 import FullApp from './FullApp';
 import { name as appName } from './app.json';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import SplashScreen from 'react-native-splash-screen'; // Import SplashScreen
+import SplashScreen from 'react-native-splash-screen';
 import { firebase } from '@react-native-firebase/app';
 import '@react-native-firebase/auth';
 import '@react-native-firebase/database';
@@ -19,6 +19,7 @@ import {
   FIREBASE_APP_ID_IOS,
   FIREBASE_APP_ID_ANDROID
 } from '@env';
+import AccountSync from './services/AccountSync'; // Import AccountSync
 
 if (typeof globalThis.process === 'undefined') {
   globalThis.process = require('process');
@@ -75,20 +76,27 @@ const AppWrapper = () => {
   useEffect(() => {
     SplashScreen.hide();
 
-    // You can add Firebase-related setup here if needed
-    // For example, setting up auth state listener
+    // Initialize AccountSync
+    AccountSync.initialize().catch(error => {
+      console.error('Failed to initialize AccountSync:', error);
+    });
+
+    // Firebase auth state listener
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        // User is signed in
         console.log('User is signed in:', user.uid);
+        // You can trigger a sync here if needed
+        // AccountSync.fullSync().catch(error => console.error('Full sync failed:', error));
       } else {
-        // User is signed out
         console.log('User is signed out');
       }
     });
 
     // Cleanup function
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      // You might want to add a cleanup for AccountSync if necessary
+    };
   }, []);
 
   return <FullApp />;
