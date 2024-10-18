@@ -312,18 +312,6 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Animated.View>
       </TouchableWithoutFeedback>
-      {/* for debugging */}
-      {/* <View style={styles.container}>
-      <Text>
-        App Monitoring Enabled: {appMonitoringEnabled ? 'Yes' : 'No'}
-      </Text>
-      <Text>
-        Manage Overlay Enabled: {manageOverlayEnabled ? 'Yes' : 'No'}
-      </Text>
-      <Text>
-        Is Locked In: {isLockedIn ? 'Yes' : 'No'}
-      </Text>
-    </View> */}
     </SafeAreaView>
   );
 };

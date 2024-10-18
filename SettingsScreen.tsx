@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback, memo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Switch, Platform, Image, Alert } from 'react-native';
 import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
@@ -6,7 +6,7 @@ import { NativeModules } from 'react-native';
 
 const { AppServiceModule } = NativeModules;
 
-const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
+const LOCK_IN_APP_ID = 'com.lockin';
 
 // const checkUsageStatsPermission = async () => {
 //   if (Platform.OS === 'android') {
@@ -20,6 +20,12 @@ const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 //   }
 //   return false; // For iOS or other platforms, return false
 // };
+
+interface App {
+  name: string;
+  id: string;
+  icon: string;
+}
 
 const requestUsageStatsPermission = () => {
   return new Promise((resolve) => {
@@ -82,11 +88,30 @@ const requestManageOverlayPermission = () => {
   });
 };
 
+interface AppItemProps {
+  item: {
+    name: string;
+    id: string;
+    icon: string;
+  };
+  isBlacklisted: boolean;
+  onPress: () => void;
+}
+
+const AppItem: React.FC<AppItemProps> = memo(({ item, isBlacklisted, onPress }) => (  <TouchableOpacity
+    style={[styles.appItem, isBlacklisted && styles.blacklisted]}
+    onPress={onPress}
+  >
+    <Image source={{ uri: item.icon }} style={styles.icon} />
+    <Text style={styles.appText}>{item.name}</Text>
+  </TouchableOpacity>
+));
+
 const SettingsScreen = () => {
   const { blacklistedApps, setBlacklistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn, manageOverlayEnabled, setManageOverlayEnabled, appMonitoringOn, setAppMonitoringOn, manageOverlayOn, setManageOverlayOn } = useContext(TotalElapsedContext);
-  const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
-  const [hasPermission, setHasPermission] = useState(false);
-  const [hasPermission2, setHasPermission2] = useState(false);
+  // const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
+
+  const [apps, setApps] = useState<App[]>([]);
 
   // const checkPermission = async () => {
   //   const permission = await checkUsageStatsPermission();
@@ -143,30 +168,23 @@ const SettingsScreen = () => {
 
   useEffect(() => {
     const fetchApps = async () => {
-      try {
-        if (Platform.OS === 'android') {
-          console.log('Running on Android');
-          if (InstalledApps && typeof InstalledApps.getApps === 'function') {
-            const apps = await InstalledApps.getApps();
-            const filteredApps = apps
-              .filter(app => app.packageName !== LOCK_IN_APP_ID)
-              .map(app => ({ 
-                name: app.label, 
-                id: app.packageName,
-                icon: `data:image/png;base64,${app.icon}` // Convert icon data to a base64 string
-              }));
-            console.log('Fetched apps:');
-            //, filteredApps
-            setApps(filteredApps);
-          } else {
-            console.error('InstalledApps is not correctly initialized or does not have getApps method.');
-          }
+      if (Platform.OS === 'android' && InstalledApps?.getApps) {
+        try {
+          const fetchedApps = await InstalledApps.getApps();
+          const filteredApps: App[] = fetchedApps
+            .filter(app => app.packageName !== LOCK_IN_APP_ID)
+            .map(app => ({
+              name: app.label,
+              id: app.packageName,
+              icon: `data:image/png;base64,${app.icon}`
+            }));
+          setApps(filteredApps);
+        } catch (error) {
+          console.error('Failed to fetch apps:', error);
         }
-      } catch (error) {
-        console.error('Failed to fetch apps:', error);
       }
     };
-
+  
     fetchApps();
   }, []);
 
@@ -182,33 +200,26 @@ const SettingsScreen = () => {
   //   updateNativeBlacklistedApps(blacklistedApps);
   // }, [blacklistedApps]);
   
-  const updateNativeBlacklistedApps = async (apps: string[]) => {
+  useEffect(() => {
+    updateNativeBlacklistedApps(blacklistedApps);
+  }, [blacklistedApps]);
+
+  const updateNativeBlacklistedApps = useCallback(async (apps: string[]) => {
     try {
       await AppServiceModule.updateBlacklistedApps(apps);
       console.log('Updated blacklisted apps');
     } catch (error) {
       console.error('Failed to update blacklisted apps in native module:', error);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    // Ensure "Lock In" is never blacklisted
-    //dont think below lines are needed because lock in is never on the list of installed apps...
-    // if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
-    //   setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
-    // }
-
-    // Update the native module with the current blacklisted apps
-    updateNativeBlacklistedApps(blacklistedApps);
-  }, [blacklistedApps]);
-
-  const toggleBlacklist = (appId: string) => {
+  const toggleBlacklist = useCallback((appId: string) => {
     setBlacklistedApps(prevState =>
       prevState.includes(appId)
         ? prevState.filter(id => id !== appId)
         : [...prevState, appId]
     );
-  };
+  }, [setBlacklistedApps]);
 
   // const handleToggle = async (value) => {
   //   if (value) {
@@ -372,6 +383,16 @@ const SettingsScreen = () => {
     }
   };
   
+  const renderItem = useCallback(({ item }) => (
+    <AppItem
+      item={item}
+      isBlacklisted={blacklistedApps.includes(item.id)}
+      onPress={() => toggleBlacklist(item.id)}
+    />
+  ), [blacklistedApps, toggleBlacklist]);
+
+  const keyExtractor = useCallback((item) => item.id, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Blacklist Unproductive Apps!</Text>
@@ -405,30 +426,12 @@ const SettingsScreen = () => {
       </View>
       <FlatList
         data={apps}
-        keyExtractor={(item, index) => `${item.id}-${index}`} // Updated keyExtractor
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.appItem,
-              blacklistedApps.includes(item.id) && styles.blacklisted
-            ]}
-            onPress={() => toggleBlacklist(item.id)}
-          >
-            <Image
-              source={{ uri: item.icon }}
-              style={styles.icon}
-            />
-            <Text style={styles.appText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
       />
-      {/* for debugging */}
-      {/* <View>
-      <Text>Toggle 1 (Monitoring Enabled): {appMonitoringEnabled ? 'On' : 'Off'}</Text>
-      <Text>Toggle 2 (Monitoring On): {appMonitoringOn ? 'On' : 'Off'}</Text>
-      <Text>Toggle 3 (Overlay Enabled): {manageOverlayEnabled ? 'On' : 'Off'}</Text>
-      <Text>Toggle 4 (Overlay On): {manageOverlayOn ? 'On' : 'Off'}</Text>
-      </View> */}
     </View>
   );
 };
