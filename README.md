@@ -114,7 +114,7 @@ Contributions to Lock In are welcome! If you have any ideas for new features, bu
 
 ## License
 
-Lock In is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.
+Lock In is licensed under the GNU GENERAL PUBLIC LICENSE. See the [LICENSE](./LICENSE) file for more information.
 
 ## Contact
 If you have any questions or feedback, you can reach out to the project maintainer at [eliyoung4now@gmail.com](mailto:eliyoung4now@gmail.com).
