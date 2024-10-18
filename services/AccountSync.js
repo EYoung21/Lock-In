@@ -99,9 +99,11 @@ class AccountSync {
       } catch (error) {
         console.error('Error syncing data:', error);
         await this.addToQueue(key, value);
+        throw new Error('Failed to sync data. It will be synced when connection is restored.');
       }
     } else {
       await this.addToQueue(key, value);
+      throw new Error('Offline. Data will be synced when connection is restored.');
     }
   }
 
