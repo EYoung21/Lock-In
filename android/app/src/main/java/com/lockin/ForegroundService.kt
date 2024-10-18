@@ -147,7 +147,8 @@ class ForegroundService : Service() {
                     if (lockInIntent != null) {
                         lockInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(lockInIntent)
-                        sendEventToReactNative("handleAppProhibited")
+                        //sendEventToReactNative("handleAppProhibited")
+                        //for now, not keeping track of the number of times apps are prohibited, can add later
                     } else {
                         Log.e(TAG, "Failed to launch Lock In app")
                     }

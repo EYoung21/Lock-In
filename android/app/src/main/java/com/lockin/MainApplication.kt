@@ -17,6 +17,7 @@ class MainApplication : Application(), ReactApplication {
                 val packages = PackageList(this).packages.toMutableList()
                 // Add your custom package
                 packages.add(AppServicePackage())
+                packages.add(PermissionListenerPackage())
                 return packages
             }
 

@@ -8,18 +8,18 @@ const { AppServiceModule } = NativeModules;
 
 const LOCK_IN_APP_ID = 'com.lockin'; // Change this to your actual app ID
 
-const checkUsageStatsPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const hasPermission = await AppServiceModule.hasUsageStatsPermission();
-      return hasPermission;
-    } catch (error) {
-      console.error('Error checking usage stats permission:', error);
-      return false;
-    }
-  }
-  return false; // For iOS or other platforms, return false
-};
+// const checkUsageStatsPermission = async () => {
+//   if (Platform.OS === 'android') {
+//     try {
+//       const hasPermission = await AppServiceModule.hasUsageStatsPermission();
+//       return hasPermission;
+//     } catch (error) {
+//       console.error('Error checking usage stats permission:', error);
+//       return false;
+//     }
+//   }
+//   return false; // For iOS or other platforms, return false
+// };
 
 const requestUsageStatsPermission = () => {
   return new Promise((resolve) => {
@@ -45,18 +45,18 @@ const requestUsageStatsPermission = () => {
   });
 };
 
-const checkManageOverlayPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const hasPermission2 = await AppServiceModule.hasManageOverlayPermission();
-      return hasPermission2;
-    } catch (error) {
-      console.error('Error checking ManageOverlay permission:', error);
-      return false;
-    }
-  }
-  return false; // For iOS or other platforms, return false
-};
+// const checkManageOverlayPermission = async () => {
+//   if (Platform.OS === 'android') {
+//     try {
+//       const hasPermission2 = await AppServiceModule.hasManageOverlayPermission();
+//       return hasPermission2;
+//     } catch (error) {
+//       console.error('Error checking ManageOverlay permission:', error);
+//       return false;
+//     }
+//   }
+//   return false; // For iOS or other platforms, return false
+// };
 
 const requestManageOverlayPermission = () => {
   return new Promise((resolve) => {
@@ -88,58 +88,58 @@ const SettingsScreen = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [hasPermission2, setHasPermission2] = useState(false);
 
-  const checkPermission = async () => {
-    const permission = await checkUsageStatsPermission();
-    setHasPermission(permission);
-    return permission;
-  };
+  // const checkPermission = async () => {
+  //   const permission = await checkUsageStatsPermission();
+  //   setHasPermission(permission);
+  //   return permission;
+  // };
 
-  const checkPermission2 = async () => {
-    const permission2 = await checkManageOverlayPermission();
-    setHasPermission2(permission2);
-    return permission2;
-  };
+  // const checkPermission2 = async () => {
+  //   const permission2 = await checkManageOverlayPermission();
+  //   setHasPermission2(permission2);
+  //   return permission2;
+  // };
 
 
-  useEffect(() => {
-    const syncAppMonitoringWithPermission = async () => {
-      const permission = await checkPermission();
-      if (permission) {
-        setAppMonitoringEnabled(true);
-        if (isLockedIn && manageOverlayEnabled) {
-          AppServiceModule.startService();
-        }
-      } else {
-        setAppMonitoringEnabled(false);
-        AppServiceModule.stopService();
-      }
-    };
+  // useEffect(() => {
+  //   const syncAppMonitoringWithPermission = async () => {
+  //     const permission = await checkPermission();
+  //     if (permission) {
+  //       setAppMonitoringEnabled(true);
+  //       if (isLockedIn && manageOverlayEnabled) {
+  //         AppServiceModule.startService();
+  //       }
+  //     } else {
+  //       setAppMonitoringEnabled(false);
+  //       AppServiceModule.stopService();
+  //     }
+  //   };
     
-    const syncManageOverlayWithPermission = async () => {
-      const permission2 = await checkPermission2();
-      if (permission2) {
-        setManageOverlayEnabled(true);
-        if (isLockedIn && appMonitoringEnabled) {
-          AppServiceModule.startService();
-        }
-      } else {
-        setManageOverlayEnabled(false);
-        AppServiceModule.stopService();
-      }
-    };
+  //   const syncManageOverlayWithPermission = async () => {
+  //     const permission2 = await checkPermission2();
+  //     if (permission2) {
+  //       setManageOverlayEnabled(true);
+  //       if (isLockedIn && appMonitoringEnabled) {
+  //         AppServiceModule.startService();
+  //       }
+  //     } else {
+  //       setManageOverlayEnabled(false);
+  //       AppServiceModule.stopService();
+  //     }
+  //   };
 
-    // Initial sync
-    syncAppMonitoringWithPermission();
-    syncManageOverlayWithPermission();
+  //   // Initial sync
+  //   syncAppMonitoringWithPermission();
+  //   syncManageOverlayWithPermission();
 
-    // Set up an interval to continuously check permission status
-    const intervalId = setInterval(() => {
-      syncAppMonitoringWithPermission();
-      syncManageOverlayWithPermission();
-    }, 1000); // Check every second
+  //   // Set up an interval to continuously check permission status
+  //   const intervalId = setInterval(() => {
+  //     syncAppMonitoringWithPermission();
+  //     syncManageOverlayWithPermission();
+  //   }, 5000); // Check every second
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, []);
+  //   return () => clearInterval(intervalId); // Cleanup on unmount
+  // }, []);
 
   useEffect(() => {
     const fetchApps = async () => {
@@ -210,79 +210,114 @@ const SettingsScreen = () => {
     );
   };
 
+  // const handleToggle = async (value) => {
+  //   if (value) {
+  //     if (!hasPermission) {
+  //       const userResponded = await requestUsageStatsPermission();
+  //       if (userResponded) {
+  //         setTimeout(async () => {
+  //           const permission = await checkUsageStatsPermission();
+  //           setHasPermission(permission);
+  //           if (permission) {
+  //             setAppMonitoringEnabled(true);
+  //             setAppMonitoringOn(true);
+  //             //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+  //             if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+  //               AppServiceModule.startService();
+  //             }
+  //           } else {
+  //             Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
+  //           }
+  //         }, 1000); // Wait for 1 second
+  //       }
+  //     } else {
+  //       setAppMonitoringEnabled(true);
+  //       if (isLockedIn && manageOverlayEnabled) {
+  //         AppServiceModule.startService();
+  //       }
+  //     }
+  //   } else {
+  //     setAppMonitoringEnabled(false);
+  //     AppServiceModule.stopService();
+  //   }
+  // };
+
+  // const handleToggle2 = async (value) => {
+  //   if (value) {
+  //     if (!hasPermission2) {
+  //       const userResponded2 = await requestManageOverlayPermission();
+  //       if (userResponded2) {
+  //         setTimeout(async () => {
+  //           const permission2 = await checkManageOverlayPermission();
+  //           setHasPermission2(permission2);
+  //           if (permission2) {
+  //             setManageOverlayEnabled(true);
+  //             setManageOverlayOn(true);
+  //             //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+  //             if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayOn) {
+  //               AppServiceModule.startService();
+  //             }
+  //           } else {
+  //             Alert.alert('Permission not granted', 'Android overlays cannot be enabled without the required permission.');
+  //           }
+  //         }, 1000); // Wait for 1 second
+  //       }
+  //     } else {
+  //       setManageOverlayEnabled(true);
+  //       if (isLockedIn && appMonitoringEnabled) {
+  //         AppServiceModule.startService();
+  //       }
+  //     }
+  //   } else {
+  //     setManageOverlayEnabled(false);
+  //     AppServiceModule.stopService();
+  //   }
+  // };
+
   const handleToggle = async (value) => {
     if (value) {
-      if (!hasPermission) {
-        const userResponded = await requestUsageStatsPermission();
-        if (userResponded) {
-          setTimeout(async () => {
-            const permission = await checkUsageStatsPermission();
-            setHasPermission(permission);
-            if (permission) {
-              setAppMonitoringEnabled(true);
-              setAppMonitoringOn(true);
-              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-              if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
-                AppServiceModule.startService();
-              }
-            } else {
-              Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
-            }
-          }, 1000); // Wait for 1 second
-        }
-      } else {
-        setAppMonitoringEnabled(true);
-        if (isLockedIn && manageOverlayEnabled) {
-          AppServiceModule.startService();
+      if (!appMonitoringEnabled) {
+        requestUsageStatsPermission();
+        if (appMonitoringEnabled) {
+          setAppMonitoringOn(true);
+          //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+          if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+            AppServiceModule.startService();
+          }
+        } else {
+          Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
         }
       }
     } else {
-      setAppMonitoringEnabled(false);
-      AppServiceModule.stopService();
+      Alert.alert('Alert', 'You have to turn this permission off from your settings.');
     }
   };
 
   const handleToggle2 = async (value) => {
     if (value) {
-      if (!hasPermission2) {
-        const userResponded2 = await requestManageOverlayPermission();
-        if (userResponded2) {
-          setTimeout(async () => {
-            const permission2 = await checkManageOverlayPermission();
-            setHasPermission2(permission2);
-            if (permission2) {
-              setManageOverlayEnabled(true);
-              setManageOverlayOn(true);
-              //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-              if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayOn) {
-                AppServiceModule.startService();
-              }
-            } else {
-              Alert.alert('Permission not granted', 'Android overlays cannot be enabled without the required permission.');
-            }
-          }, 1000); // Wait for 1 second
-        }
-      } else {
-        setManageOverlayEnabled(true);
-        if (isLockedIn && appMonitoringEnabled) {
-          AppServiceModule.startService();
+      if (!manageOverlayEnabled) {
+        requestManageOverlayPermission();
+        if (manageOverlayEnabled) {
+          setManageOverlayOn(true);
+          //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
+          if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+            AppServiceModule.startService();
+          }
+        } else {
+          Alert.alert('Permission not granted', 'Android overlay cannot be enabled without the required permission.');
         }
       }
     } else {
-      setManageOverlayEnabled(false);
-      AppServiceModule.stopService();
+      Alert.alert('Alert', 'You have to turn this permission off from your settings.');
     }
   };
 
   const handleToggleOn1 = async (value) => {
     if (value) {
-      if (!hasPermission) {
-        const userResponded3 = await requestUsageStatsPermission();
-        if (userResponded3) {
-          setTimeout(async () => {
-            const permission = await checkUsageStatsPermission();
-            setHasPermission(permission);
-            if (permission) {
+      if (!appMonitoringEnabled) {
+        const userResponded = await requestUsageStatsPermission();
+        if (userResponded) {
+            if (appMonitoringEnabled) {
               setAppMonitoringOn(true);
               if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringEnabled) {
                 AppServiceModule.startService();
@@ -290,7 +325,6 @@ const SettingsScreen = () => {
             } else {
               Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
             }
-          }, 1000); // Wait for 1 second
         }
       } else {
         setAppMonitoringOn(true);
@@ -306,13 +340,10 @@ const SettingsScreen = () => {
 
   const handleToggleOn2 = async (value) => {
     if (value) {
-      if (!hasPermission2) {
-        const userResponded4 = await requestManageOverlayPermission();
-        if (userResponded4) {
-          setTimeout(async () => {
-            const permission2 = await checkManageOverlayPermission();
-            setHasPermission2(permission2);
-            if (permission2) {
+      if (!manageOverlayEnabled) {
+        const userResponded = await requestManageOverlayPermission();
+        if (userResponded) {
+            if (manageOverlayEnabled) {
               setManageOverlayOn(true);
               if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayEnabled) {
                 AppServiceModule.startService();
@@ -320,7 +351,6 @@ const SettingsScreen = () => {
             } else {
               Alert.alert('Permission not granted', 'Android overlays cannot be enabled without the required permission.');
             }
-          }, 1000); // Wait for 1 second
         }
       } else {
         setManageOverlayOn(true);
@@ -384,6 +414,12 @@ const SettingsScreen = () => {
           </TouchableOpacity>
         )}
       />
+      <View>
+      <Text>Toggle 1 (Monitoring Enabled): {appMonitoringEnabled ? 'On' : 'Off'}</Text>
+      <Text>Toggle 2 (Monitoring On): {appMonitoringOn ? 'On' : 'Off'}</Text>
+      <Text>Toggle 3 (Overlay Enabled): {manageOverlayEnabled ? 'On' : 'Off'}</Text>
+      <Text>Toggle 4 (Overlay On): {manageOverlayOn ? 'On' : 'Off'}</Text>
+      </View>
     </View>
   );
 };
