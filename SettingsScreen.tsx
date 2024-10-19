@@ -392,7 +392,7 @@ const SettingsScreen = () => {
     />
   ), [blacklistedApps, toggleBlacklist]);
 
-  const keyExtractor = useCallback((item) => item.id, []);
+  const keyExtractor = useCallback((item, index) => `${item.id}-${index}`, []);
 
   return (
     <View style={styles.container}>
