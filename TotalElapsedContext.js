@@ -14,7 +14,7 @@ export const TotalElapsedProvider = ({ children }) => {
   const [buttonBorder, setButtonBorder] = useState('#333333');
   const [safe, setSafe] = useState('2DSafe');
   const [totalTimesLockedIn, setTotalTimesLockedIn] = useState(0);
-  const [blacklistedApps, setBlacklistedApps] = useState(['com.lockin']);
+  const [blacklistedApps, setBlacklistedApps] = useState([]);
   const [appMonitoringEnabled, setAppMonitoringEnabled] = useState(false);
   const [manageOverlayEnabled, setManageOverlayEnabled] = useState(false);
   const [appMonitoringOn, setAppMonitoringOn] = useState(false);
