@@ -230,8 +230,9 @@ export const TotalElapsedProvider = ({ children }) => {
     if (data.buttonColor) setButtonColor(data.buttonColor);
     if (data.buttonBorder) setButtonBorder(data.buttonBorder);
     if (data.safe) {
-      console.log("Updating safe to:", data.safe);
-      setSafe(data.safe);
+      const safeValue = typeof data.safe === 'string' ? data.safe.replace(/^"|"$/g, '') : data.safe;
+      console.log("Updating safe to:", safeValue);
+      setSafe(safeValue);
     }
     if (data.blacklistedApps) {
       try {

@@ -130,9 +130,15 @@ const HomeScreen = () => {
 
   useEffect(() => {
     console.log("Safe value changed to:", safe);
-    const newImageSource = getSafeImage(safe, 'image2');
-    console.log("New image source:", newImageSource);
-    setImageSource(newImageSource);
+    if (safe) {
+      const newImageSource = getSafeImage(safe, 'image2');
+      console.log("New image source:", newImageSource);
+      if (newImageSource) {
+        setImageSource(newImageSource);
+      } else {
+        console.error(`No image found for safe: ${safe}`);
+      }
+    }
   }, [safe]);
 
   useEffect(() => {
@@ -177,8 +183,13 @@ const HomeScreen = () => {
 
   const getSafeImage = (id, imageKey) => {
     console.log("Getting safe image for id:", id, "and imageKey:", imageKey);
-    const safe = safes.find((safe) => safe.id === id);
-    const image = safe ? safe[imageKey] : null;
+    const safeId = typeof id === 'string' ? id.replace(/^"|"$/g, '') : id;
+    const safe = safes.find((s) => s.id === safeId);
+    if (!safe) {
+      console.error(`Safe not found for id: ${safeId}`);
+      return null;
+    }
+    const image = safe[imageKey];
     console.log("Found image:", image);
     return image;
   };
