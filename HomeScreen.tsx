@@ -129,7 +129,10 @@ const HomeScreen = () => {
   // }, [isLockedIn, appMonitoringEnabled]);
 
   useEffect(() => {
-    setImageSource(getSafeImage(safe, 'image2'));
+    console.log("Safe value changed to:", safe);
+    const newImageSource = getSafeImage(safe, 'image2');
+    console.log("New image source:", newImageSource);
+    setImageSource(newImageSource);
   }, [safe]);
 
   useEffect(() => {
@@ -173,8 +176,11 @@ const HomeScreen = () => {
   ];
 
   const getSafeImage = (id, imageKey) => {
+    console.log("Getting safe image for id:", id, "and imageKey:", imageKey);
     const safe = safes.find((safe) => safe.id === id);
-    return safe ? safe[imageKey] : null;
+    const image = safe ? safe[imageKey] : null;
+    console.log("Found image:", image);
+    return image;
   };
 
   // const updateNativeBlacklistedApps = async (apps) => {

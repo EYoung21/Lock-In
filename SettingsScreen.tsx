@@ -152,7 +152,13 @@ const SettingsScreen = () => {
   //       setManageOverlayEnabled(false);
   //       AppServiceModule.stopService();
   //     }
-  //   };
+  //   };();
+  //     syncManageOverlayWithPermission();
+  //   }, 5000); // Check every second
+
+  //   return () => clearInterval(intervalId); // Cleanup on unmount
+  // }, []);
+
 
   //   // Initial sync
   //   syncAppMonitoringWithPermission();
@@ -160,13 +166,7 @@ const SettingsScreen = () => {
 
   //   // Set up an interval to continuously check permission status
   //   const intervalId = setInterval(() => {
-  //     syncAppMonitoringWithPermission();
-  //     syncManageOverlayWithPermission();
-  //   }, 5000); // Check every second
-
-  //   return () => clearInterval(intervalId); // Cleanup on unmount
-  // }, []);
-
+  //     syncAppMonitoringWithPermission
   useEffect(() => {
     const fetchApps = async () => {
       if (Platform.OS === 'android' && InstalledApps?.getApps) {
@@ -384,6 +384,12 @@ const SettingsScreen = () => {
     }
   };
   
+  useEffect(() => {
+    console.log("blacklistedApps updated:", blacklistedApps);
+    // Force re-render of FlatList
+    setApps(prevApps => [...prevApps]);
+  }, [blacklistedApps]);
+
   const renderItem = useCallback(({ item }) => (
     <AppItem
       item={item}

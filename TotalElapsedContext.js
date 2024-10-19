@@ -229,19 +229,33 @@ export const TotalElapsedProvider = ({ children }) => {
     if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
     if (data.buttonColor) setButtonColor(data.buttonColor);
     if (data.buttonBorder) setButtonBorder(data.buttonBorder);
-    if (data.safe) setSafe(data.safe);
+    if (data.safe) {
+      console.log("Updating safe to:", data.safe);
+      setSafe(data.safe);
+    }
     if (data.blacklistedApps) {
       try {
-        let parsedApps = JSON.parse(data.blacklistedApps);
+        let parsedApps = data.blacklistedApps;
+        console.log("Original blacklistedApps:", parsedApps);
+        
+        // If it's a string, try to parse it
+        if (typeof parsedApps === 'string') {
+          parsedApps = JSON.parse(parsedApps);
+        }
+        
         console.log("Parsed blacklistedApps:", parsedApps);
         console.log("Is parsedApps an array?", Array.isArray(parsedApps));
         
         if (Array.isArray(parsedApps)) {
-          const filteredApps = parsedApps.filter(app => app !== 'com.lockin');
-          console.log("Filtered blacklistedApps:", filteredApps);
-          setBlacklistedApps(filteredApps);
+          setBlacklistedApps(parsedApps);
+          console.log("Updated blacklistedApps:", parsedApps);
+        } else if (typeof parsedApps === 'string') {
+          // If it's still a string, it might be a stringified array
+          const arrayFromString = parsedApps.replace(/^\[|\]$/g, '').split(',').map(item => item.trim().replace(/^"|"$/g, ''));
+          setBlacklistedApps(arrayFromString);
+          console.log("Updated blacklistedApps from string:", arrayFromString);
         } else {
-          console.log("parsedApps is not an array, setting to empty array");
+          console.log("parsedApps is not an array or valid string, setting to empty array");
           setBlacklistedApps([]);
         }
       } catch (error) {
@@ -249,7 +263,7 @@ export const TotalElapsedProvider = ({ children }) => {
         setBlacklistedApps([]);
       }
     } else {
-      console.log("No blacklistedApps data provided");
+      console.log("No blacklistedApps data provided, keeping existing blacklistedApps");
     }
     if (data.appMonitoringEnabled) setAppMonitoringEnabled(parseBooleanString(data.appMonitoringEnabled));
     if (data.manageOverlayEnabled) setManageOverlayEnabled(parseBooleanString(data.manageOverlayEnabled));

@@ -154,8 +154,8 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
-    console.log("Preparing graph data for type:", type);
-    console.log("Daily entries before processing:", dailyEntries);
+    // console.log("Preparing graph data for type:", type);
+    // console.log("Daily entries before processing:", dailyEntries);
     let data: GraphData[] = [];
     switch (type) {
       case 'daily':
