@@ -9,6 +9,7 @@ import { Picker } from '@react-native-picker/picker';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import DocumentPicker from 'react-native-document-picker';
+import StatisticsHeader from './StatisticsHeader';
 
 interface DailyEntries {
   [key: string]: number;
@@ -125,15 +126,16 @@ const StatisticsScreen: React.FC = () => {
     }
 
     let totalDays = 0;
-    Object.keys(entries).forEach((date) => {
+    Object.entries(entries).forEach(([date, minutes]) => {
       const week = getStartOfWeek(moment(date)).format('YYYY-MM-DD');
       if (!weeks[week]) {
         weeks[week] = { totalMinutes: 0, days: 0, daily: {} };
       }
-      weeks[week].totalMinutes += entries[date];
+      const validMinutes = minutes === null ? 0 : Number(minutes);
+      weeks[week].totalMinutes += validMinutes;
       weeks[week].days += 1;
       totalDays += 1;
-      weeks[week].daily[date] = entries[date];
+      weeks[week].daily[date] = validMinutes;
     });
   
     const weeklyStats = Object.keys(weeks).map((week) => {
@@ -152,13 +154,26 @@ const StatisticsScreen: React.FC = () => {
   };
 
   const prepareGraphData = (type: 'daily' | 'average Weekly' | 'average Monthly' | 'average Yearly'): GraphData[] => {
+    console.log("Preparing graph data for type:", type);
+    console.log("Daily entries before processing:", dailyEntries);
     let data: GraphData[] = [];
     switch (type) {
       case 'daily':
-        data = Object.keys(dailyEntries).map(date => ({
-          date: moment(date).format('YYYY-MM-DD'),
-          minutes: dailyEntries[date],
-        }));
+        data = Object.entries(dailyEntries)
+          .filter(([_, minutes]) => {
+            const isValid = typeof minutes === 'number' && !isNaN(minutes) && minutes !== null;
+            if (!isValid) {
+              console.log("Filtered out entry:", _, minutes);
+            }
+            return isValid;
+          })
+          .map(([date, minutes]) => {
+            const entry = {
+              date: moment(date).format('YYYY-MM-DD'),
+              minutes: Number(minutes),
+            };
+            return entry;
+          });
         break;
       case 'average Weekly':
         const weeks = calculateWeeklyStats(dailyEntries);
@@ -218,6 +233,7 @@ const StatisticsScreen: React.FC = () => {
 
   let xScale, yScale, line;
   if (graphData.length > 0) {
+    // console.log("Setting up scales and line generator");
     xScale = scaleTime()
       .domain([new Date(graphData[0].date), new Date(graphData[graphData.length - 1].date)])
       .range([0, screenWidth - 40]);
@@ -226,14 +242,39 @@ const StatisticsScreen: React.FC = () => {
       .domain([0, Math.max(...graphData.map(d => d.minutes))])
       .range([screenHeight - 40, 0]);
 
+    // console.log("xScale domain:", xScale.domain());
+    // console.log("yScale domain:", yScale.domain());
+
     try {
+      // console.log("Attempting to generate line");
       line = d3Shape.line()
-        .x((d) => xScale(new Date(d.date)))
-        .y((d) => yScale(d.minutes))
-        .curve(d3Shape.curveBasis)(graphData) || '';
+        .x(d => {
+          const xValue = xScale(new Date(d.date));
+          // console.log("X value for", d.date, ":", xValue);
+          return xValue;
+        })
+        .y(d => {
+          const yValue = yScale(d.minutes);
+          // console.log("Y value for", d.minutes, ":", yValue);
+          return yValue;
+        })
+        .curve(d3Shape.curveBasis)(graphData);
+      // console.log("Generated line:", line);
     } catch (error) {
       console.error('Error generating line path:', error);
     }
+  }
+
+  // Add this right after the existing line generation code
+  if (!line || typeof line !== 'string' || line.length === 0) {
+    // console.log("Generating simple line path");
+    const simpleLine = graphData.reduce((path, point, index) => {
+      const x = xScale(new Date(point.date));
+      const y = yScale(point.minutes);
+      return `${path}${index === 0 ? 'M' : 'L'}${x},${y}`;
+    }, '');
+    // console.log("Simple line path:", simpleLine);
+    line = simpleLine;
   }
 
   const xAxisLabel = graphType === 'daily' ? 'Day' :
@@ -242,20 +283,13 @@ const StatisticsScreen: React.FC = () => {
 
   const yAxisLabel = graphType === 'daily' ? 'Minutes' : 'Average Minutes';
 
+  // console.log("Graph data length:", graphData.length);
+  // console.log("Line data exists:", !!line);
+  // console.log("Screen dimensions:", screenWidth, screenHeight);
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.totalText}>Total time locked in: {totalElapsedTime.toFixed(2)} minutes ({(totalElapsedTime/60).toFixed(2)} hours)</Text>
-      </View>
-      <View style={styles.header}>
-        <Text style={styles.totalText}>Average time locked in per day: {(totalElapsedTime / totalDays2).toFixed(2)} minutes ({((totalElapsedTime / totalDays2) / 60).toFixed(2)} hours)</Text>
-      </View>
-      <View style={styles.header}>
-        <Text style={styles.totalText}>Average time locked in per week: {(totalElapsedTime / 7).toFixed(2)} minutes ({((totalElapsedTime / 7)/60).toFixed(2)} hours)</Text>
-      </View>
-      <View style={styles.header}>
-        <Text style={styles.totalText}>Average time locked in per session: {totalTimesLockedIn > 0 ? `${(totalElapsedTime / totalTimesLockedIn).toFixed(2)} minutes (${((totalElapsedTime / totalTimesLockedIn)/60).toFixed(2)} hours)` : 'N/A'}</Text>
-      </View>
+      <StatisticsHeader />
 
       <View style={styles.buttonContainer}>
         <Button title="Download CSV" onPress={downloadCSV} />
@@ -318,13 +352,28 @@ const StatisticsScreen: React.FC = () => {
           <Picker.Item label="Average Minutes per Year" value="average Yearly" />
         </Picker>
       </View>
+
       <ScrollView horizontal>
         <Svg width={screenWidth} height={screenHeight}>
           <Rect width="100%" height="100%" fill="white" />
-          {graphData.length > 0 && line ? (
-            <Path d={line} stroke="skyblue" strokeWidth={2} fill="none" />
+          {graphData.length > 1 && typeof line === 'string' && line.length > 0 ? (
+            <>
+              <Path d={line} stroke="skyblue" strokeWidth={2} fill="none" />
+              {/* {console.log("Rendering graph. Path:", line)} */}
+            </>
           ) : (
-            <Text style={styles.noDataText}>No data to display</Text>
+            <>
+              <SvgText
+                x={screenWidth / 2}
+                y={screenHeight / 2}
+                textAnchor="middle"
+                fontSize="16"
+                fill="black"
+              >
+                Not enough data to display graph
+              </SvgText>
+              {console.log("Not rendering graph. graphData.length:", graphData.length, "line:", line)}
+            </>
           )}
           <SvgText
             x={screenWidth / 2}
@@ -347,6 +396,11 @@ const StatisticsScreen: React.FC = () => {
           </SvgText>
         </Svg>
       </ScrollView>
+      {graphData.length <= 1 && (
+        <Text style={styles.noDataText}>
+          Not enough data available for the selected graph type
+        </Text>
+      )}
       {graphData.length === 0 && <Text style={styles.noDataText}>No data available for the selected graph type</Text>}
       </ScrollView>
     </View>

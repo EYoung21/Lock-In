@@ -140,22 +140,23 @@ export const TotalElapsedProvider = ({ children }) => {
 
   const [syncStatus, setSyncStatus] = useState('');
 
+  // Modified loadFromLocalStorage function
   const loadFromLocalStorage = async () => {
     const data = {};
     try {
-      data.totalElapsedTime = await AsyncStorage.getItem('totalElapsedTime');
-      data.totalCurrency = await AsyncStorage.getItem('totalCurrency');
-      data.dailyEntries = await AsyncStorage.getItem('dailyEntries');
-      data.backgroundColor = await AsyncStorage.getItem('backgroundColor');
-      data.buttonColor = await AsyncStorage.getItem('buttonColor');
-      data.buttonBorder = await AsyncStorage.getItem('buttonBorder');
-      data.safe = await AsyncStorage.getItem('safe');
-      data.blacklistedApps = await AsyncStorage.getItem('blacklistedApps');
-      data.appMonitoringEnabled = await AsyncStorage.getItem('appMonitoringEnabled');
-      data.manageOverlayEnabled = await AsyncStorage.getItem('manageOverlayEnabled');
-      data.appMonitoringOn = await AsyncStorage.getItem('appMonitoringOn');
-      data.manageOverlayOn = await AsyncStorage.getItem('manageOverlayOn');
-      data.totalTimesLockedIn = await AsyncStorage.getItem('totalTimesLockedIn');
+      const keys = [
+        'totalElapsedTime', 'totalCurrency', 'dailyEntries', 'backgroundColor',
+        'buttonColor', 'buttonBorder', 'safe', 'blacklistedApps',
+        'appMonitoringEnabled', 'manageOverlayEnabled', 'appMonitoringOn',
+        'manageOverlayOn', 'totalTimesLockedIn'
+      ];
+
+      for (const key of keys) {
+        const value = await AsyncStorage.getItem(key);
+        if (value !== null) {
+          data[key] = value;
+        }
+      }
     } catch (error) {
       console.error('Error loading from local storage:', error);
     }
@@ -207,23 +208,64 @@ export const TotalElapsedProvider = ({ children }) => {
   };
 
   const updateStateWithMergedData = (data) => {
-    if (data.totalElapsedTime) setTotalElapsedTime(parseFloat(data.totalElapsedTime));
-    if (data.totalCurrency) setTotalCurrency(parseFloat(data.totalCurrency));
-    if (data.dailyEntries) setDailyEntries(JSON.parse(data.dailyEntries));
+    if (data.totalElapsedTime) setTotalElapsedTime(parseFloat(data.totalElapsedTime) || 0);
+    if (data.totalCurrency) setTotalCurrency(parseFloat(data.totalCurrency) || 0);
+    if (data.dailyEntries) {
+      try {
+        const parsedEntries = JSON.parse(data.dailyEntries);
+        // Convert all values to numbers, replace null with 0
+        const processedEntries = Object.entries(parsedEntries).reduce((acc, [date, value]) => {
+          acc[date] = value === null ? 0 : Number(value);
+          return acc;
+        }, {});
+        
+        setDailyEntries(processedEntries);
+        // console.log("Processed daily entries:", processedEntries);
+      } catch (error) {
+        console.error('Error parsing dailyEntries:', error);
+        setDailyEntries({});
+      }
+    }
     if (data.backgroundColor) setBackgroundColor(data.backgroundColor);
     if (data.buttonColor) setButtonColor(data.buttonColor);
     if (data.buttonBorder) setButtonBorder(data.buttonBorder);
     if (data.safe) setSafe(data.safe);
     if (data.blacklistedApps) {
-      const parsedApps = JSON.parse(data.blacklistedApps);
-      setBlacklistedApps(parsedApps.filter(app => app !== 'com.lockin'));
+      try {
+        let parsedApps = JSON.parse(data.blacklistedApps);
+        console.log("Parsed blacklistedApps:", parsedApps);
+        console.log("Is parsedApps an array?", Array.isArray(parsedApps));
+        
+        if (Array.isArray(parsedApps)) {
+          const filteredApps = parsedApps.filter(app => app !== 'com.lockin');
+          console.log("Filtered blacklistedApps:", filteredApps);
+          setBlacklistedApps(filteredApps);
+        } else {
+          console.log("parsedApps is not an array, setting to empty array");
+          setBlacklistedApps([]);
+        }
+      } catch (error) {
+        console.error('Error handling blacklistedApps:', error);
+        setBlacklistedApps([]);
+      }
+    } else {
+      console.log("No blacklistedApps data provided");
     }
-    if (data.appMonitoringEnabled) setAppMonitoringEnabled(JSON.parse(data.appMonitoringEnabled));
-    if (data.manageOverlayEnabled) setManageOverlayEnabled(JSON.parse(data.manageOverlayEnabled));
-    if (data.appMonitoringOn) setAppMonitoringOn(JSON.parse(data.appMonitoringOn));
-    if (data.manageOverlayOn) setManageOverlayOn(JSON.parse(data.manageOverlayOn));
-    if (data.totalTimesLockedIn) setTotalTimesLockedIn(parseInt(data.totalTimesLockedIn));
+    if (data.appMonitoringEnabled) setAppMonitoringEnabled(parseBooleanString(data.appMonitoringEnabled));
+    if (data.manageOverlayEnabled) setManageOverlayEnabled(parseBooleanString(data.manageOverlayEnabled));
+    if (data.appMonitoringOn) setAppMonitoringOn(parseBooleanString(data.appMonitoringOn));
+    if (data.manageOverlayOn) setManageOverlayOn(parseBooleanString(data.manageOverlayOn));
+    if (data.totalTimesLockedIn) setTotalTimesLockedIn(parseInt(data.totalTimesLockedIn) || 0);
   };
+
+  // Helper function to parse boolean strings
+  const parseBooleanString = (value) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return false;
+  };  
 
   useEffect(() => {
     const saveData = async () => {
