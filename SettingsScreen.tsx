@@ -4,23 +4,12 @@ import { InstalledApps } from 'react-native-launcher-kit';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import { NativeModules } from 'react-native';
 import SyncButton from './SyncButton';
+import auth from '@react-native-firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const { AppServiceModule } = NativeModules;
 
 const LOCK_IN_APP_ID = 'com.lockin';
-
-// const checkUsageStatsPermission = async () => {
-//   if (Platform.OS === 'android') {
-//     try {
-//       const hasPermission = await AppServiceModule.hasUsageStatsPermission();
-//       return hasPermission;
-//     } catch (error) {
-//       console.error('Error checking usage stats permission:', error);
-//       return false;
-//     }
-//   }
-//   return false; // For iOS or other platforms, return false
-// };
 
 interface App {
   name: string;
@@ -51,20 +40,6 @@ const requestUsageStatsPermission = () => {
     );
   });
 };
-
-// const checkManageOverlayPermission = async () => {
-//   if (Platform.OS === 'android') {
-//     try {
-//       const hasPermission2 = await AppServiceModule.hasManageOverlayPermission();
-//       return hasPermission2;
-//     } catch (error) {
-//       console.error('Error checking ManageOverlay permission:', error);
-//       return false;
-//     }
-//   }
-//   return false; // For iOS or other platforms, return false
-// };
-
 const requestManageOverlayPermission = () => {
   return new Promise((resolve) => {
     Alert.alert(
@@ -110,63 +85,18 @@ const AppItem: React.FC<AppItemProps> = memo(({ item, isBlacklisted, onPress }) 
 
 const SettingsScreen = () => {
   const { blacklistedApps, setBlacklistedApps, appMonitoringEnabled, setAppMonitoringEnabled, isLockedIn, manageOverlayEnabled, setManageOverlayEnabled, appMonitoringOn, setAppMonitoringOn, manageOverlayOn, setManageOverlayOn } = useContext(TotalElapsedContext);
-  // const [apps, setApps] = useState<{ name: string, id: string, icon: any }[]>([]);
-
   const [apps, setApps] = useState<App[]>([]);
+  const navigation = useNavigation();
 
-  // const checkPermission = async () => {
-  //   const permission = await checkUsageStatsPermission();
-  //   setHasPermission(permission);
-  //   return permission;
-  // };
+  useEffect(() => {
+    // Update the service state when any relevant state changes
+    if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
+      AppServiceModule.startService();
+    } else {
+      AppServiceModule.stopService();
+    }
+  }, [isLockedIn, manageOverlayEnabled, manageOverlayOn, appMonitoringOn]);
 
-  // const checkPermission2 = async () => {
-  //   const permission2 = await checkManageOverlayPermission();
-  //   setHasPermission2(permission2);
-  //   return permission2;
-  // };
-
-
-  // useEffect(() => {
-  //   const syncAppMonitoringWithPermission = async () => {
-  //     const permission = await checkPermission();
-  //     if (permission) {
-  //       setAppMonitoringEnabled(true);
-  //       if (isLockedIn && manageOverlayEnabled) {
-  //         AppServiceModule.startService();
-  //       }
-  //     } else {
-  //       setAppMonitoringEnabled(false);
-  //       AppServiceModule.stopService();
-  //     }
-  //   };
-    
-  //   const syncManageOverlayWithPermission = async () => {
-  //     const permission2 = await checkPermission2();
-  //     if (permission2) {
-  //       setManageOverlayEnabled(true);
-  //       if (isLockedIn && appMonitoringEnabled) {
-  //         AppServiceModule.startService();
-  //       }
-  //     } else {
-  //       setManageOverlayEnabled(false);
-  //       AppServiceModule.stopService();
-  //     }
-  //   };();
-  //     syncManageOverlayWithPermission();
-  //   }, 5000); // Check every second
-
-  //   return () => clearInterval(intervalId); // Cleanup on unmount
-  // }, []);
-
-
-  //   // Initial sync
-  //   syncAppMonitoringWithPermission();
-  //   syncManageOverlayWithPermission();
-
-  //   // Set up an interval to continuously check permission status
-  //   const intervalId = setInterval(() => {
-  //     syncAppMonitoringWithPermission
   useEffect(() => {
     const fetchApps = async () => {
       if (Platform.OS === 'android' && InstalledApps?.getApps) {
@@ -189,18 +119,6 @@ const SettingsScreen = () => {
     fetchApps();
   }, []);
 
-  //dont think below func is needed because lock in is never on the list of installed apps...
-
-  // useEffect(() => {
-  //   // Ensure "Lock In" is never blacklisted
-  //   if (blacklistedApps.includes(LOCK_IN_APP_ID)) {
-  //     setBlacklistedApps(prevState => prevState.filter(app => app !== LOCK_IN_APP_ID));
-  //   }
-
-  //   // Update the native module with the current blacklisted apps
-  //   updateNativeBlacklistedApps(blacklistedApps);
-  // }, [blacklistedApps]);
-  
   useEffect(() => {
     updateNativeBlacklistedApps(blacklistedApps);
   }, [blacklistedApps]);
@@ -221,70 +139,6 @@ const SettingsScreen = () => {
         : [...prevState, appId]
     );
   }, [setBlacklistedApps]);
-
-  // const handleToggle = async (value) => {
-  //   if (value) {
-  //     if (!hasPermission) {
-  //       const userResponded = await requestUsageStatsPermission();
-  //       if (userResponded) {
-  //         setTimeout(async () => {
-  //           const permission = await checkUsageStatsPermission();
-  //           setHasPermission(permission);
-  //           if (permission) {
-  //             setAppMonitoringEnabled(true);
-  //             setAppMonitoringOn(true);
-  //             //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-  //             if (isLockedIn && manageOverlayEnabled && manageOverlayOn && appMonitoringOn) {
-  //               AppServiceModule.startService();
-  //             }
-  //           } else {
-  //             Alert.alert('Permission not granted', 'App monitoring cannot be enabled without the required permission.');
-  //           }
-  //         }, 1000); // Wait for 1 second
-  //       }
-  //     } else {
-  //       setAppMonitoringEnabled(true);
-  //       if (isLockedIn && manageOverlayEnabled) {
-  //         AppServiceModule.startService();
-  //       }
-  //     }
-  //   } else {
-  //     setAppMonitoringEnabled(false);
-  //     AppServiceModule.stopService();
-  //   }
-  // };
-
-  // const handleToggle2 = async (value) => {
-  //   if (value) {
-  //     if (!hasPermission2) {
-  //       const userResponded2 = await requestManageOverlayPermission();
-  //       if (userResponded2) {
-  //         setTimeout(async () => {
-  //           const permission2 = await checkManageOverlayPermission();
-  //           setHasPermission2(permission2);
-  //           if (permission2) {
-  //             setManageOverlayEnabled(true);
-  //             setManageOverlayOn(true);
-  //             //set the local permission to true when permission toggled, maybe make permission a checkmark box instead of toggle
-  //             if (isLockedIn && appMonitoringEnabled && appMonitoringOn && manageOverlayOn) {
-  //               AppServiceModule.startService();
-  //             }
-  //           } else {
-  //             Alert.alert('Permission not granted', 'Android overlays cannot be enabled without the required permission.');
-  //           }
-  //         }, 1000); // Wait for 1 second
-  //       }
-  //     } else {
-  //       setManageOverlayEnabled(true);
-  //       if (isLockedIn && appMonitoringEnabled) {
-  //         AppServiceModule.startService();
-  //       }
-  //     }
-  //   } else {
-  //     setManageOverlayEnabled(false);
-  //     AppServiceModule.stopService();
-  //   }
-  // };
 
   const handleToggle = async (value) => {
     if (value) {
@@ -390,6 +244,17 @@ const SettingsScreen = () => {
     setApps(prevApps => [...prevApps]);
   }, [blacklistedApps]);
 
+  const handleSignOut = async () => {
+    try {
+      await auth().signOut();
+      console.log('User signed out!');
+      // Navigation will be handled by the auth state listener in FullApp component
+    } catch (error) {
+      console.error('Error signing out: ', error);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
+  };
+
   const renderItem = useCallback(({ item }) => (
     <AppItem
       item={item}
@@ -406,6 +271,9 @@ const SettingsScreen = () => {
       <Text>Sync all changes with cloud and local storage!</Text>
       <SyncButton />
     </View>
+    <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+      <Text style={styles.signOutButtonText}>Sign Out</Text>
+    </TouchableOpacity>  
       <Text style={styles.text}>Blacklist Unproductive Apps!</Text>
       <View style={styles.toggleContainer}>
         <Text style={styles.toggleLabel}>App Monitoring Permission:</Text>
@@ -487,6 +355,18 @@ const styles = StyleSheet.create({
   icon: {
     width: 40,
     height: 40,
+  },
+  signOutButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    alignSelf: 'center',
+  },
+  signOutButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

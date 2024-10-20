@@ -50,9 +50,6 @@ const getTimerColor = (backgroundPalette) => {
 
 const HomeScreen = () => {
   const scaleAnim = useRef(new Animated.Value(1.75)).current;
-  const [imageSource, setImageSource] = useState(require('./assets/safe2.png'));
-  const [buttonText, setButtonText] = useState('Lock In');
-  const [isLockedIn, setIsLockedIn] = useState(false);
   const { collapsed, setCollapsed } = useContext(CollapseContext);
 
   const {
@@ -63,13 +60,9 @@ const HomeScreen = () => {
     dailyEntries,
     setDailyEntries,
     backgroundColor,
-    setBackgroundColor,
     buttonColor,
-    setButtonColor,
     buttonBorder,
-    setButtonBorder,
     safe,
-    setSafe,
     blacklistedApps,
     appMonitoringEnabled,
     manageOverlayEnabled,
@@ -83,6 +76,9 @@ const HomeScreen = () => {
     setManageOverlayOn,
   } = useContext(TotalElapsedContext);
 
+  const [imageSource, setImageSource] = useState(null);
+  const [buttonText, setButtonText] = useState('Lock In');
+  const [isLockedIn, setIsLockedIn] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isActionInProgress, setIsActionInProgress] = useState(false);
   const [timerStartTime, setTimerStartTime] = useState(Date.now());
@@ -111,9 +107,9 @@ const HomeScreen = () => {
 
   // usePermissionListener(setAppMonitoringEnabled, setManageOverlayEnabled, setAppMonitoringOn, setManageOverlayOn, isLockedIn);
 
-  useEffect(() => {
-    setTotalCurrency(500000);
-  }, []);
+  // useEffect(() => {
+  //   setTotalCurrency(500000);
+  // }, []);
 
   // // Start the service when monitoring is enabled
   // useEffect(() => {
@@ -129,10 +125,8 @@ const HomeScreen = () => {
   // }, [isLockedIn, appMonitoringEnabled]);
 
   useEffect(() => {
-    console.log("Safe value changed to:", safe);
     if (safe) {
       const newImageSource = getSafeImage(safe, 'image2');
-      console.log("New image source:", newImageSource);
       if (newImageSource) {
         setImageSource(newImageSource);
       } else {
@@ -182,16 +176,13 @@ const HomeScreen = () => {
   ];
 
   const getSafeImage = (id, imageKey) => {
-    console.log("Getting safe image for id:", id, "and imageKey:", imageKey);
     const safeId = typeof id === 'string' ? id.replace(/^"|"$/g, '') : id;
     const safe = safes.find((s) => s.id === safeId);
     if (!safe) {
       console.error(`Safe not found for id: ${safeId}`);
       return null;
     }
-    const image = safe[imageKey];
-    console.log("Found image:", image);
-    return image;
+    return safe[imageKey];
   };
 
   // const updateNativeBlacklistedApps = async (apps) => {
@@ -242,20 +233,19 @@ const HomeScreen = () => {
         .catch(error => console.error("Failed to stop service:", error));
     } else {
       if (appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
-        // updateNativeBlacklistedApps(blacklistedApps);
-        setIsLockedIn(true);
-        setCollapsed(true);
-        SystemNavigationBar.navigationHide();
-        setImageSource(getSafeImage(safe, 'image3'));
-        setButtonText('Lock Out');
-        setElapsedTime(0);
-        startTimer();
         AppServiceModule.startService()
           .then(() => console.log("Service started successfully"))
           .catch(error => console.error("Failed to start service:", error));
       } else {
-        Alert.alert("Permission Required", "Please grant all necessary permissions to use this feature.");
+        Alert.alert("App Blocking Off", "Grant necessary permissions to block apps while locked in.");
       }
+      setIsLockedIn(true);
+      setCollapsed(true);
+      SystemNavigationBar.navigationHide();
+      setImageSource(getSafeImage(safe, 'image3'));
+      setButtonText('Lock Out');
+      setElapsedTime(0);
+      startTimer();
     }
     setTimeout(() => {
       setIsActionInProgress(false);
@@ -314,7 +304,7 @@ const HomeScreen = () => {
           {formatTime(elapsedTime)}
         </Text>
       </View>
-      <Image source={imageSource} style={getImageStyle(imageSource)} />
+      {imageSource && <Image source={imageSource} style={getImageStyle(imageSource)} />}
       <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
         <Animated.View
           style={[

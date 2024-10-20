@@ -24,6 +24,26 @@ export const TotalElapsedProvider = ({ children }) => {
   const [lastSyncTime, setLastSyncTime] = useState(null);
   const [changedData, setChangedData] = useState({});
 
+  // New states for purchased items
+  const [purchasedColors, setPurchasedColors] = useState(['#FFFFFF']);
+  const [purchasedButtons, setPurchasedButtons] = useState(['#000000']);
+  const [purchasedSafes, setPurchasedSafes] = useState(['2DSafe']);
+
+  const setPurchasedColorsWithTracking = (value) => {
+    setPurchasedColors(value);
+    setChangedData(prev => ({...prev, purchasedColors: true}));
+  };
+
+  const setPurchasedButtonsWithTracking = (value) => {
+    setPurchasedButtons(value);
+    setChangedData(prev => ({...prev, purchasedButtons: true}));
+  };
+
+  const setPurchasedSafesWithTracking = (value) => {
+    setPurchasedSafes(value);
+    setChangedData(prev => ({...prev, purchasedSafes: true}));
+  };
+
   // Modified state setters to track changes
   const setTotalElapsedTimeWithTracking = (value) => {
     setTotalElapsedTime(value);
@@ -140,15 +160,13 @@ export const TotalElapsedProvider = ({ children }) => {
 
   const [syncStatus, setSyncStatus] = useState('');
 
-  // Modified loadFromLocalStorage function
-  const loadFromLocalStorage = async () => {
+   // Modified loadFromLocalStorage function
+   const loadFromLocalStorage = async () => {
     const data = {};
     try {
       const keys = [
-        'totalElapsedTime', 'totalCurrency', 'dailyEntries', 'backgroundColor',
-        'buttonColor', 'buttonBorder', 'safe', 'blacklistedApps',
-        'appMonitoringEnabled', 'manageOverlayEnabled', 'appMonitoringOn',
-        'manageOverlayOn', 'totalTimesLockedIn'
+        // ... (keep existing keys)
+        'purchasedColors', 'purchasedButtons', 'purchasedSafes'
       ];
 
       for (const key of keys) {
@@ -182,9 +200,17 @@ export const TotalElapsedProvider = ({ children }) => {
   const loadFromCloudStorage = async () => {
     const data = {};
     try {
-      for (const key of Object.keys(changedData)) {
+      const keys = [
+        'totalElapsedTime', 'totalCurrency', 'dailyEntries', 'backgroundColor',
+        'buttonColor', 'buttonBorder', 'safe', 'blacklistedApps',
+        'appMonitoringEnabled', 'manageOverlayEnabled', 'appMonitoringOn',
+        'manageOverlayOn', 'totalTimesLockedIn', 'purchasedColors', 
+        'purchasedButtons', 'purchasedSafes'
+      ];
+  
+      for (const key of keys) {
         const cloudItem = await AccountSync.getItem(key);
-        if (cloudItem) {
+        if (cloudItem !== null) {
           data[key] = cloudItem;
         }
       }
@@ -245,18 +271,17 @@ export const TotalElapsedProvider = ({ children }) => {
         }
         
         console.log("Parsed blacklistedApps:", parsedApps);
-        console.log("Is parsedApps an array?", Array.isArray(parsedApps));
         
         if (Array.isArray(parsedApps)) {
           setBlacklistedApps(parsedApps);
           console.log("Updated blacklistedApps:", parsedApps);
-        } else if (typeof parsedApps === 'string') {
-          // If it's still a string, it might be a stringified array
-          const arrayFromString = parsedApps.replace(/^\[|\]$/g, '').split(',').map(item => item.trim().replace(/^"|"$/g, ''));
-          setBlacklistedApps(arrayFromString);
-          console.log("Updated blacklistedApps from string:", arrayFromString);
+        } else if (typeof parsedApps === 'object' && parsedApps !== null) {
+          // If it's an object, extract the values
+          const appsArray = Object.values(parsedApps);
+          setBlacklistedApps(appsArray);
+          console.log("Updated blacklistedApps from object:", appsArray);
         } else {
-          console.log("parsedApps is not an array or valid string, setting to empty array");
+          console.log("parsedApps is not an array or object, setting to empty array");
           setBlacklistedApps([]);
         }
       } catch (error) {
@@ -271,6 +296,35 @@ export const TotalElapsedProvider = ({ children }) => {
     if (data.appMonitoringOn) setAppMonitoringOn(parseBooleanString(data.appMonitoringOn));
     if (data.manageOverlayOn) setManageOverlayOn(parseBooleanString(data.manageOverlayOn));
     if (data.totalTimesLockedIn) setTotalTimesLockedIn(parseInt(data.totalTimesLockedIn) || 0);
+    if (data.purchasedColors) {
+      try {
+        const parsedColors = JSON.parse(data.purchasedColors);
+        setPurchasedColors(Array.isArray(parsedColors) ? parsedColors : ['#FFFFFF']);
+      } catch (error) {
+        console.error('Error parsing purchasedColors:', error);
+        setPurchasedColors(['#FFFFFF']);
+      }
+    }
+
+    if (data.purchasedButtons) {
+      try {
+        const parsedButtons = JSON.parse(data.purchasedButtons);
+        setPurchasedButtons(Array.isArray(parsedButtons) ? parsedButtons : ['#000000']);
+      } catch (error) {
+        console.error('Error parsing purchasedButtons:', error);
+        setPurchasedButtons(['#000000']);
+      }
+    }
+
+    if (data.purchasedSafes) {
+      try {
+        const parsedSafes = JSON.parse(data.purchasedSafes);
+        setPurchasedSafes(Array.isArray(parsedSafes) ? parsedSafes : ['2DSafe']);
+      } catch (error) {
+        console.error('Error parsing purchasedSafes:', error);
+        setPurchasedSafes(['2DSafe']);
+      }
+    }
   };
 
   // Helper function to parse boolean strings
@@ -316,6 +370,9 @@ export const TotalElapsedProvider = ({ children }) => {
       await AsyncStorage.setItem('manageOverlayEnabled', JSON.stringify(manageOverlayEnabled));
       await AsyncStorage.setItem('appMonitoringOn', JSON.stringify(appMonitoringOn));
       await AsyncStorage.setItem('manageOverlayOn', JSON.stringify(manageOverlayOn));
+      await AsyncStorage.setItem('purchasedColors', JSON.stringify(purchasedColors));
+      await AsyncStorage.setItem('purchasedButtons', JSON.stringify(purchasedButtons));
+      await AsyncStorage.setItem('purchasedSafes', JSON.stringify(purchasedSafes));
     } catch (error) {
       console.error('Error saving to local storage:', error);
     }
@@ -366,6 +423,15 @@ export const TotalElapsedProvider = ({ children }) => {
             case 'manageOverlayOn':
               value = JSON.stringify(manageOverlayOn);
               break;
+              case 'purchasedColors':
+                value = JSON.stringify(purchasedColors);
+                break;
+              case 'purchasedButtons':
+                value = JSON.stringify(purchasedButtons);
+                break;
+              case 'purchasedSafes':
+                value = JSON.stringify(purchasedSafes);
+                break;
             default:
               console.warn(`Unhandled key in saveToCloudStorage: ${key}`);
               continue; // Skip this iteration if the key is not recognized
@@ -396,6 +462,9 @@ export const TotalElapsedProvider = ({ children }) => {
       appMonitoringOn, setAppMonitoringOn: setAppMonitoringOnWithTracking,
       manageOverlayOn, setManageOverlayOn: setManageOverlayOnWithTracking,
       totalTimesLockedIn, setTotalTimesLockedIn: setTotalTimesLockedInWithTracking,
+      purchasedColors, setPurchasedColors: setPurchasedColorsWithTracking,
+      purchasedButtons, setPurchasedButtons: setPurchasedButtonsWithTracking,
+      purchasedSafes, setPurchasedSafes: setPurchasedSafesWithTracking,
       lastSyncTime,
       manualSync,
       syncStatus,
