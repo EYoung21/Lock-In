@@ -25,6 +25,8 @@ export const TotalElapsedProvider = ({ children }) => {
   const [purchasedSafes, setPurchasedSafes] = useState(['2DSafe']);
   const [syncStatus, setSyncStatus] = useState('');
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const updateStateWithData = useCallback((data) => {
     console.log('Updating state with data:', data);
 
@@ -156,20 +158,25 @@ export const TotalElapsedProvider = ({ children }) => {
         await AccountSync.initialize();
         console.log('AccountSync initialized');
         await manualSync();
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error during initialization:', error);
       }
     };
-
+  
     initializeData();
   }, [manualSync]);
 
   // Helper function to create state setters with tracking
   const createTrackedSetter = (setState, key) => (value) => {
     setState(value);
-    AccountSync.setItem(key, JSON.stringify(value)).catch(error => {
-      console.error(`Error syncing ${key}:`, error);
-    });
+    if (value !== null && value !== undefined) {
+      AccountSync.setItem(key, JSON.stringify(value)).catch(error => {
+        console.error(`Error syncing ${key}:`, error);
+      });
+    } else {
+      console.warn(`Attempted to sync null/undefined value for ${key}`);
+    }
   };
 
   // Create tracked setters for all relevant states
