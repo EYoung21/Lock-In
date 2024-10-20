@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
 import {
   Text,
   View,
@@ -16,33 +16,10 @@ import { CollapseContext } from './FullApp';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import moment from 'moment';
-// import {PushNotification} from 'react-native-push-notification';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import usePermissionListener from './usePermissionListener'; // Import the hook
-
+import usePermissionListener from './usePermissionListener';
 import { NativeModules } from 'react-native';
 
 const { AppServiceModule } = NativeModules;
-
-// const showNotification = (title, message) => {
-//   PushNotification.localNotification({
-//     channelId: 'your-channel-id',
-//     autoCancel: true,
-//     largeIcon: 'ic_launcher',
-//     smallIcon: 'ic_notification',
-//     bigText: message,
-//     subText: 'Local Notification Demo',
-//     color: 'blue',
-//     vibrate: true,
-//     vibration: 300,
-//     title: title,
-//     message: message,
-//     playSound: true,
-//     soundName: 'default',
-//     importance: 'high',
-//     priority: 'high',
-//   });
-// };
 
 const getTimerColor = (backgroundPalette) => {
   return backgroundPalette === '#000000' ? '#FFFFFF' : '#0d0d0d';
@@ -83,20 +60,6 @@ const HomeScreen = () => {
   const [isActionInProgress, setIsActionInProgress] = useState(false);
   const [timerStartTime, setTimerStartTime] = useState(Date.now());
 
-  // When your blacklisted apps change, update the native module
-  // useEffect(() => {
-  //   if (appMonitoringEnabled) {
-  //     AppServiceModule.updateBlacklistedApps(blacklistedApps)
-  //       .then(() => {
-  //         console.log("Blacklisted apps updated successfully");
-  //       })
-  //       .catch((error) => {
-  //         console.error("Failed to update blacklisted apps:", error);
-  //       });
-  //   }
-  // }, [blacklistedApps]);
-
-  //uses hook
   usePermissionListener(
     setAppMonitoringEnabled,
     setManageOverlayEnabled,
@@ -105,30 +68,22 @@ const HomeScreen = () => {
     isLockedIn,
   );
 
-  // usePermissionListener(setAppMonitoringEnabled, setManageOverlayEnabled, setAppMonitoringOn, setManageOverlayOn, isLockedIn);
-
-  // useEffect(() => {
-  //   setTotalCurrency(500000);
-  // }, []);
-
-  // // Start the service when monitoring is enabled
-  // useEffect(() => {
-  //   if (isLockedIn && appMonitoringEnabled && manageOverlayEnabled && appMonitoringOn && manageOverlayOn) {
-  //     AppServiceModule.startService()
-  //       .then(() => console.log("Service started successfully"))
-  //       .catch(error => console.error("Failed to start service:", error));
-  //   } else {
-  //     AppServiceModule.stopService()
-  //       .then(() => console.log("Service stopped successfully"))
-  //       .catch(error => console.error("Failed to stop service:", error));
-  //   }
-  // }, [isLockedIn, appMonitoringEnabled]);
+  useEffect(() => {
+    console.log('HomeScreen: Context values updated', {
+      backgroundColor,
+      buttonColor,
+      buttonBorder,
+      safe,
+      totalCurrency,
+    });
+  }, [backgroundColor, buttonColor, buttonBorder, safe, totalCurrency]);
 
   useEffect(() => {
     if (safe) {
       const newImageSource = getSafeImage(safe, 'image2');
       if (newImageSource) {
         setImageSource(newImageSource);
+        console.log('HomeScreen: Updated safe image', { safe, newImageSource });
       } else {
         console.error(`No image found for safe: ${safe}`);
       }

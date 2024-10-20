@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { TotalElapsedContext } from './TotalElapsedContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -82,140 +82,63 @@ const customizations = {
 };
 
 const CustomizationScreen = () => {
-  const { totalCurrency, setTotalCurrency, backgroundColor, setBackgroundColor, buttonColor, setButtonColor, buttonBorder, setButtonBorder, safe, setSafe } = useContext(TotalElapsedContext);
-  const [purchasedColors, setPurchasedColors] = useState<string[]>(['#FFFFFF']); //sets default background
-  const [purchasedButtons, setPurchasedButtons] = useState<string[]>(['#000000']); //sets default button
-  const [purchasedSafes, setPurchasedSafes] = useState<string[]>(['2DSafe']);
-
-  // useEffect(() => {
-  //   setTotalCurrency(50000000)
-
-  //   // resetAsyncStorage(); // Uncomment this line to reset AsyncStorage
-  // }, []); // You can comment this useEffect out after testing
-
-
-  // Add this useEffect for resetting AsyncStorage for testing
-  useEffect(() => {
-    const resetAsyncStorage = async () => {
-      try {
-        await AsyncStorage.removeItem('purchasedColors');
-        await AsyncStorage.removeItem('purchasedButtons');
-        await AsyncStorage.removeItem('purchasedSafes');
-        await AsyncStorage.removeItem('backgroundColor');
-        await AsyncStorage.removeItem('buttonColor');
-        await AsyncStorage.removeItem('buttonBorder');
-        await AsyncStorage.removeItem('safe');
-        
-        // Optionally reset to default values if needed
-        await AsyncStorage.setItem('purchasedColors', JSON.stringify(['#FFFFFF']));
-        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#000000']));
-        await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['2DSafe']));
-        await AsyncStorage.setItem('backgroundColor', '#FFFFFF');
-        await AsyncStorage.setItem('buttonColor', '#000000');
-        await AsyncStorage.setItem('buttonBorder', '#696969');
-      } catch (error) {
-        console.error('Failed to reset AsyncStorage', error);
-      }
-    };
-
-    // resetAsyncStorage(); // Uncomment this line to reset AsyncStorage
-  }, []); // You can comment this useEffect out after testing
+  const { 
+    totalCurrency, setTotalCurrency,
+    backgroundColor, setBackgroundColor,
+    buttonColor, setButtonColor,
+    buttonBorder, setButtonBorder,
+    safe, setSafe,
+    purchasedColors, setPurchasedColors,
+    purchasedButtons, setPurchasedButtons,
+    purchasedSafes, setPurchasedSafes
+  } = useContext(TotalElapsedContext);
 
   useEffect(() => {
-    const loadPurchasedColors = async () => {
-      try {
-        const colors = await AsyncStorage.getItem('purchasedColors');
-        if (colors) {
-          const parsedColors = JSON.parse(colors);
-          setPurchasedColors([...parsedColors, '#FFFFFF']);
-        } else {
-          await AsyncStorage.setItem('purchasedColors', JSON.stringify(['#FFFFFF']));
-        }
-      } catch (error) {
-        console.error('Failed to load purchased colors from storage', error);
-      }
-    };
+    console.log('CustomizationScreen: Context values updated', {
+      totalCurrency,
+      backgroundColor,
+      buttonColor,
+      buttonBorder,
+      safe,
+      purchasedColors,
+      purchasedButtons,
+      purchasedSafes,
+    });
+  }, [totalCurrency, backgroundColor, buttonColor, buttonBorder, safe, purchasedColors, purchasedButtons, purchasedSafes]);
 
-    loadPurchasedColors();
-  }, []);
-
-  useEffect(() => {
-    const loadPurchasedButtons = async () => {
-      try {
-        const buttons = await AsyncStorage.getItem('purchasedButtons');
-        if (buttons) {
-          const parsedButtons = JSON.parse(buttons);
-          setPurchasedButtons([...parsedButtons, '#000000']);
-        } else {
-          await AsyncStorage.setItem('purchasedButtons', JSON.stringify(['#000000']));
-        }
-      } catch (error) {
-        console.error('Failed to load purchased buttons from storage', error);
-      }
-    };
-
-    loadPurchasedButtons();
-  }, []);
-
-
-  useEffect(() => {
-    const loadPurchasedSafes = async () => {
-      try {
-        const safes = await AsyncStorage.getItem('purchasedSafes');
-        if (safes) {
-          const parsedSafes = JSON.parse(safes);
-          setPurchasedSafes([...parsedSafes, '2DSafe']);
-        } else {
-          await AsyncStorage.setItem('purchasedSafes', JSON.stringify(['2DSafe']));
-        }
-      } catch (error) {
-        console.error('Failed to load purchased safes from storage', error);
-      }
-    };
-
-    loadPurchasedSafes();
-  }, []);
-
-  const handlePurchase = async (item: CustomizationItem) => {
+  const handlePurchase = useCallback((item) => {
     if (totalCurrency >= item.cost || purchasedColors.includes(item.color)) {
       if (!purchasedColors.includes(item.color)) {
-        setTotalCurrency(totalCurrency - item.cost);
-        const newPurchasedColors = [...purchasedColors, item.color];
-        setPurchasedColors(newPurchasedColors);
-        await AsyncStorage.setItem('purchasedColors', JSON.stringify(newPurchasedColors));
+        setTotalCurrency(prev => prev - item.cost);
+        setPurchasedColors(prev => [...prev, item.color]);
       }
       setBackgroundColor(item.color);
-      await AsyncStorage.setItem('backgroundColor', item.color);
+      console.log('CustomizationScreen: Purchased background color', { color: item.color });
     }
-  };
+  }, [totalCurrency, purchasedColors, setTotalCurrency, setPurchasedColors, setBackgroundColor]);
 
-  const handlePurchaseButton = async (item: CustomizationButton) => {
+  const handlePurchaseButton = useCallback((item) => {
     if (totalCurrency >= item.cost || purchasedButtons.includes(item.color)) {
       if (!purchasedButtons.includes(item.color)) {
-        setTotalCurrency(totalCurrency - item.cost);
-        const newPurchasedButtons = [...purchasedButtons, item.color];
-        setPurchasedButtons(newPurchasedButtons);
-        await AsyncStorage.setItem('purchasedButtons', JSON.stringify(newPurchasedButtons));
+        setTotalCurrency(prev => prev - item.cost);
+        setPurchasedButtons(prev => [...prev, item.color]);
       }
       setButtonColor(item.color);
       setButtonBorder(item.border);
-      await AsyncStorage.setItem('buttonColor', item.color);
-      await AsyncStorage.setItem('buttonBorder', item.border);
+      console.log('CustomizationScreen: Purchased button', { color: item.color, border: item.border });
     }
-  };
+  }, [totalCurrency, purchasedButtons, setTotalCurrency, setPurchasedButtons, setButtonColor, setButtonBorder]);
 
-  const handlePurchaseSafe = async (item: CustomizationSafe) => {
+  const handlePurchaseSafe = useCallback((item) => {
     if (totalCurrency >= item.cost || purchasedSafes.includes(item.id)) {
       if (!purchasedSafes.includes(item.id)) {
-        setTotalCurrency(totalCurrency - item.cost);
-        const newPurchasedSafes = [...purchasedSafes, item.id];
-        setPurchasedSafes(newPurchasedSafes);
-        await AsyncStorage.setItem('purchasedSafes', JSON.stringify(newPurchasedSafes));
+        setTotalCurrency(prev => prev - item.cost);
+        setPurchasedSafes(prev => [...prev, item.id]);
       }
       setSafe(item.id);
-      await AsyncStorage.setItem('safe', item.id);
+      console.log('CustomizationScreen: Purchased safe', { safeId: item.id });
     }
-  };
+  }, [totalCurrency, purchasedSafes, setTotalCurrency, setPurchasedSafes, setSafe]);
 
   return (
     <View style={styles.container}>
@@ -237,7 +160,7 @@ const CustomizationScreen = () => {
             />
           </View>
         )}
-        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
+        contentContainerStyle={styles.flatListContent}
       />
   
       <Text style={styles.subtitle}>Background</Text>
@@ -256,7 +179,7 @@ const CustomizationScreen = () => {
             />
           </View>
         )}
-        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
+        contentContainerStyle={styles.flatListContent}
       />
   
       <Text style={styles.subtitle}>Safe</Text>
@@ -274,7 +197,7 @@ const CustomizationScreen = () => {
             </TouchableOpacity>
           </View>
         )}
-        contentContainerStyle={styles.flatListContent} // Add this to fix items being cut off
+        contentContainerStyle={styles.flatListContent}
       />
     </View>
   );  

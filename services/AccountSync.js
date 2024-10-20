@@ -11,6 +11,7 @@ class AccountSync {
     this.syncEnabled = false;
     this.isOnline = true;
     this.queue = [];
+    this.listeners = new Set();
   }
 
   async initialize() {
@@ -40,18 +41,23 @@ class AccountSync {
   }
 
   async fullSync() {
-    if (!this.user) return;
-
+    if (!this.user) {
+      console.log('No user logged in, skipping full sync');
+      return;
+    }
+  
     try {
-      // Fetch all data from Firebase
+      console.log('Starting full sync');
       const snapshot = await database().ref(`users/${this.user.uid}/data`).once('value');
       const remoteData = snapshot.val() || {};
-
-      // Update local storage with all remote data
+      console.log('Remote data fetched:', remoteData);
+  
       for (const [key, value] of Object.entries(remoteData)) {
-        await AsyncStorage.setItem(key, JSON.stringify(value));
+        console.log(`Updating local data: ${key}`);
+        await this.updateLocalData(key, value);
       }
-
+  
+      this.notifyListeners('fullSyncCompleted', remoteData);
       console.log('Full sync completed');
     } catch (error) {
       console.error('Error during full sync:', error);
@@ -70,7 +76,7 @@ class AccountSync {
       this.remoteListener();
       this.remoteListener = null;
     }
-    await this.clearLocalData(); // Clear local data when sync stops (e.g., on logout)
+    await this.clearLocalData();
   }
 
   setupRemoteListener() {
@@ -86,6 +92,7 @@ class AccountSync {
 
   async updateLocalData(key, value) {
     await AsyncStorage.setItem(key, JSON.stringify(value));
+    this.notifyListeners('dataChanged', { [key]: value });
   }
 
   async setItem(key, value) {
@@ -116,6 +123,7 @@ class AccountSync {
     if (!this.syncEnabled) return;
 
     await AsyncStorage.removeItem(key);
+    this.notifyListeners('dataChanged', { [key]: null });
 
     if (this.isOnline) {
       try {
@@ -169,6 +177,20 @@ class AccountSync {
     const allKeys = await AsyncStorage.getAllKeys();
     const userDataKeys = allKeys.filter(key => !key.startsWith('@')); // Exclude system keys
     await AsyncStorage.multiRemove(userDataKeys);
+    this.notifyListeners('dataCleared');
+    console.log('Local data cleared, notified listeners');
+  }
+
+  addListener(listener) {
+    this.listeners.add(listener);
+  }
+
+  removeListener(listener) {
+    this.listeners.delete(listener);
+  }
+
+  notifyListeners(event, data) {
+    this.listeners.forEach(listener => listener(event, data));
   }
 }
 
