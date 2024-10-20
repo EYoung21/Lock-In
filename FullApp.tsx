@@ -8,7 +8,7 @@ import CustomizationScreen from './CustomizationScreen';
 import StatisticsScreen from './StatisticsScreen';
 import LoginScreen from './LoginScreen';
 import SignUpScreen from './SignupScreen';
-import { StatusBar } from 'react-native';
+import { StatusBar, View, ActivityIndicator, Text } from 'react-native';
 import { TotalElapsedProvider, TotalElapsedContext } from './TotalElapsedContext';
 import auth from '@react-native-firebase/auth';
 
@@ -46,34 +46,66 @@ const AppDrawer = () => {
 const FullAppContent = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
+  const [isReady, setIsReady] = useState(false);
   const { manualSync } = useContext(TotalElapsedContext);
 
-  const onAuthStateChanged = useCallback(async (user) => {
+  const onAuthStateChanged = useCallback((user) => {
     setUser(user);
-    if (user) {
-      console.log('User logged in, triggering manual sync');
-      try {
-        await manualSync();
-        console.log('Manual sync completed after user login');
-      } catch (error) {
-        console.error('Error during manual sync after login:', error);
-      }
-    }
-    if (initializing) setInitializing(false);
-  }, [manualSync, initializing]);
+    setInitializing(false);
+  }, []);
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return () => subscriber(); // unsubscribe on unmount
   }, [onAuthStateChanged]);
 
-  if (initializing) return null;
+  useEffect(() => {
+    if (!initializing && user) {
+      console.log('User logged in, preparing to sync');
+      // Delay the sync to ensure components are fully mounted
+      const timer = setTimeout(() => {
+        console.log('Starting manual sync after user login');
+        manualSync()
+          .then(() => {
+            console.log('Manual sync completed after user login');
+            setIsReady(true);
+          })
+          .catch((error) => {
+            console.error('Error during manual sync after login:', error);
+            setIsReady(true); // Set ready even if sync fails to avoid app getting stuck
+          });
+      }, 1000); // Increased delay to 1 second
+
+      return () => clearTimeout(timer);
+    } else if (!initializing && !user) {
+      // If not initializing and no user, we're ready to show login screen
+      setIsReady(true);
+    }
+  }, [initializing, user, manualSync]);
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+        <Text>Initializing App...</Text>
+      </View>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+        <Text>{user ? 'Syncing Data...' : 'Preparing App...'}</Text>
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
       {user ? <AppDrawer /> : <AuthStack />}
     </NavigationContainer>
-  );//comment
+  );
 };
 
 const FullApp = () => {

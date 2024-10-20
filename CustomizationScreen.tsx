@@ -109,8 +109,8 @@ const CustomizationScreen = () => {
   const handlePurchase = useCallback((item) => {
     if (totalCurrency >= item.cost || purchasedColors.includes(item.color)) {
       if (!purchasedColors.includes(item.color)) {
-        setTotalCurrency(prev => prev - item.cost);
-        setPurchasedColors(prev => [...prev, item.color]);
+        setTotalCurrency(prevCurrency => prevCurrency - item.cost);
+        setPurchasedColors(prevColors => [...prevColors, item.color]);
       }
       setBackgroundColor(item.color);
       console.log('CustomizationScreen: Purchased background color', { color: item.color });
@@ -120,8 +120,8 @@ const CustomizationScreen = () => {
   const handlePurchaseButton = useCallback((item) => {
     if (totalCurrency >= item.cost || purchasedButtons.includes(item.color)) {
       if (!purchasedButtons.includes(item.color)) {
-        setTotalCurrency(prev => prev - item.cost);
-        setPurchasedButtons(prev => [...prev, item.color]);
+        setTotalCurrency(prevCurrency => prevCurrency - item.cost);
+        setPurchasedButtons(prevButtons => [...prevButtons, item.color]);
       }
       setButtonColor(item.color);
       setButtonBorder(item.border);
@@ -130,15 +130,15 @@ const CustomizationScreen = () => {
   }, [totalCurrency, purchasedButtons, setTotalCurrency, setPurchasedButtons, setButtonColor, setButtonBorder]);
 
   const handlePurchaseSafe = useCallback((item) => {
-    if (totalCurrency >= item.cost || purchasedSafes.includes(item.id)) {
-      if (!purchasedSafes.includes(item.id)) {
-        setTotalCurrency(prev => prev - item.cost);
-        setPurchasedSafes(prev => [...prev, item.id]);
-      }
-      setSafe(item.id);
-      console.log('CustomizationScreen: Purchased safe', { safeId: item.id });
+  if (totalCurrency >= item.cost || purchasedSafes.includes(item.id)) {
+    if (!purchasedSafes.includes(item.id)) {
+      setTotalCurrency(prevCurrency => prevCurrency - item.cost);
+      setPurchasedSafes(prevSafes => [...prevSafes, item.id]);
     }
-  }, [totalCurrency, purchasedSafes, setTotalCurrency, setPurchasedSafes, setSafe]);
+    setSafe(item.id);
+    console.log('CustomizationScreen: Purchased safe', { safeId: item.id });
+  }
+}, [totalCurrency, purchasedSafes, setTotalCurrency, setPurchasedSafes, setSafe]);
 
   return (
     <View style={styles.container}>

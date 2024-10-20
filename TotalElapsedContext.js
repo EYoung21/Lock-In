@@ -33,81 +33,85 @@ export const TotalElapsedProvider = ({ children }) => {
     if (data.totalElapsedTime !== undefined) {
       const parsedTime = parseFloat(data.totalElapsedTime);
       console.log('Setting totalElapsedTime:', parsedTime);
-      setTotalElapsedTime(parsedTime);
+      setTotalElapsedTimeWithTracking(parsedTime);
     }
 
     if (data.totalCurrency !== undefined) {
       const parsedCurrency = parseFloat(data.totalCurrency);
       console.log('Setting totalCurrency:', parsedCurrency);
-      setTotalCurrency(parsedCurrency);
+      setTotalCurrencyWithTracking(parsedCurrency);
     }
 
     if (data.dailyEntries) {
       const parsedEntries = typeof data.dailyEntries === 'string' ? JSON.parse(data.dailyEntries) : data.dailyEntries;
       console.log('Setting dailyEntries:', parsedEntries);
-      setDailyEntries(parsedEntries);
+      setDailyEntriesWithTracking(parsedEntries);
     }
 
     if (data.backgroundColor) {
-      console.log('Setting backgroundColor:', data.backgroundColor);
-      setBackgroundColor(data.backgroundColor);
+      const parsedColor = typeof data.backgroundColor === 'string' ? JSON.parse(data.backgroundColor) : data.backgroundColor;
+      console.log('Setting backgroundColor:', parsedColor);
+      setBackgroundColorWithTracking(parsedColor);
     }
 
     if (data.buttonColor) {
-      console.log('Setting buttonColor:', data.buttonColor);
-      setButtonColor(data.buttonColor);
+      const parsedColor = typeof data.buttonColor === 'string' ? JSON.parse(data.buttonColor) : data.buttonColor;
+      console.log('Setting buttonColor:', parsedColor);
+      setButtonColorWithTracking(parsedColor);
     }
 
     if (data.buttonBorder) {
-      console.log('Setting buttonBorder:', data.buttonBorder);
-      setButtonBorder(data.buttonBorder);
+      const parsedBorder = typeof data.buttonBorder === 'string' ? JSON.parse(data.buttonBorder) : data.buttonBorder;
+      console.log('Setting buttonBorder:', parsedBorder);
+      setButtonBorderWithTracking(parsedBorder);
     }
 
     if (data.safe) {
-      console.log('Setting safe:', data.safe);
-      setSafe(data.safe);
+      const parsedSafe = typeof data.safe === 'string' ? JSON.parse(data.safe) : data.safe;
+      console.log('Setting safe:', parsedSafe);
+      setSafeWithTracking(parsedSafe);
     }
 
     if (data.blacklistedApps) {
       const parsedApps = typeof data.blacklistedApps === 'string' ? JSON.parse(data.blacklistedApps) : data.blacklistedApps;
       console.log('Setting blacklistedApps:', parsedApps);
-      setBlacklistedApps(parsedApps);
+      setBlacklistedAppsWithTracking(parsedApps);
     }
 
     if (data.totalTimesLockedIn !== undefined) {
       const parsedLockedIn = parseInt(data.totalTimesLockedIn, 10);
       console.log('Setting totalTimesLockedIn:', parsedLockedIn);
-      setTotalTimesLockedIn(parsedLockedIn);
+      setTotalTimesLockedInWithTracking(parsedLockedIn);
     }
 
     if (data.purchasedColors) {
       const parsedColors = typeof data.purchasedColors === 'string' ? JSON.parse(data.purchasedColors) : data.purchasedColors;
       console.log('Setting purchasedColors:', parsedColors);
-      setPurchasedColors(parsedColors);
+      setPurchasedColorsWithTracking(parsedColors);
     }
 
     if (data.purchasedButtons) {
       const parsedButtons = typeof data.purchasedButtons === 'string' ? JSON.parse(data.purchasedButtons) : data.purchasedButtons;
       console.log('Setting purchasedButtons:', parsedButtons);
-      setPurchasedButtons(parsedButtons);
+      setPurchasedButtonsWithTracking(parsedButtons);
     }
 
     if (data.purchasedSafes) {
       const parsedSafes = typeof data.purchasedSafes === 'string' ? JSON.parse(data.purchasedSafes) : data.purchasedSafes;
       console.log('Setting purchasedSafes:', parsedSafes);
-      setPurchasedSafes(parsedSafes);
+      setPurchasedSafesWithTracking(parsedSafes);
     }
 
     if (data.appMonitoringOn !== undefined) {
       const parsedMonitoring = data.appMonitoringOn === true || data.appMonitoringOn === 'true';
       console.log('Setting appMonitoringOn:', parsedMonitoring);
-      setAppMonitoringOn(parsedMonitoring);
+      setAppMonitoringOnWithTracking(parsedMonitoring);
     }
 
     if (data.manageOverlayOn !== undefined) {
       const parsedOverlay = data.manageOverlayOn === true || data.manageOverlayOn === 'true';
       console.log('Setting manageOverlayOn:', parsedOverlay);
-      setManageOverlayOn(parsedOverlay);
+      setManageOverlayOnWithTracking(parsedOverlay);
     }
   }, []);
 
@@ -176,6 +180,10 @@ export const TotalElapsedProvider = ({ children }) => {
       });
     } else {
       console.warn(`Attempted to sync null/undefined value for ${key}`);
+      // Optionally, you can remove the item if it's null/undefined
+      AccountSync.removeItem(key).catch(error => {
+        console.error(`Error removing ${key}:`, error);
+      });
     }
   };
 
