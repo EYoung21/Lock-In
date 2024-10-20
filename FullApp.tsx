@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,7 +9,7 @@ import StatisticsScreen from './StatisticsScreen';
 import LoginScreen from './LoginScreen';
 import SignUpScreen from './SignupScreen';
 import { StatusBar } from 'react-native';
-import { TotalElapsedProvider } from './TotalElapsedContext';
+import { TotalElapsedProvider, TotalElapsedContext } from './TotalElapsedContext';
 import auth from '@react-native-firebase/auth';
 
 const Drawer = createDrawerNavigator();
@@ -43,27 +43,43 @@ const AppDrawer = () => {
   );
 };
 
-const FullApp = () => {
+const FullAppContent = () => {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
+  const { manualSync } = useContext(TotalElapsedContext);
 
-  function onAuthStateChanged(user) {
+  const onAuthStateChanged = useCallback(async (user) => {
     setUser(user);
+    if (user) {
+      console.log('User logged in, triggering manual sync');
+      try {
+        await manualSync();
+        console.log('Manual sync completed after user login');
+      } catch (error) {
+        console.error('Error during manual sync after login:', error);
+      }
+    }
     if (initializing) setInitializing(false);
-  }
+  }, [manualSync, initializing]);
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
+    return () => subscriber(); // unsubscribe on unmount
+  }, [onAuthStateChanged]);
 
   if (initializing) return null;
 
   return (
+    <NavigationContainer>
+      {user ? <AppDrawer /> : <AuthStack />}
+    </NavigationContainer>
+  );//comment
+};
+
+const FullApp = () => {
+  return (
     <TotalElapsedProvider>
-      <NavigationContainer>
-        {user ? <AppDrawer /> : <AuthStack />}
-      </NavigationContainer>
+      <FullAppContent />
     </TotalElapsedProvider>
   );
 };
